@@ -1,6 +1,6 @@
 sealTable = sealTable or {}
 
-function FantasySealCast( keys )
+function macroburstUpdateCooldown( keys )
 	local caster = keys.caster
 	sealTable[caster] = sealTable[caster] or {}
 	sealTable[caster].location = caster:GetAbsOrigin()

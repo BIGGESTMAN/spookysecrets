@@ -353,7 +353,7 @@
 		//-------------------------------------------------------------------------------------------------------------
 		"precache"
 		{
-			"soundfile"			"sounds/weapons/hero/weaver/time_lapse.vsnd_c"
+			//"soundfile"			"sounds/weapons/hero/weaver/time_lapse.vsnd_c"
 			"particle"			"particles/units/heroes/hero_sven/sven_spell_great_cleave.vpcf"
 		}
 
@@ -457,8 +457,8 @@
 
 		"precache"
 		{
-			"soundfile"			"soundevents/game_sounds_heroes/game_sounds_luna.vsndevts"
-			"particle"			"particles/units/heroes/hero_wisp/wisp_ambient_light.vpcf"
+			//"soundfile"			"soundevents/game_sounds_heroes/game_sounds_luna.vsndevts"
+			"particle"			"particles/units/heroes/hero_ancient_apparition/ancient_apparition_base_attack.vpcf"
 		}
 
 
@@ -501,6 +501,7 @@
 				"Function"			"yinYangOrbsDummyCreated"
 				"modifier_slow" 	"modifier_yin_yang_orbs_slow"
 				"modifier_silence"	"modifier_yin_yang_orbs_silence"
+				"particle"			"particles/units/heroes/hero_ancient_apparition/ancient_apparition_base_attack.vpcf"
 			}
 
 		}
@@ -527,6 +528,7 @@
 						"Function"			"yinYangOrbsDummyCreated"
 						"modifier_slow" 	"modifier_yin_yang_orbs_slow"
 						"modifier_silence"	"modifier_yin_yang_orbs_silence"
+						"particle"			"particles/units/heroes/hero_ancient_apparition/ancient_apparition_base_attack.vpcf"
 					}
 				}
 			}
@@ -904,7 +906,10 @@
 			"particle"	"particles/units/heroes/hero_omniknight/omniknight_guardian_angel_halo_buff.vpcf"
 			"particle"  "particles/status_fx/status_effect_guardian_angel.vpcf"
 			"particle"  "particles/units/heroes/hero_omniknight/omniknight_guardian_angel_ally.vpcf"
-			"particle"	"particles/units/heroes/hero_phoenix/phoenix_supernova_egg_ring_start.vpcf"
+			//"particle"	"particles/units/heroes/hero_phoenix/phoenix_supernova_egg_ring_start.vpcf"
+			//"particle"	"particles/phoenix_supernova_egg_ring_start.vpcf"
+			//"particle"	"particles/units/heroes/hero_phoenix/phoenix_fire_spirit_ground_ribbon.vpcf"
+			"particle"	"particles/units/heroes/hero_phantom_assassin/phantom_assassin_blur.vpcf"
 		}
 
 		// Casting
@@ -945,6 +950,11 @@
 			{
 				"var_type"				"FIELD_INTEGER"
 				"damage_interval"		"1"
+			}
+			"05"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"rot_radius"			"250"
 			}
 		}
 
@@ -992,30 +1002,9 @@
 
 					"AttachEffect"
 					{
-						"EffectName"		"particles/units/heroes/hero_phoenix/phoenix_supernova_egg_ring_start.vpcf"
-						"EffectAttachType"	"follow_overhead"
+						"EffectName"		"particles/units/heroes/hero_phantom_assassin/phantom_assassin_blur.vpcf"
+						"EffectAttachType"	"follow_origin"
 						"Target"			"CASTER"
-
-						"ControlPoints"
-						{
-							"00"	"1000 1000 1000"
-							"01"	"1000 1000 1000"
-							"02"	"1000 1000 1000"
-						}
-					}
-
-					"AttachEffect"
-					{
-						"EffectName"        "particles/units/heroes/hero_phoenix/phoenix_supernova_egg_glow.vpcf"
-						"EffectAttachType"  "follow_origin"
-						"Target"            "CASTER"
-
-						"ControlPoints"
-						{
-							"00"	"1000 1000 1000"
-							"01"	"1000 1000 1000"
-							"02"	"1000 1000 1000"
-						}
 					}
 				}
 
@@ -1077,15 +1066,17 @@
 
 		// Casting
 		//-------------------------------------------------------------------------------------------------------------
-		"AbilityCastPoint"				"0.3"
+		"AbilityCastPoint"				"0"
 		
 		// Time		
 		//-------------------------------------------------------------------------------------------------------------
-		"AbilityCooldown"				"120 110 100"
+		"AbilityCooldown"				"650 550 450 350"
 
 		// Cost
 		//-------------------------------------------------------------------------------------------------------------
-		"AbilityManaCost"				"150 200 250"
+		"AbilityManaCost"				"0"
+
+		"AbilityDamage"					"90 135 180 225"
 
 		// Special
 		//-------------------------------------------------------------------------------------------------------------
@@ -1094,25 +1085,54 @@
 			"01"
 			{
 				"var_type"				"FIELD_INTEGER"
-				"duration"				"6 8 10"
+				"movespeed"				"6 8 10 12"
 				"_value"				"DOTA_Tooltip_Ability_Fantasy_Nature_Duration"
 			}
 			"02"
 			{
 				"var_type"				"FIELD_INTEGER"
-				"damage"				"60 85 110"
+				"projectile_speed"		"1800"
 				"_value"				"DOTA_Tooltip_Ability_Fantasy_Nature_Damage"
 			}
 			"03"
 			{
 				"var_type"				"FIELD_INTEGER"
-				"radius"				"350"
+				"range"					"550"
 				"_value"				"DOTA_Tooltip_Ability_Fantasy_Nature_Radius"
 			}
 			"04"
 			{
-				"var_type"				"FIELD_INTEGER"
-				"damage_interval"		"1"
+				"var_type"				"FIELD_FLOAT"
+				"cooldown_check_interval" "0.1"
+			}
+		}
+
+		"OnToggleOn"
+		{
+			"ApplyModifier"
+			{
+				"ModifierName"	"modifier_macroburst_toggle"
+				"Target"		"CASTER"
+			}
+		}
+
+		"OnToggleOff"
+		{
+			"RemoveModifier"
+			{
+				"ModifierName"	"modifier_macroburst_toggle"
+				"Target"		"CASTER"
+			}
+		}
+
+		"ThinkInterval"	"%cooldown_check_interval"
+
+		"OnIntervalThink"
+		{
+			"RunScript"
+			{
+				"ScriptFile"	"heroes/hero_aya/macroburst.lua"
+				"Function"		"macroburstUpdateCooldown"
 			}
 		}
 	}

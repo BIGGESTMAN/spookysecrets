@@ -1,50 +1,9 @@
-particle_names = {base = "particles/units/heroes/hero_wisp/wisp_ambient_light.vpcf"}
-projectile_speeds = {base = 900}
-
---[[
-	author: jacklarnes
-	email: christucket@gmail.com
-	reddit: /u/jacklarnes
-	Date: 03.04.2015.
-
-	Much help from Noya and BMD
-]]
-
---[[
-	possible concerns that i haven't tested:
-	  attacking your allied hero (from spells like WW ultimate)
-	  i think if you try to deny an allied creep (or hero) it'll bounce to further allied units... 
-	    not sure if desired results, fairly easy to "fix" though, just change the team number of the dummy unit to always be the enemy of the hero
-]]
-
-
-
--- this finds the units particle infomation, if they're melee then it'll just use lunas default glaives
--- the results are stored in partile_names and projectile_speeds so it doesn't have to reload the KV file each time
-function findProjectileInfo(class_name)
-	if particle_names[class_name] ~= nil then
-		return particle_names[class_name], projectile_speeds[class_name]
-	end
-
-	kv_heroes = LoadKeyValues("scripts/npc/npc_heroes.txt")
-	kv_hero = kv_heroes[class_name]
-
-	if kv_hero["ProjectileModel"] ~= nil and kv_hero["ProjectileModel"] ~= "" then
-		particle_names[class_name] = kv_hero["ProjectileModel"]
-		projectile_speeds[class_name] = kv_hero["ProjectileSpeed"]
-	else
-		particle_names[class_name] = particle_names["base"]
-		projectile_speeds[class_name] = projectile_speeds["base"]
-	end
-
-	return particle_names[class_name], projectile_speeds[class_name]
-end
-
-
 function yinYangOrbsCreateDummy( keys )
 	local caster = keys.caster
 	local target = keys.target
 	local ability = keys.ability
+	particle = keys.particle
+	print ("argument particle: ", keys.particle)
 
 	local dummy = CreateUnitByName( "npc_dummy_blank", target:GetAbsOrigin(), false, caster, caster, target:GetTeamNumber() )
 	dummy:AddAbility("yin_yang_orbs_dummy")
@@ -69,10 +28,22 @@ function yinYangOrbsDummyCreated( keys )
 		ability.maxBounces = unit_ability:GetLevelSpecialValueFor("bounces", unit_ability:GetLevel() - 1)
 		ability.bounceRange = unit_ability:GetLevelSpecialValueFor("bounce_range", unit_ability:GetLevel() - 1)
 
-		ability.particle_name, ability.projectile_speed = findProjectileInfo(caster:GetClassname())
+		ability.particle_name = keys.particle
+		ability.projectile_speed = 900
 		first = true
 	else
+		--[[target.RemoveModifierByName(keys.modifier_slow)
+		local alreadySlowed = false;
+		for k,v in pairs(target.findAllModifiers())
+			if ((v.GetModifierMoveSpeedBonus_Constant() < 0) or (v.GetModifierMoveSpeedBonus_Percentage < 0))
+				alreadySlowed = true;
+				break;
+			end
+		end]]
 		ability:ApplyDataDrivenModifier(caster, target, keys.modifier_slow, {})
+		--[[if alreadySlowed
+			ability:ApplyDataDrivenModifier(caster, target, keys.modifier_slow, {})
+		end]]
 	end
 
 	if ability.bounceCount > ability.maxBounces then
