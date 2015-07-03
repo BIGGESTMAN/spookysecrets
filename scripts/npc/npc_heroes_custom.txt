@@ -3,7 +3,7 @@
 	"npc_dota_hero_ancient_apparition_barebones"
 	{
 		"AbilityLayout" 		"4"
-		"override_hero"			"npc_dota_hero_ancient_apparition"
+		"override_hero"			"npc_dota_hero_omniknight"
 		"SoundSet"				"0"	
 		"Ability1"				"fantasy_seal" 
 		"Ability2"				"duplex_barrier" 

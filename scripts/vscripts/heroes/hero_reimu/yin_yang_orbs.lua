@@ -2,8 +2,6 @@ function yinYangOrbsCreateDummy( keys )
 	local caster = keys.caster
 	local target = keys.target
 	local ability = keys.ability
-	particle = keys.particle
-	print ("argument particle: ", keys.particle)
 
 	local dummy = CreateUnitByName( "npc_dummy_blank", target:GetAbsOrigin(), false, caster, caster, target:GetTeamNumber() )
 	dummy:AddAbility("yin_yang_orbs_dummy")
@@ -32,18 +30,32 @@ function yinYangOrbsDummyCreated( keys )
 		ability.projectile_speed = 900
 		first = true
 	else
-		--[[target.RemoveModifierByName(keys.modifier_slow)
+		print ("bomz")
+		target:RemoveModifierByName(keys.modifier_slow)
 		local alreadySlowed = false;
-		for k,v in pairs(target.findAllModifiers())
-			if ((v.GetModifierMoveSpeedBonus_Constant() < 0) or (v.GetModifierMoveSpeedBonus_Percentage < 0))
+		for k,v in pairs(target:FindAllModifiers()) do
+			print ("value: ", v, "; key: ", k)
+			print (v.MODIFIER_PROPERTY_MOVESPEED_BONUS_CONSTANT)
+			print (v.MODIFIER_PROPERTY_MOVESPEED_BASE_OVERRIDE)
+			print (v.MODIFIER_PROPERTY_MOVESPEED_BONUS_PERCENTAGE)
+			print (v.MODIFIER_PROPERTY_MOVESPEED_BONUS_PERCENTAGE_UNIQUE)
+			print (v.MODIFIER_PROPERTY_MOVESPEED_BONUS_UNIQUE)
+			print (v.MODIFIER_PROPERTY_MOVESPEED_ABSOLUTE)
+			print (v.MODIFIER_PROPERTY_MOVESPEED_ABSOLUTE_MIN)
+			print (v.MODIFIER_PROPERTY_MOVESPEED_LIMIT)
+			print (v.MODIFIER_PROPERTY_MOVESPEED_MAX)
+			print ("ms thingy: ", target:GetMoveSpeedModifier(335))
+
+			if ((v.MODIFIER_PROPERTY_MOVESPEED_BONUS_CONSTANT ~= nil and v.MODIFIER_PROPERTY_MOVESPEED_BONUS_CONSTANT < 0) or
+				(v.MODIFIER_PROPERTY_MOVESPEED_BONUS_CONSTANT ~= nil and v.MODIFIER_PROPERTY_MOVESPEED_BONUS_PERCENTAGE < 0)) then
 				alreadySlowed = true;
 				break;
 			end
-		end]]
+		end
 		ability:ApplyDataDrivenModifier(caster, target, keys.modifier_slow, {})
-		--[[if alreadySlowed
+		if alreadySlowed then
 			ability:ApplyDataDrivenModifier(caster, target, keys.modifier_slow, {})
-		end]]
+		end
 	end
 
 	if ability.bounceCount > ability.maxBounces then
