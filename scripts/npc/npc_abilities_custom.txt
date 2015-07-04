@@ -384,7 +384,7 @@
 			{
 				"var_type"				"FIELD_INTEGER"
 				"bounces"				"2 3 4 5"
-				"_value"				"DOTA_Tooltip_Ability_yin_yang_orbs_Orb_Bounces"
+				"_value"				"DOTA_Tooltip_Ability_yin_yang_orbs_Bounces"
 			}
 			"03"
 			{
@@ -1104,7 +1104,7 @@
 			{
 				"var_type"				"FIELD_INTEGER"
 				"movespeed"				"6 8 10 12"
-				"_value"				"DOTA_Tooltip_Ability_macroburst_Move_Speed_Bonus"
+				"_value"				"DOTA_Tooltip_Ability_macroburst_Movespeed"
 			}
 			"02"
 			{
@@ -1314,7 +1314,7 @@
 		//-------------------------------------------------------------------------------------------------------------
 		"precache"
 		{
-			"particle"  "particles/econ/items/windrunner/windrunner_cape_cascade/windrunner_windrun_magic_trail_cascade.vpcf"
+			"particle"  "particles/econ/items/windrunner/windrunner_weapon_rainmaker/windrunner_spell_powershot_rainmaker.vpcf"
 		}
 
 		// Casting
@@ -1340,25 +1340,25 @@
 			{
 				"var_type"				"FIELD_INTEGER"
 				"duration"				"11 14 17"
-				"_value"				"DOTA_Tooltip_Ability_Opening_Wind_Illusionary_Dominance_Duration"
+				"_value"				"DOTA_Tooltip_Ability_opening_wind_Illusionary_Dominance_Duration"
 			}
 			"02"
 			{
 				"var_type"				"FIELD_INTEGER"
 				"speed"					"1500"
-				"_value"				"DOTA_Tooltip_Ability_Opening_Wind_Speed"
+				"_value"				"DOTA_Tooltip_Ability_opening_wind_Speed"
 			}
 			"03"
 			{
 				"var_type"				"FIELD_INTEGER"
 				"radius"				"225"
-				"_value"				"DOTA_Tooltip_Ability_Opening_Wind_Radius"
+				"_value"				"DOTA_Tooltip_Ability_opening_wind_Radius"
 			}
 			"04"
 			{
 				"var_type"				"FIELD_INTEGER"
 				"range"					"1500"
-				"_value"				"DOTA_Tooltip_Ability_Opening_Wind_Range"
+				"_value"				"DOTA_Tooltip_Ability_opening_wind_Range"
 			}
 		}
 
@@ -1367,7 +1367,7 @@
 	        "LinearProjectile"
 	        {
 	            "Target" "POINT"
-	            "EffectName" "particles/econ/items/windrunner/windrunner_cape_cascade/windrunner_windrun_magic_trail_cascade.vpcf"
+	            "EffectName" "particles/econ/items/windrunner/windrunner_weapon_rainmaker/windrunner_spell_powershot_rainmaker.vpcf"
 	            "MoveSpeed" "%speed"
 	            "StartPosition" "attach_attack1"
 	            "StartRadius" "%radius"
@@ -1429,6 +1429,12 @@
 						
 						"sub_ability"	"illusionary_dominance"
 					}
+
+					"RemoveModifier"
+					{
+						"ModifierName"	"modifier_illusionary_dominance_accelerating"
+						"target"		"CASTER"
+					}
 				}
 			}
 		}
@@ -1447,14 +1453,15 @@
 		"FightRecapLevel"				"2"
 		"AbilityTextureName"			"faceless_void_time_walk"
 		"MaxLevel" 						"3"
-		"RequiredLevel"					"6"
-		"LevelsBetweenUpgrades"			"5"
+		"RequiredLevel"					"26"
+		"LevelsBetweenUpgrades"			"0"
 
 		// Precache
 		//-------------------------------------------------------------------------------------------------------------
 		"precache"
 		{
-
+			"soundfile"					"soundevents/game_sounds_heroes/game_sounds_ember_spirit.vsndevts"
+			"particle"					"particles/units/heroes/hero_ember_spirit/ember_spirit_sleightoffist_tgt.vpcf"
 		}
 
 		// Casting
@@ -1513,6 +1520,62 @@
 				"var_type"				"FIELD_INTEGER"
 				"range"					"700 850 1000"
 				"_value"				"DOTA_Tooltip_Ability_illusionary_dominance_Range"
+			}
+		}
+
+		"OnSpellStart"
+		{
+			"RunScript"
+			{
+				"ScriptFile"			"scripts/vscripts/heroes/hero_aya/illusionary_dominance.lua"
+				"Function"				"illusionaryDominance"
+				"Target"				"POINT"
+				"dashing_modifier"		"modifier_illusionary_dominance_dashing"
+				"accelerating_modifier"	"modifier_illusionary_dominance_accelerating"
+			}
+
+			"ApplyModifier"
+			{
+				"Target" 		"CASTER"
+				"ModifierName"	"modifier_illusionary_dominance_dashing"
+			}
+		}
+
+		"Modifiers"
+		{
+			"modifier_illusionary_dominance_dashing"
+			{
+				"IsHidden"	"1"
+
+				"Aura"        	"modifier_illusionary_dominance_hit"
+				"Aura_Radius" 	"%radius"
+				"Aura_Teams"  	"DOTA_UNIT_TARGET_TEAM_ENEMY"
+				"Aura_Types"  	"DOTA_UNIT_TARGET_HERO | DOTA_UNIT_TARGET_BASIC"
+			}
+
+			"modifier_illusionary_dominance_hit"
+			{
+				"IsHidden"	"1"
+				"OnCreated"
+				{
+					"RunScript"
+					{
+						"ScriptFile"			"scripts/vscripts/heroes/hero_aya/illusionary_dominance.lua"
+						"Function"				"illusionaryDominanceHit"
+						"particle"				"particles/units/heroes/hero_ember_spirit/ember_spirit_sleightoffist_tgt.vpcf"
+						"accelerating_modifier"	"modifier_illusionary_dominance_accelerating"
+					}
+					"FireSound"
+					{
+						"EffectName"	"Hero_EmberSpirit.SleightOfFist.Damage"
+						"Target"		"TARGET"
+					}
+				}
+			}
+
+			"modifier_illusionary_dominance_accelerating"
+			{
+				"IsHidden"	"0"
 			}
 		}
 	}
