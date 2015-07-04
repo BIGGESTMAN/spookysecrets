@@ -568,12 +568,12 @@
 		// General
 		//-------------------------------------------------------------------------------------------------------------
 		"BaseClass"				"ability_datadriven"
-		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_POINT"
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET"
 		"AbilityType"					"DOTA_ABILITY_TYPE_ULTIMATE"
 		"AbilityUnitDamageType"			"DAMAGE_TYPE_MAGICAL"
 		"SpellImmunityType"				"SPELL_IMMUNITY_ENEMIES_NO"
 		"FightRecapLevel"				"2"
-		"AbilityTextureName"			"dark_seer_wall_of_replica"
+		"AbilityTextureName"			"disruptor_kinetic_field"
 
 		// Precache
 		//-------------------------------------------------------------------------------------------------------------
@@ -585,7 +585,6 @@
 		
 		// Casting
 		//-------------------------------------------------------------------------------------------------------------
-		"AbilityCastRange"				"500 900 1300"
 		"AbilityCastPoint"				"0.4 0.4 0.4"
 
 		// Time		
@@ -629,12 +628,7 @@
 			{
 				"var_type"				"FIELD_INTEGER"
 				"tooltip_replica_total_damage_incoming"	"400 400 400"
-			}				
-			"07"
-			{
-				"var_type"				"FIELD_INTEGER"
-				"length"				"1000 1000 1000"
-			}			
+			}
 			"08"
 			{
 				"var_type"				"FIELD_INTEGER"
@@ -660,6 +654,18 @@
 			{
 				"var_type"				"FIELD_INTEGER"
 				"width"					"50 50 50"
+			}
+			"13"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"inner_barrier_radius"	"275"
+				"_value"				"DOTA_Tooltip_Ability_Duplex_Barrier_Inner_Barrier_Radius"
+			}
+			"14"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"outer_barrier_radius"	"550"
+				"_value"				"DOTA_Tooltip_Ability_Duplex_Barrier_Outer_Barrier_Radius"
 			}
 		}
 
@@ -1291,7 +1297,7 @@
 		// General
 		//-------------------------------------------------------------------------------------------------------------
 		"BaseClass"						"ability_datadriven"
-		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_POINT_TARGET"
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_POINT_TARGET | DOTA_ABILITY_BEHAVIOR_NOT_LEARNABLE"
 		"AbilityUnitTargetTeam"			"DOTA_UNIT_TARGET_TEAM_ENEMY"
 		"AbilityUnitTargetType"			"DOTA_UNIT_TARGET_HERO | DOTA_UNIT_TARGET_BASIC"
 		"AbilityUnitDamageType"			"DAMAGE_TYPE_PHYSICAL"
@@ -1299,8 +1305,6 @@
 		"FightRecapLevel"				"2"
 		"AbilityTextureName"			"faceless_void_time_walk"
 		"MaxLevel" 						"3"
-		"RequiredLevel"					"26"
-		"LevelsBetweenUpgrades"			"0"
 
 		// Precache
 		//-------------------------------------------------------------------------------------------------------------

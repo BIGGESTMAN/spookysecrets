@@ -5,87 +5,182 @@ function duplexBarrier( keys )
 	local caster = keys.caster
 	local caster_location = caster:GetAbsOrigin()
 	local caster_team = caster:GetTeamNumber()
-	local target_point = keys.target_points[1]
 	local ability = keys.ability
 	local ability_level = ability:GetLevel() - 1
 
-	-- Cosmetic variables
-	local dummy_modifier = keys.dummy_modifier
-	local wall_particle = keys.wall_particle
-	local dummy_sound = keys.dummy_sound
+	-- Make outer barrier
+	for wall_number=0, 4 do
+		local radius = ability:GetLevelSpecialValueFor("outer_barrier_radius", ability_level)
+		local range = math.sqrt(radius * radius / 2)
+		local prototype_target_point = caster_location + caster:GetForwardVector() * range
+		local target_point = RotatePosition(caster_location, QAngle(0, 90 * wall_number, 0), prototype_target_point)
 
-	-- Ability variables
-	local length = ability:GetLevelSpecialValueFor("length", ability_level) 
-	local width = ability:GetLevelSpecialValueFor("width", ability_level)
-	local duration = ability:GetLevelSpecialValueFor("duration", ability_level)
+		-- Cosmetic variables
+		local dummy_modifier = keys.dummy_modifier
+		local wall_particle = keys.wall_particle
+		local dummy_sound = keys.dummy_sound
 
-	-- Targeting variables
-	local direction = (target_point - caster_location):Normalized()
-	local rotation_point = target_point + direction * length/2
-	local end_point_left = RotatePosition(target_point, QAngle(0,90,0), rotation_point)
-	local end_point_right = RotatePosition(target_point, QAngle(0,-90,0), rotation_point)
+		-- Ability variables
+		local length = range * 2
+		local width = ability:GetLevelSpecialValueFor("width", ability_level)
+		local duration = 1 --ability:GetLevelSpecialValueFor("duration", ability_level)
 
-	local direction_left = (end_point_left - target_point):Normalized() 
-	local direction_right = (end_point_right - target_point):Normalized()
+		-- Targeting variables
+		local direction = (target_point - caster_location):Normalized()
+		local rotation_point = target_point + direction * length/2
+		local end_point_left = RotatePosition(target_point, QAngle(0,90,0), rotation_point)
+		local end_point_right = RotatePosition(target_point, QAngle(0,-90,0), rotation_point)
 
-	-- Calculate the number of secondary dummies that we need to create
-	local num_of_dummies = (((length/2) - width) / (width*2))
-	if num_of_dummies%2 ~= 0 then
-		-- If its an uneven number then make the number even
-		num_of_dummies = num_of_dummies + 1
-	end
-	num_of_dummies = num_of_dummies / 2
+		local direction_left = (end_point_left - target_point):Normalized() 
+		local direction_right = (end_point_right - target_point):Normalized()
 
-	-- Create the main wall dummy
-	local dummy = CreateUnitByName("npc_dummy_blank", end_point_left, false, caster, caster, caster_team)
-	ability:ApplyDataDrivenModifier(dummy, dummy, dummy_modifier, {})
-	EmitSoundOn(dummy_sound, dummy)	
+		-- Calculate the number of secondary dummies that we need to create
+		local num_of_dummies = (((length/2) - width) / (width*2))
+		if num_of_dummies%2 ~= 0 then
+			-- If its an uneven number then make the number even
+			num_of_dummies = num_of_dummies + 1
+		end
+		num_of_dummies = num_of_dummies / 2
 
-	-- Create the secondary dummies for the left half of the wall
-	for i=1,num_of_dummies + 2 do
-		-- Create a dummy on every interval point to fill the whole wall
-		local temporary_point = target_point + (width * 2 * i + (width - width/10)) * direction_left
+		-- Create the main wall dummy
+		local dummy = CreateUnitByName("npc_dummy_blank", end_point_left, false, caster, caster, caster_team)
+		ability:ApplyDataDrivenModifier(dummy, dummy, dummy_modifier, {})
+		EmitSoundOn(dummy_sound, dummy)	
 
-		-- Create the secondary dummy and apply the dummy aura to it, make sure the caster of the aura is the main dummmy
-		-- otherwise you wont be able to save illusion targets
-		local dummy_secondary = CreateUnitByName("npc_dummy_blank", temporary_point, false, caster, caster, caster_team)
-		ability:ApplyDataDrivenModifier(dummy, dummy_secondary, dummy_modifier, {})
+		-- Create the secondary dummies for the left half of the wall
+		for i=1,num_of_dummies + 2 do
+			-- Create a dummy on every interval point to fill the whole wall
+			local temporary_point = target_point + (width * 2 * i + (width - width/10)) * direction_left
 
-		Timers:CreateTimer(duration, function()
-			dummy_secondary:RemoveSelf()
+			-- Create the secondary dummy and apply the dummy aura to it, make sure the caster of the aura is the main dummmy
+			-- otherwise you wont be able to save illusion targets
+			local dummy_secondary = CreateUnitByName("npc_dummy_blank", temporary_point, false, caster, caster, caster_team)
+			ability:ApplyDataDrivenModifier(dummy, dummy_secondary, dummy_modifier, {})
+
+			Timers:CreateTimer(duration, function()
+				dummy_secondary:RemoveSelf()
+			end)
+		end
+
+		-- Create the secondary dummies for the right half of the wall
+		for i=1,num_of_dummies + 2 do
+			-- Create a dummy on every interval point to fill the whole wall
+			local temporary_point = target_point + (width * 2 * i + (width - width/10)) * direction_right
+			
+			-- Create the secondary dummy and apply the dummy aura to it, make sure the caster of the aura is the main dummmy
+			-- otherwise you wont be able to save illusion targets
+			local dummy_secondary = CreateUnitByName("npc_dummy_blank", temporary_point, false, caster, caster, caster_team)
+			ability:ApplyDataDrivenModifier(dummy, dummy_secondary, dummy_modifier, {})
+
+			Timers:CreateTimer(duration, function()
+				dummy_secondary:RemoveSelf()
+			end)
+		end
+
+		-- Save the relevant data
+		dummy.wall_start_time = dummy.wall_start_time or GameRules:GetGameTime()
+		dummy.wall_duration = dummy_wall_duration or duration
+		dummy.wall_level = dummy.wall_level or ability_level
+		dummy.wall_table = dummy.wall_table or {}
+
+		-- Create the wall particle
+		local particle = ParticleManager:CreateParticle(wall_particle, PATTACH_POINT_FOLLOW, dummy)
+		ParticleManager:SetParticleControl(particle, 1, end_point_right)
+
+		-- Set a timer to kill the sound and particle
+		Timers:CreateTimer(duration,function()
+			StopSoundOn(dummy_sound, dummy)
+			dummy:RemoveSelf()
 		end)
 	end
 
-	-- Create the secondary dummies for the right half of the wall
-	for i=1,num_of_dummies + 2 do
-		-- Create a dummy on every interval point to fill the whole wall
-		local temporary_point = target_point + (width * 2 * i + (width - width/10)) * direction_right
-		
-		-- Create the secondary dummy and apply the dummy aura to it, make sure the caster of the aura is the main dummmy
-		-- otherwise you wont be able to save illusion targets
-		local dummy_secondary = CreateUnitByName("npc_dummy_blank", temporary_point, false, caster, caster, caster_team)
-		ability:ApplyDataDrivenModifier(dummy, dummy_secondary, dummy_modifier, {})
+	-- Make inner barrier
+	for wall_number=0, 4 do
+		local radius = ability:GetLevelSpecialValueFor("inner_barrier_radius", ability_level)
+		local range = math.sqrt(radius * radius / 2)
+		local prototype_target_point = caster_location + caster:GetForwardVector() * range
+		-- unused code to turn inner barrier into diamond
+		--prototype_target_point = RotatePosition(caster_location, QAngle(0, 45, 0), prototype_target_point)
+		local target_point = RotatePosition(caster_location, QAngle(0, 90 * wall_number, 0), prototype_target_point)
 
-		Timers:CreateTimer(duration, function()
-			dummy_secondary:RemoveSelf()
+		-- Cosmetic variables
+		local dummy_modifier = keys.dummy_modifier
+		local wall_particle = keys.wall_particle
+		local dummy_sound = keys.dummy_sound
+
+		-- Ability variables
+		local length = range * 2
+		local width = ability:GetLevelSpecialValueFor("width", ability_level)
+		local duration = 1 --ability:GetLevelSpecialValueFor("duration", ability_level)
+
+		-- Targeting variables
+		local direction = (target_point - caster_location):Normalized()
+		local rotation_point = target_point + direction * length/2
+		local end_point_left = RotatePosition(target_point, QAngle(0,90,0), rotation_point)
+		local end_point_right = RotatePosition(target_point, QAngle(0,-90,0), rotation_point)
+
+		local direction_left = (end_point_left - target_point):Normalized() 
+		local direction_right = (end_point_right - target_point):Normalized()
+
+		-- Calculate the number of secondary dummies that we need to create
+		local num_of_dummies = (((length/2) - width) / (width*2))
+		if num_of_dummies%2 ~= 0 then
+			-- If its an uneven number then make the number even
+			num_of_dummies = num_of_dummies + 1
+		end
+		num_of_dummies = num_of_dummies / 2
+
+		-- Create the main wall dummy
+		local dummy = CreateUnitByName("npc_dummy_blank", end_point_left, false, caster, caster, caster_team)
+		ability:ApplyDataDrivenModifier(dummy, dummy, dummy_modifier, {})
+		EmitSoundOn(dummy_sound, dummy)	
+
+		-- Create the secondary dummies for the left half of the wall
+		for i=1,num_of_dummies + 2 do
+			-- Create a dummy on every interval point to fill the whole wall
+			local temporary_point = target_point + (width * 2 * i + (width - width/10)) * direction_left
+
+			-- Create the secondary dummy and apply the dummy aura to it, make sure the caster of the aura is the main dummmy
+			-- otherwise you wont be able to save illusion targets
+			local dummy_secondary = CreateUnitByName("npc_dummy_blank", temporary_point, false, caster, caster, caster_team)
+			ability:ApplyDataDrivenModifier(dummy, dummy_secondary, dummy_modifier, {})
+
+			Timers:CreateTimer(duration, function()
+				dummy_secondary:RemoveSelf()
+			end)
+		end
+
+		-- Create the secondary dummies for the right half of the wall
+		for i=1,num_of_dummies + 2 do
+			-- Create a dummy on every interval point to fill the whole wall
+			local temporary_point = target_point + (width * 2 * i + (width - width/10)) * direction_right
+			
+			-- Create the secondary dummy and apply the dummy aura to it, make sure the caster of the aura is the main dummmy
+			-- otherwise you wont be able to save illusion targets
+			local dummy_secondary = CreateUnitByName("npc_dummy_blank", temporary_point, false, caster, caster, caster_team)
+			ability:ApplyDataDrivenModifier(dummy, dummy_secondary, dummy_modifier, {})
+
+			Timers:CreateTimer(duration, function()
+				dummy_secondary:RemoveSelf()
+			end)
+		end
+
+		-- Save the relevant data
+		dummy.wall_start_time = dummy.wall_start_time or GameRules:GetGameTime()
+		dummy.wall_duration = dummy_wall_duration or duration
+		dummy.wall_level = dummy.wall_level or ability_level
+		dummy.wall_table = dummy.wall_table or {}
+
+		-- Create the wall particle
+		local particle = ParticleManager:CreateParticle(wall_particle, PATTACH_POINT_FOLLOW, dummy)
+		ParticleManager:SetParticleControl(particle, 1, end_point_right)
+
+		-- Set a timer to kill the sound and particle
+		Timers:CreateTimer(duration,function()
+			StopSoundOn(dummy_sound, dummy)
+			dummy:RemoveSelf()
 		end)
 	end
-
-	-- Save the relevant data
-	dummy.wall_start_time = dummy.wall_start_time or GameRules:GetGameTime()
-	dummy.wall_duration = dummy_wall_duration or duration
-	dummy.wall_level = dummy.wall_level or ability_level
-	dummy.wall_table = dummy.wall_table or {}
-
-	-- Create the wall particle
-	local particle = ParticleManager:CreateParticle(wall_particle, PATTACH_POINT_FOLLOW, dummy)
-	ParticleManager:SetParticleControl(particle, 1, end_point_right)
-
-	-- Set a timer to kill the sound and particle
-	Timers:CreateTimer(duration,function()
-		StopSoundOn(dummy_sound, dummy)
-		dummy:RemoveSelf()
-	end)
 end
 
 --[[Author: Pizzalol
