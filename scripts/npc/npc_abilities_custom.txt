@@ -572,7 +572,10 @@
 		"AbilityType"					"DOTA_ABILITY_TYPE_ULTIMATE"
 		"AbilityUnitDamageType"			"DAMAGE_TYPE_MAGICAL"
 		"SpellImmunityType"				"SPELL_IMMUNITY_ENEMIES_NO"
-		"FightRecapLevel"				"2"
+		"FightRecapLevel"				"1"
+		"MaxLevel" 						"4"
+		"RequiredLevel"					"1"
+		"LevelsBetweenUpgrades"			"2"
 		"AbilityTextureName"			"disruptor_kinetic_field"
 
 		// Precache
@@ -581,6 +584,7 @@
 		{
 			"soundfile"			"soundevents/game_sounds_heroes/game_sounds_dark_seer.vsndevts"
 			"particle"			"particles/units/heroes/hero_dark_seer/dark_seer_wall_of_replica.vpcf"
+			"particle"			"particles/dark_seer_wall_of_replica.vpcf"
 		}
 		
 		// Casting
@@ -667,6 +671,11 @@
 				"outer_barrier_radius"	"550"
 				"_value"				"DOTA_Tooltip_Ability_Duplex_Barrier_Outer_Barrier_Radius"
 			}
+			"15"
+			{
+				"var_type"				"FIELD_FLOAT"
+				"update_interval"		"0.2"
+			}
 		}
 
 		"OnSpellStart"
@@ -681,8 +690,8 @@
 			{
 				"ScriptFile"	"heroes/hero_reimu/duplex_barrier.lua"
 				"Function"		"duplexBarrier"
-				"Target"		"POINT"
-				"wall_particle"	"particles/units/heroes/hero_dark_seer/dark_seer_wall_of_replica.vpcf"
+				//"wall_particle"	"particles/units/heroes/hero_dark_seer/dark_seer_wall_of_replica.vpcf"
+				"wall_particle"		"particles/dark_seer_wall_of_replica.vpcf"
 				"dummy_modifier"	"modifier_duplex_barrier_dummy"
 				"dummy_sound"		"Hero_Dark_Seer.Wall_of_Replica_lp"
 			}
@@ -695,7 +704,7 @@
 				"IsHidden"		"1"
 				"IsPurgable"	"0"
 
-				"ThinkInterval"  "0.2"
+				"ThinkInterval"  "%update_interval"
 				"OnIntervalThink"
 				{
 					"RunScript"
@@ -703,6 +712,12 @@
 						"ScriptFile"	"heroes/hero_reimu/duplex_barrier.lua"
 						"Function"		"duplexBarrierAura"
 						"aura_modifier"	"modifier_duplex_barrier"
+					}
+
+					"RunScript"
+					{
+						"ScriptFile"	"heroes/hero_reimu/duplex_barrier.lua"
+						"Function"		"duplexBarrierFollow"
 					}
 				}
 

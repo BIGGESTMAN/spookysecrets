@@ -8,6 +8,16 @@ function duplexBarrier( keys )
 	local ability = keys.ability
 	local ability_level = ability:GetLevel() - 1
 
+	local debug_duration = 5
+
+	ability.caster = caster
+	ability.last_caster_location = caster_location
+	--ability.last_caster_facing = caster:GetForwardVector()
+	ability.outer_dummies = {}
+	ability.outer_secondary_dummies = {}
+	ability.inner_dummies = {}
+	ability.inner_secondary_dummies = {}
+
 	-- Make outer barrier
 	for wall_number=0, 4 do
 		local radius = ability:GetLevelSpecialValueFor("outer_barrier_radius", ability_level)
@@ -23,7 +33,7 @@ function duplexBarrier( keys )
 		-- Ability variables
 		local length = range * 2
 		local width = ability:GetLevelSpecialValueFor("width", ability_level)
-		local duration = 1 --ability:GetLevelSpecialValueFor("duration", ability_level)
+		local duration = debug_duration --ability:GetLevelSpecialValueFor("duration", ability_level)
 
 		-- Targeting variables
 		local direction = (target_point - caster_location):Normalized()
@@ -44,6 +54,7 @@ function duplexBarrier( keys )
 
 		-- Create the main wall dummy
 		local dummy = CreateUnitByName("npc_dummy_blank", end_point_left, false, caster, caster, caster_team)
+		table.insert(ability.outer_dummies, dummy)
 		ability:ApplyDataDrivenModifier(dummy, dummy, dummy_modifier, {})
 		EmitSoundOn(dummy_sound, dummy)	
 
@@ -55,6 +66,7 @@ function duplexBarrier( keys )
 			-- Create the secondary dummy and apply the dummy aura to it, make sure the caster of the aura is the main dummmy
 			-- otherwise you wont be able to save illusion targets
 			local dummy_secondary = CreateUnitByName("npc_dummy_blank", temporary_point, false, caster, caster, caster_team)
+			table.insert(ability.outer_secondary_dummies, dummy_secondary)
 			ability:ApplyDataDrivenModifier(dummy, dummy_secondary, dummy_modifier, {})
 
 			Timers:CreateTimer(duration, function()
@@ -70,6 +82,7 @@ function duplexBarrier( keys )
 			-- Create the secondary dummy and apply the dummy aura to it, make sure the caster of the aura is the main dummmy
 			-- otherwise you wont be able to save illusion targets
 			local dummy_secondary = CreateUnitByName("npc_dummy_blank", temporary_point, false, caster, caster, caster_team)
+			table.insert(ability.outer_secondary_dummies, dummy_secondary)
 			ability:ApplyDataDrivenModifier(dummy, dummy_secondary, dummy_modifier, {})
 
 			Timers:CreateTimer(duration, function()
@@ -111,7 +124,7 @@ function duplexBarrier( keys )
 		-- Ability variables
 		local length = range * 2
 		local width = ability:GetLevelSpecialValueFor("width", ability_level)
-		local duration = 1 --ability:GetLevelSpecialValueFor("duration", ability_level)
+		local duration = debug_duration --ability:GetLevelSpecialValueFor("duration", ability_level)
 
 		-- Targeting variables
 		local direction = (target_point - caster_location):Normalized()
@@ -132,6 +145,7 @@ function duplexBarrier( keys )
 
 		-- Create the main wall dummy
 		local dummy = CreateUnitByName("npc_dummy_blank", end_point_left, false, caster, caster, caster_team)
+		table.insert(ability.inner_secondary_dummies, dummy)
 		ability:ApplyDataDrivenModifier(dummy, dummy, dummy_modifier, {})
 		EmitSoundOn(dummy_sound, dummy)	
 
@@ -143,6 +157,7 @@ function duplexBarrier( keys )
 			-- Create the secondary dummy and apply the dummy aura to it, make sure the caster of the aura is the main dummmy
 			-- otherwise you wont be able to save illusion targets
 			local dummy_secondary = CreateUnitByName("npc_dummy_blank", temporary_point, false, caster, caster, caster_team)
+			table.insert(ability.inner_secondary_dummies, dummy_secondary)
 			ability:ApplyDataDrivenModifier(dummy, dummy_secondary, dummy_modifier, {})
 
 			Timers:CreateTimer(duration, function()
@@ -158,6 +173,7 @@ function duplexBarrier( keys )
 			-- Create the secondary dummy and apply the dummy aura to it, make sure the caster of the aura is the main dummmy
 			-- otherwise you wont be able to save illusion targets
 			local dummy_secondary = CreateUnitByName("npc_dummy_blank", temporary_point, false, caster, caster, caster_team)
+			table.insert(ability.inner_secondary_dummies, dummy_secondary)
 			ability:ApplyDataDrivenModifier(dummy, dummy_secondary, dummy_modifier, {})
 
 			Timers:CreateTimer(duration, function()
@@ -181,6 +197,36 @@ function duplexBarrier( keys )
 			dummy:RemoveSelf()
 		end)
 	end
+end
+
+function duplexBarrierFollow( keys )
+	--
+	local ability = keys.ability
+	local caster = ability.caster
+	local caster_location = caster:GetAbsOrigin()
+	local caster_movement = (ability.last_caster_location - caster_location):Length2D()
+	print(caster_movement)
+	--[[print(ability.last_caster_location, caster_location)
+	print("BOMZ")--]]
+
+	for k,v in pairs(ability.outer_dummies) do
+		v:SetAbsOrigin(v:GetAbsOrigin() + caster_movement)
+		--print(v:GetAbsOrigin(), caster_movement)
+	end
+
+	for k,v in pairs(ability.inner_dummies) do
+		v:SetAbsOrigin(v:GetAbsOrigin() + caster_movement)
+	end
+
+	for k,v in pairs(ability.outer_secondary_dummies) do
+		v:SetAbsOrigin(v:GetAbsOrigin() + caster_movement)
+	end
+
+	for k,v in pairs(ability.inner_secondary_dummies) do
+		v:SetAbsOrigin(v:GetAbsOrigin() + caster_movement)
+	end--]]
+
+	ability.last_caster_location = caster_location--]]
 end
 
 --[[Author: Pizzalol
