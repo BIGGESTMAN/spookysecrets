@@ -42,15 +42,12 @@ function windGodsFanUpdateDamage( keys )
 		bonus_damage_table[caster] = nil
 		--caster:RemoveModifierByName(keys.damage_modifier)
 	end
-	print("bonus_damage_table[caster]: ", bonus_damage_table[caster])
 end
 
 function windGodsFanResetDamage( keys )
 	local caster = keys.caster
 	local ability = keys.ability
 	local ability_level = ability:GetLevel() - 1
-
-	print("?")
 
 	bonus_damage_table[caster] = ability:GetLevelSpecialValueFor("minimum_damage", ability_level)
 	caster:FindModifierByName(keys.damage_modifier):SetStackCount(bonus_damage_table[caster])

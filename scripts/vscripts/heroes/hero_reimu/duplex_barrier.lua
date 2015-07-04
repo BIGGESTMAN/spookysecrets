@@ -1,7 +1,7 @@
 --[[Author: Pizzalol, kritth
 	Date: 05.04.2015.
 	Create the wall dummies at along the wall]]
-function WallOfReplica( keys )
+function duplexBarrier( keys )
 	local caster = keys.caster
 	local caster_location = caster:GetAbsOrigin()
 	local caster_team = caster:GetTeamNumber()
@@ -37,7 +37,7 @@ function WallOfReplica( keys )
 	num_of_dummies = num_of_dummies / 2
 
 	-- Create the main wall dummy
-	local dummy = CreateUnitByName("npc_dummy_blank", target_point, false, caster, caster, caster_team)
+	local dummy = CreateUnitByName("npc_dummy_blank", end_point_left, false, caster, caster, caster_team)
 	ability:ApplyDataDrivenModifier(dummy, dummy, dummy_modifier, {})
 	EmitSoundOn(dummy_sound, dummy)	
 
@@ -79,7 +79,6 @@ function WallOfReplica( keys )
 
 	-- Create the wall particle
 	local particle = ParticleManager:CreateParticle(wall_particle, PATTACH_POINT_FOLLOW, dummy)
-	ParticleManager:SetParticleControl(particle, 0, end_point_left) 
 	ParticleManager:SetParticleControl(particle, 1, end_point_right)
 
 	-- Set a timer to kill the sound and particle
@@ -92,7 +91,7 @@ end
 --[[Author: Pizzalol
 	Date: 05.04.2015.
 	Checks if there is an alive illusion of the target, if there is not then create an illusion]]
-function WallOfReplicaIllusionCheck( keys )
+function duplexBarrierIllusionCheck( keys )
 	local caster = keys.caster -- This is the dummy in this case
 	local target = keys.target
 	local target_location = target:GetAbsOrigin()
@@ -173,7 +172,7 @@ end
 --[[Author: Pizzalol
 	Date: 05.04.2015.
 	Acts as an aura which checks if any hero passed the wall]]
-function WallOfReplicaAura( keys )
+function duplexBarrierAura( keys )
 	local caster = keys.caster -- Main wall dummy
 	local target = keys.target -- Secondary dummies
 	local target_location = target:GetAbsOrigin()

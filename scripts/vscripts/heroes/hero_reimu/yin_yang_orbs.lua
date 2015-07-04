@@ -31,10 +31,10 @@ function yinYangOrbsDummyCreated( keys )
 		first = true
 	else
 		print ("bomz")
-		target:RemoveModifierByName(keys.modifier_slow)
+		--target:RemoveModifierByName(keys.modifier_slow)
 		local alreadySlowed = false;
 		for k,v in pairs(target:FindAllModifiers()) do
-			print ("value: ", v, "; key: ", k)
+			--[[print ("value: ", v, "; key: ", k)
 			print (v.MODIFIER_PROPERTY_MOVESPEED_BONUS_CONSTANT)
 			print (v.MODIFIER_PROPERTY_MOVESPEED_BASE_OVERRIDE)
 			print (v.MODIFIER_PROPERTY_MOVESPEED_BONUS_PERCENTAGE)
@@ -44,17 +44,19 @@ function yinYangOrbsDummyCreated( keys )
 			print (v.MODIFIER_PROPERTY_MOVESPEED_ABSOLUTE_MIN)
 			print (v.MODIFIER_PROPERTY_MOVESPEED_LIMIT)
 			print (v.MODIFIER_PROPERTY_MOVESPEED_MAX)
-			print ("ms thingy: ", target:GetMoveSpeedModifier(335))
+			print ("ms thingy: ", target:GetMoveSpeedModifier(335))]]--
 
 			if ((v.MODIFIER_PROPERTY_MOVESPEED_BONUS_CONSTANT ~= nil and v.MODIFIER_PROPERTY_MOVESPEED_BONUS_CONSTANT < 0) or
 				(v.MODIFIER_PROPERTY_MOVESPEED_BONUS_CONSTANT ~= nil and v.MODIFIER_PROPERTY_MOVESPEED_BONUS_PERCENTAGE < 0)) then
 				alreadySlowed = true;
+				print ("alreadyslowed")
 				break;
 			end
 		end
 		ability:ApplyDataDrivenModifier(caster, target, keys.modifier_slow, {})
+		print (caster:HasModifier(keys.modifier_slow))
 		if alreadySlowed then
-			ability:ApplyDataDrivenModifier(caster, target, keys.modifier_slow, {})
+			ability:ApplyDataDrivenModifier(caster, target, keys.modifier_silence, {})
 		end
 	end
 
