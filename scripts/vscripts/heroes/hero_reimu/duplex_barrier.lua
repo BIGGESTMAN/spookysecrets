@@ -1,6 +1,5 @@
---[[Author: Pizzalol, kritth
-	Date: 05.04.2015.
-	Create the wall dummies at along the wall]]
+targets_hit_table = {}
+
 function duplexBarrier( keys )
 	local caster = keys.caster
 	local caster_location = caster:GetAbsOrigin()
@@ -8,9 +7,7 @@ function duplexBarrier( keys )
 	local ability = keys.ability
 	local ability_level = ability:GetLevel() - 1
 
-	local debug_duration = 5
-	local debug_wall_particle = "particles/units/heroes/hero_wisp/wisp_overcharge.vpcf"
-
+	targets_hit_table[caster] = {}
 	ability.caster = caster
 	ability.last_caster_location = caster_location
 	ability.original_caster_facing = caster:GetForwardVector()
@@ -19,7 +16,8 @@ function duplexBarrier( keys )
 	ability.outer_secondary_dummies = {}
 	ability.inner_dummies = {}
 	ability.inner_secondary_dummies = {}
-	ability.particles = {}
+	ability.outer_particles = {}
+	ability.inner_particles = {}
 
 	-- Make outer barrier
 	for wall_number=0, 3 do
@@ -29,14 +27,14 @@ function duplexBarrier( keys )
 		local target_point = RotatePosition(caster_location, QAngle(0, 90 * wall_number, 0), prototype_target_point)
 
 		-- Cosmetic variables
-		local dummy_modifier = keys.dummy_modifier
-		local wall_particle = debug_wall_particle
+		local outer_dummy_modifier = keys.outer_dummy_modifier
+		local wall_particle = keys.wall_particle
 		local dummy_sound = keys.dummy_sound
 
 		-- Ability variables
 		local length = range * 2
 		local width = ability:GetLevelSpecialValueFor("width", ability_level)
-		local duration = debug_duration --ability:GetLevelSpecialValueFor("duration", ability_level)
+		local duration = ability:GetLevelSpecialValueFor("barrier_duration", ability_level)
 
 		-- Targeting variables
 		local direction = (target_point - caster_location):Normalized()
@@ -58,7 +56,7 @@ function duplexBarrier( keys )
 		-- Create the main wall dummy
 		local dummy = CreateUnitByName("npc_dummy_blank", end_point_left, false, caster, caster, caster_team)
 		table.insert(ability.outer_dummies, dummy)
-		ability:ApplyDataDrivenModifier(dummy, dummy, dummy_modifier, {})
+		ability:ApplyDataDrivenModifier(dummy, dummy, outer_dummy_modifier, {})
 		EmitSoundOn(dummy_sound, dummy)	
 
 		-- Create the secondary dummies for the left half of the wall
@@ -70,7 +68,7 @@ function duplexBarrier( keys )
 			-- otherwise you wont be able to save illusion targets
 			local dummy_secondary = CreateUnitByName("npc_dummy_blank", temporary_point, false, caster, caster, caster_team)
 			table.insert(ability.outer_secondary_dummies, dummy_secondary)
-			ability:ApplyDataDrivenModifier(dummy, dummy_secondary, dummy_modifier, {})
+			ability:ApplyDataDrivenModifier(dummy, dummy_secondary, outer_dummy_modifier, {})
 
 			Timers:CreateTimer(duration, function()
 				dummy_secondary:RemoveSelf()
@@ -86,7 +84,7 @@ function duplexBarrier( keys )
 			-- otherwise you wont be able to save illusion targets
 			local dummy_secondary = CreateUnitByName("npc_dummy_blank", temporary_point, false, caster, caster, caster_team)
 			table.insert(ability.outer_secondary_dummies, dummy_secondary)
-			ability:ApplyDataDrivenModifier(dummy, dummy_secondary, dummy_modifier, {})
+			ability:ApplyDataDrivenModifier(dummy, dummy_secondary, outer_dummy_modifier, {})
 
 			Timers:CreateTimer(duration, function()
 				dummy_secondary:RemoveSelf()
@@ -99,11 +97,11 @@ function duplexBarrier( keys )
 		dummy.wall_level = dummy.wall_level or ability_level
 		dummy.wall_table = dummy.wall_table or {}
 
-		--[[ Create the wall particle
-		local particle = ParticleManager:CreateParticle(wall_particle, PATTACH_ABSORIGIN_FOLLOW, dummy)
+		-- Create the wall particle
+		local particle = ParticleManager:CreateParticle(wall_particle, PATTACH_POINT_FOLLOW, dummy)
 		ParticleManager:SetParticleControl(particle, 1, end_point_right)
-		table.insert(ability.particles, particle)
-		--]]
+		table.insert(ability.outer_particles, particle)
+		
 		-- Set a timer to kill the sound and particle
 		Timers:CreateTimer(duration,function()
 			StopSoundOn(dummy_sound, dummy)
@@ -121,14 +119,14 @@ function duplexBarrier( keys )
 		local target_point = RotatePosition(caster_location, QAngle(0, 90 * wall_number, 0), prototype_target_point)
 
 		-- Cosmetic variables
-		local dummy_modifier = keys.dummy_modifier
-		local wall_particle = debug_wall_particle
+		local inner_dummy_modifier = keys.inner_dummy_modifier
+		local wall_particle = keys.wall_particle
 		local dummy_sound = keys.dummy_sound
 
 		-- Ability variables
 		local length = range * 2
 		local width = ability:GetLevelSpecialValueFor("width", ability_level)
-		local duration = debug_duration --ability:GetLevelSpecialValueFor("duration", ability_level)
+		local duration = ability:GetLevelSpecialValueFor("barrier_duration", ability_level)
 
 		-- Targeting variables
 		local direction = (target_point - caster_location):Normalized()
@@ -150,7 +148,7 @@ function duplexBarrier( keys )
 		-- Create the main wall dummy
 		local dummy = CreateUnitByName("npc_dummy_blank", end_point_left, false, caster, caster, caster_team)
 		table.insert(ability.inner_dummies, dummy)
-		ability:ApplyDataDrivenModifier(dummy, dummy, dummy_modifier, {})
+		ability:ApplyDataDrivenModifier(dummy, dummy, inner_dummy_modifier, {})
 		EmitSoundOn(dummy_sound, dummy)	
 
 		-- Create the secondary dummies for the left half of the wall
@@ -162,7 +160,7 @@ function duplexBarrier( keys )
 			-- otherwise you wont be able to save illusion targets
 			local dummy_secondary = CreateUnitByName("npc_dummy_blank", temporary_point, false, caster, caster, caster_team)
 			table.insert(ability.inner_secondary_dummies, dummy_secondary)
-			ability:ApplyDataDrivenModifier(dummy, dummy_secondary, dummy_modifier, {})
+			ability:ApplyDataDrivenModifier(dummy, dummy_secondary, inner_dummy_modifier, {})
 
 			Timers:CreateTimer(duration, function()
 				dummy_secondary:RemoveSelf()
@@ -178,7 +176,7 @@ function duplexBarrier( keys )
 			-- otherwise you wont be able to save illusion targets
 			local dummy_secondary = CreateUnitByName("npc_dummy_blank", temporary_point, false, caster, caster, caster_team)
 			table.insert(ability.inner_secondary_dummies, dummy_secondary)
-			ability:ApplyDataDrivenModifier(dummy, dummy_secondary, dummy_modifier, {})
+			ability:ApplyDataDrivenModifier(dummy, dummy_secondary, inner_dummy_modifier, {})
 
 			Timers:CreateTimer(duration, function()
 				dummy_secondary:RemoveSelf()
@@ -191,11 +189,11 @@ function duplexBarrier( keys )
 		dummy.wall_level = dummy.wall_level or ability_level
 		dummy.wall_table = dummy.wall_table or {}
 
-		--[[ Create the wall particle
-		local particle = ParticleManager:CreateParticle(wall_particle, PATTACH_ABSORIGIN_FOLLOW, dummy)
+		-- Create the wall particle
+		local particle = ParticleManager:CreateParticle(wall_particle, PATTACH_POINT_FOLLOW, dummy)
 		ParticleManager:SetParticleControl(particle, 1, end_point_right)
-		table.insert(ability.particles, particle)
-		--]]
+		table.insert(ability.inner_particles, particle)
+		
 		-- Set a timer to kill the sound and particle
 		Timers:CreateTimer(duration,function()
 			StopSoundOn(dummy_sound, dummy)
@@ -212,6 +210,10 @@ function duplexBarrierFollow( keys )
 	local caster_location = caster:GetAbsOrigin()
 	local caster_movement = (caster_location - ability.last_caster_location)
 
+	for k,v in pairs(ability.outer_dummies) do
+		v:SetAbsOrigin(v:GetAbsOrigin() + caster_movement)
+	end
+
 	for k,v in pairs(ability.inner_dummies) do
 		v:SetAbsOrigin(v:GetAbsOrigin() + caster_movement)
 	end
@@ -224,20 +226,7 @@ function duplexBarrierFollow( keys )
 		v:SetAbsOrigin(v:GetAbsOrigin() + caster_movement)
 	end
 
-	for k,v in pairs(ability.outer_dummies) do
-		v:SetAbsOrigin(v:GetAbsOrigin() + caster_movement)
-	end
-	--[[
-	for k,v in pairs(ability.particles) do
-		ParticleManager:DestroyParticle(v, true)
-	end
-	particles = {}
-	--
-
 	for wall_number=0, 3 do
-		local dummy = ability.outer_dummies[wall_number + 1]
-		dummy:SetAbsOrigin(dummy:GetAbsOrigin() + caster_movement)
---[[
 		local radius = ability:GetLevelSpecialValueFor("outer_barrier_radius", ability_level)
 		local range = math.sqrt(radius * radius / 2)
 		local prototype_target_point = caster_location + ability.original_caster_facing * range
@@ -247,100 +236,31 @@ function duplexBarrierFollow( keys )
 		local rotation_point = target_point + direction * length/2
 		local end_point_right = RotatePosition(target_point, QAngle(0,-90,0), rotation_point)
 		
-		local particle = ability.particles[wall_number + 1]
-		local particle = ParticleManager:CreateParticle(keys.wall_particle, PATTACH_ABSORIGIN_FOLLOW, dummy)
+		local particle = ability.outer_particles[wall_number + 1]
 		ParticleManager:SetParticleControl(particle, 1, end_point_right)
-		table.insert(ability.particles, particle)--
 	end
 
-	ability.last_caster_location = caster_location--]]
-end
-
---[[Author: Pizzalol
-	Date: 05.04.2015.
-	Checks if there is an alive illusion of the target, if there is not then create an illusion]]
-function duplexBarrierIllusionCheck( keys )
-	local caster = keys.caster -- This is the dummy in this case
-	local target = keys.target
-	local target_location = target:GetAbsOrigin()
-	local ability = keys.ability
-
-	-- Get the original hero
-	local player = caster:GetPlayerOwnerID()
-	local player_hero = PlayerResource:GetPlayer(player):GetAssignedHero()
-	
-	-- Initialize the tracking data variables in case there was a hero at the wall spawn point
-	ability.wall_level = ability.wall_level or (ability:GetLevel() - 1)
-	local ability_level = ability.wall_level
-	ability.wall_start_time = ability.wall_start_time or GameRules:GetGameTime() 
-	ability.wall_duration = ability.wall_duration or (ability:GetLevelSpecialValueFor("duration", ability_level))
-	ability.wall_table = ability.wall_table or {}
-
-	-- Ability variables	
-	local unit_name = target:GetUnitName()
-	local illusion_origin = target_location + RandomVector(100)
-	local illusion_duration = ability.wall_duration - (GameRules:GetGameTime() - ability.wall_start_time)
-	local illusion_outgoing_damage = ability:GetLevelSpecialValueFor("replica_damage_outgoing", ability_level)
-	local illusion_incoming_damage = ability:GetLevelSpecialValueFor("replica_damage_incoming", ability_level)
-	local damage = ability:GetLevelSpecialValueFor("damage", ability_level)
-
-	-- Check if the hit hero is a real hero
-	if target:IsRealHero() then
-		-- Check if the illusion of the target is alive
-		if not IsValidEntity(ability.wall_table[target]) or not ability.wall_table[target]:IsAlive() then
-			-- Create an illusion if its not
-			local illusion = CreateUnitByName(unit_name, illusion_origin, true, player_hero, nil, caster:GetTeamNumber())
-			illusion:SetPlayerID(player)
-			illusion:SetControllableByPlayer(player, true)
-
-			local target_level = target:GetLevel()
-			for i = 1, target_level - 1 do
-				illusion:HeroLevelUp(false)
-			end
-
-			illusion:SetAbilityPoints(0) 
-			for ability_slot = 0, 15 do
-				local target_ability = target:GetAbilityByIndex(ability_slot) 
-				if target_ability then
-					local target_ability_level = target_ability:GetLevel() 
-					local target_ability_name = target_ability:GetAbilityName() 
-					local illusion_ability = illusion:FindAbilityByName(target_ability_name) 
-					illusion_ability:SetLevel(target_ability_level) 
-				end
-			end
-
-			for item_slot = 0, 5 do
-				local item = target:GetItemInSlot(item_slot) 
-				if item then
-					local item_name = item:GetName() 
-					local new_item = CreateItem(item_name, illusion, illusion) 
-					illusion:AddItem(new_item) 
-				end
-			end
-
-			illusion:AddNewModifier(caster, ability, "modifier_illusion", {duration = illusion_duration, outgoing_damage = illusion_outgoing_damage, incoming_damage = illusion_incoming_damage})
-
-			illusion:MakeIllusion() 
-			illusion:SetHealth(target:GetHealth()) -- Set the health of the illusion to be the same as the target HP
-			ability.wall_table[target] = illusion -- Keep track of the illusion
-
-			-- Deal damage for creating the illusion
-			local damage_table = {}
-			damage_table.attacker = player_hero
-			damage_table.victim = target
-			damage_table.ability = ability
-			damage_table.damage_type = ability:GetAbilityDamageType() 
-			damage_table.damage = damage
-
-			ApplyDamage(damage_table)
-		end
+	for wall_number=0, 3 do
+		local radius = ability:GetLevelSpecialValueFor("inner_barrier_radius", ability_level)
+		local range = math.sqrt(radius * radius / 2)
+		local prototype_target_point = caster_location + ability.original_caster_facing * range
+		local target_point = RotatePosition(caster_location, QAngle(0, 90 * wall_number, 0), prototype_target_point)
+		local length = range * 2
+		local direction = (target_point - caster_location):Normalized()
+		local rotation_point = target_point + direction * length/2
+		local end_point_right = RotatePosition(target_point, QAngle(0,-90,0), rotation_point)
+		
+		local particle = ability.inner_particles[wall_number + 1]
+		ParticleManager:SetParticleControl(particle, 1, end_point_right)
 	end
+
+	ability.last_caster_location = caster_location
 end
 
 --[[Author: Pizzalol
 	Date: 05.04.2015.
 	Acts as an aura which checks if any hero passed the wall]]
-function duplexBarrierAura( keys )
+function duplexOuterBarrierAura( keys )
 	local caster = keys.caster -- Main wall dummy
 	local target = keys.target -- Secondary dummies
 	local target_location = target:GetAbsOrigin()
@@ -348,15 +268,58 @@ function duplexBarrierAura( keys )
 	local ability_level = ability:GetLevel() - 1
 
 	local radius = ability:GetLevelSpecialValueFor("width", ability_level)
-	local aura_modifier = keys.aura_modifier
 
 	local target_teams = DOTA_UNIT_TARGET_TEAM_ENEMY
-	local target_types = DOTA_UNIT_TARGET_HERO
-	local target_flags = DOTA_UNIT_TARGET_FLAG_MAGIC_IMMUNE_ENEMIES
+	local target_types = DOTA_UNIT_TARGET_HERO + DOTA_UNIT_TARGET_BASIC
+	local target_flags = DOTA_UNIT_TARGET_FLAG_NONE
 
 	local units = FindUnitsInRadius(caster:GetTeamNumber(), target_location, nil, radius, target_teams, target_types, target_flags, FIND_CLOSEST, false)
 
 	for _,unit in ipairs(units) do
-		ability:ApplyDataDrivenModifier(caster, unit, aura_modifier, {Duration = 0.1})
+		if not unit:HasModifier(keys.outer_barrier_modifier) then
+			ability:ApplyDataDrivenModifier(caster, unit, outer_barrier_modifier, {})
+			table.insert(targets_hit_table[ability.caster], unit)
+			if unit:HasModifier(keys.inner_barrier_modifier) then
+				ability:ApplyDataDrivenModifier(caster, unit, stun_modifier, {})
+			end
+		end
 	end
+end
+
+function duplexInnerBarrierAura( keys )
+	local caster = keys.caster -- Main wall dummy
+	local target = keys.target -- Secondary dummies
+	local target_location = target:GetAbsOrigin()
+	local ability = keys.ability
+	local ability_level = ability:GetLevel() - 1
+
+	local radius = ability:GetLevelSpecialValueFor("width", ability_level)
+
+	local target_teams = DOTA_UNIT_TARGET_TEAM_ENEMY
+	local target_types = DOTA_UNIT_TARGET_HERO + DOTA_UNIT_TARGET_BASIC
+	local target_flags = DOTA_UNIT_TARGET_FLAG_NONE
+
+	local units = FindUnitsInRadius(caster:GetTeamNumber(), target_location, nil, radius, target_teams, target_types, target_flags, FIND_CLOSEST, false)
+
+	for _,unit in ipairs(units) do
+		if not unit:HasModifier(keys.inner_barrier_modifier) then
+			ability:ApplyDataDrivenModifier(caster, unit, inner_barrier_modifier, {})
+			table.insert(targets_hit_table[ability.caster], unit)
+			if unit:HasModifier(keys.outer_barrier_modifier) then
+				ability:ApplyDataDrivenModifier(caster, unit, stun_modifier, {})
+			end
+		end
+	end
+end
+
+function removeDebuffs( keys )
+	for k,unit in targets_hit_table[ability.caster] do
+		if unit:HasModifier(keys.outer_barrier_modifier) then
+			unit:RemoveModifierByName(keys.outer_barrier_modifier)
+		end
+		if unit:HasModifier(keys.inner_barrier_modifier) then
+			unit:RemoveModifierByName(keys.inner_barrier_modifier)
+		end
+	end
+	targets_hit_table[caster] = nil
 end

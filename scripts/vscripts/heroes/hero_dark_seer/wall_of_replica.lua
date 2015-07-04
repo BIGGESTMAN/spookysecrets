@@ -5,9 +5,20 @@ function WallOfReplica( keys )
 	local caster = keys.caster
 	local caster_location = caster:GetAbsOrigin()
 	local caster_team = caster:GetTeamNumber()
-	local target_point = keys.target_points[1]
 	local ability = keys.ability
 	local ability_level = ability:GetLevel() - 1
+
+	ability.caster = caster
+	ability.last_caster_location = caster_location
+	ability.original_caster_facing = caster:GetForwardVector()
+	ability.dummy = {}
+	ability.secondary_dummies = {}
+	ability.particle = nil
+	
+	local radius = 550
+	local range = math.sqrt(radius * radius / 2)
+	local prototype_target_point = caster_location + caster:GetForwardVector() * range
+	local target_point = prototype_target_point
 
 	-- Cosmetic variables
 	local dummy_modifier = keys.dummy_modifier
@@ -17,7 +28,7 @@ function WallOfReplica( keys )
 	-- Ability variables
 	local length = ability:GetLevelSpecialValueFor("length", ability_level) 
 	local width = ability:GetLevelSpecialValueFor("width", ability_level)
-	local duration = ability:GetLevelSpecialValueFor("duration", ability_level)
+	local duration = 5
 
 	-- Targeting variables
 	local direction = (target_point - caster_location):Normalized()
@@ -37,7 +48,8 @@ function WallOfReplica( keys )
 	num_of_dummies = num_of_dummies / 2
 
 	-- Create the main wall dummy
-	local dummy = CreateUnitByName("npc_dummy_blank", target_point, false, caster, caster, caster_team)
+	local dummy = CreateUnitByName("npc_dummy_blank", end_point_left, false, caster, caster, caster_team)
+	ability.dummy = dummy
 	ability:ApplyDataDrivenModifier(dummy, dummy, dummy_modifier, {})
 	EmitSoundOn(dummy_sound, dummy)	
 
@@ -49,6 +61,7 @@ function WallOfReplica( keys )
 		-- Create the secondary dummy and apply the dummy aura to it, make sure the caster of the aura is the main dummmy
 		-- otherwise you wont be able to save illusion targets
 		local dummy_secondary = CreateUnitByName("npc_dummy_blank", temporary_point, false, caster, caster, caster_team)
+		table.insert(ability.secondary_dummies, dummy_secondary)
 		ability:ApplyDataDrivenModifier(dummy, dummy_secondary, dummy_modifier, {})
 
 		Timers:CreateTimer(duration, function()
@@ -79,7 +92,7 @@ function WallOfReplica( keys )
 
 	-- Create the wall particle
 	local particle = ParticleManager:CreateParticle(wall_particle, PATTACH_POINT_FOLLOW, dummy)
-	ParticleManager:SetParticleControl(particle, 0, end_point_left) 
+	ability.particle = particle
 	ParticleManager:SetParticleControl(particle, 1, end_point_right)
 
 	-- Set a timer to kill the sound and particle
@@ -87,6 +100,31 @@ function WallOfReplica( keys )
 		StopSoundOn(dummy_sound, dummy)
 		dummy:RemoveSelf()
 	end)
+end
+
+function wallOfReplicaFollow( keys )
+	
+	local ability = keys.ability
+	local ability_level = ability:GetLevel() - 1
+	local caster = ability.caster
+	local caster_location = caster:GetAbsOrigin()
+	local caster_movement = (caster_location - ability.last_caster_location)
+
+	ability.dummy:SetAbsOrigin(ability.dummy:GetAbsOrigin() + caster_movement)
+	
+	local radius = 550
+	local range = math.sqrt(radius * radius / 2)
+	local prototype_target_point = caster_location + ability.original_caster_facing * range
+	local target_point = prototype_target_point
+	local length = range * 2
+	local direction = (target_point - caster_location):Normalized()
+	local rotation_point = target_point + direction * length/2
+	local end_point_right = RotatePosition(target_point, QAngle(0,-90,0), rotation_point)
+	
+	local particle = ability.particle
+	ParticleManager:SetParticleControl(particle, 1, end_point_right)
+
+	ability.last_caster_location = caster_location
 end
 
 --[[Author: Pizzalol
@@ -174,6 +212,8 @@ end
 	Date: 05.04.2015.
 	Acts as an aura which checks if any hero passed the wall]]
 function WallOfReplicaAura( keys )
+	wallOfReplicaFollow(keys)
+
 	local caster = keys.caster -- Main wall dummy
 	local target = keys.target -- Secondary dummies
 	local target_location = target:GetAbsOrigin()
