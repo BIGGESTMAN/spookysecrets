@@ -9,17 +9,20 @@ function duplexBarrier( keys )
 	local ability_level = ability:GetLevel() - 1
 
 	local debug_duration = 5
+	local debug_wall_particle = "particles/units/heroes/hero_wisp/wisp_overcharge.vpcf"
 
 	ability.caster = caster
 	ability.last_caster_location = caster_location
+	ability.original_caster_facing = caster:GetForwardVector()
 	--ability.last_caster_facing = caster:GetForwardVector()
 	ability.outer_dummies = {}
 	ability.outer_secondary_dummies = {}
 	ability.inner_dummies = {}
 	ability.inner_secondary_dummies = {}
+	ability.particles = {}
 
 	-- Make outer barrier
-	for wall_number=0, 4 do
+	for wall_number=0, 3 do
 		local radius = ability:GetLevelSpecialValueFor("outer_barrier_radius", ability_level)
 		local range = math.sqrt(radius * radius / 2)
 		local prototype_target_point = caster_location + caster:GetForwardVector() * range
@@ -27,7 +30,7 @@ function duplexBarrier( keys )
 
 		-- Cosmetic variables
 		local dummy_modifier = keys.dummy_modifier
-		local wall_particle = keys.wall_particle
+		local wall_particle = debug_wall_particle
 		local dummy_sound = keys.dummy_sound
 
 		-- Ability variables
@@ -96,10 +99,11 @@ function duplexBarrier( keys )
 		dummy.wall_level = dummy.wall_level or ability_level
 		dummy.wall_table = dummy.wall_table or {}
 
-		-- Create the wall particle
-		local particle = ParticleManager:CreateParticle(wall_particle, PATTACH_POINT_FOLLOW, dummy)
+		--[[ Create the wall particle
+		local particle = ParticleManager:CreateParticle(wall_particle, PATTACH_ABSORIGIN_FOLLOW, dummy)
 		ParticleManager:SetParticleControl(particle, 1, end_point_right)
-
+		table.insert(ability.particles, particle)
+		--]]
 		-- Set a timer to kill the sound and particle
 		Timers:CreateTimer(duration,function()
 			StopSoundOn(dummy_sound, dummy)
@@ -108,7 +112,7 @@ function duplexBarrier( keys )
 	end
 
 	-- Make inner barrier
-	for wall_number=0, 4 do
+	for wall_number=0, 3 do
 		local radius = ability:GetLevelSpecialValueFor("inner_barrier_radius", ability_level)
 		local range = math.sqrt(radius * radius / 2)
 		local prototype_target_point = caster_location + caster:GetForwardVector() * range
@@ -118,7 +122,7 @@ function duplexBarrier( keys )
 
 		-- Cosmetic variables
 		local dummy_modifier = keys.dummy_modifier
-		local wall_particle = keys.wall_particle
+		local wall_particle = debug_wall_particle
 		local dummy_sound = keys.dummy_sound
 
 		-- Ability variables
@@ -145,7 +149,7 @@ function duplexBarrier( keys )
 
 		-- Create the main wall dummy
 		local dummy = CreateUnitByName("npc_dummy_blank", end_point_left, false, caster, caster, caster_team)
-		table.insert(ability.inner_secondary_dummies, dummy)
+		table.insert(ability.inner_dummies, dummy)
 		ability:ApplyDataDrivenModifier(dummy, dummy, dummy_modifier, {})
 		EmitSoundOn(dummy_sound, dummy)	
 
@@ -187,10 +191,11 @@ function duplexBarrier( keys )
 		dummy.wall_level = dummy.wall_level or ability_level
 		dummy.wall_table = dummy.wall_table or {}
 
-		-- Create the wall particle
-		local particle = ParticleManager:CreateParticle(wall_particle, PATTACH_POINT_FOLLOW, dummy)
+		--[[ Create the wall particle
+		local particle = ParticleManager:CreateParticle(wall_particle, PATTACH_ABSORIGIN_FOLLOW, dummy)
 		ParticleManager:SetParticleControl(particle, 1, end_point_right)
-
+		table.insert(ability.particles, particle)
+		--]]
 		-- Set a timer to kill the sound and particle
 		Timers:CreateTimer(duration,function()
 			StopSoundOn(dummy_sound, dummy)
@@ -200,19 +205,12 @@ function duplexBarrier( keys )
 end
 
 function duplexBarrierFollow( keys )
-	--
+	
 	local ability = keys.ability
+	local ability_level = ability:GetLevel() - 1
 	local caster = ability.caster
 	local caster_location = caster:GetAbsOrigin()
-	local caster_movement = (ability.last_caster_location - caster_location):Length2D()
-	print(caster_movement)
-	--[[print(ability.last_caster_location, caster_location)
-	print("BOMZ")--]]
-
-	for k,v in pairs(ability.outer_dummies) do
-		v:SetAbsOrigin(v:GetAbsOrigin() + caster_movement)
-		--print(v:GetAbsOrigin(), caster_movement)
-	end
+	local caster_movement = (caster_location - ability.last_caster_location)
 
 	for k,v in pairs(ability.inner_dummies) do
 		v:SetAbsOrigin(v:GetAbsOrigin() + caster_movement)
@@ -224,7 +222,36 @@ function duplexBarrierFollow( keys )
 
 	for k,v in pairs(ability.inner_secondary_dummies) do
 		v:SetAbsOrigin(v:GetAbsOrigin() + caster_movement)
-	end--]]
+	end
+
+	for k,v in pairs(ability.outer_dummies) do
+		v:SetAbsOrigin(v:GetAbsOrigin() + caster_movement)
+	end
+	--[[
+	for k,v in pairs(ability.particles) do
+		ParticleManager:DestroyParticle(v, true)
+	end
+	particles = {}
+	--
+
+	for wall_number=0, 3 do
+		local dummy = ability.outer_dummies[wall_number + 1]
+		dummy:SetAbsOrigin(dummy:GetAbsOrigin() + caster_movement)
+--[[
+		local radius = ability:GetLevelSpecialValueFor("outer_barrier_radius", ability_level)
+		local range = math.sqrt(radius * radius / 2)
+		local prototype_target_point = caster_location + ability.original_caster_facing * range
+		local target_point = RotatePosition(caster_location, QAngle(0, 90 * wall_number, 0), prototype_target_point)
+		local length = range * 2
+		local direction = (target_point - caster_location):Normalized()
+		local rotation_point = target_point + direction * length/2
+		local end_point_right = RotatePosition(target_point, QAngle(0,-90,0), rotation_point)
+		
+		local particle = ability.particles[wall_number + 1]
+		local particle = ParticleManager:CreateParticle(keys.wall_particle, PATTACH_ABSORIGIN_FOLLOW, dummy)
+		ParticleManager:SetParticleControl(particle, 1, end_point_right)
+		table.insert(ability.particles, particle)--
+	end
 
 	ability.last_caster_location = caster_location--]]
 end
@@ -243,16 +270,16 @@ function duplexBarrierIllusionCheck( keys )
 	local player_hero = PlayerResource:GetPlayer(player):GetAssignedHero()
 	
 	-- Initialize the tracking data variables in case there was a hero at the wall spawn point
-	caster.wall_level = caster.wall_level or (ability:GetLevel() - 1)
-	local ability_level = caster.wall_level
-	caster.wall_start_time = caster.wall_start_time or GameRules:GetGameTime() 
-	caster.wall_duration = caster.wall_duration or (ability:GetLevelSpecialValueFor("duration", ability_level))
-	caster.wall_table = caster.wall_table or {}
+	ability.wall_level = ability.wall_level or (ability:GetLevel() - 1)
+	local ability_level = ability.wall_level
+	ability.wall_start_time = ability.wall_start_time or GameRules:GetGameTime() 
+	ability.wall_duration = ability.wall_duration or (ability:GetLevelSpecialValueFor("duration", ability_level))
+	ability.wall_table = ability.wall_table or {}
 
 	-- Ability variables	
 	local unit_name = target:GetUnitName()
 	local illusion_origin = target_location + RandomVector(100)
-	local illusion_duration = caster.wall_duration - (GameRules:GetGameTime() - caster.wall_start_time)
+	local illusion_duration = ability.wall_duration - (GameRules:GetGameTime() - ability.wall_start_time)
 	local illusion_outgoing_damage = ability:GetLevelSpecialValueFor("replica_damage_outgoing", ability_level)
 	local illusion_incoming_damage = ability:GetLevelSpecialValueFor("replica_damage_incoming", ability_level)
 	local damage = ability:GetLevelSpecialValueFor("damage", ability_level)
@@ -260,7 +287,7 @@ function duplexBarrierIllusionCheck( keys )
 	-- Check if the hit hero is a real hero
 	if target:IsRealHero() then
 		-- Check if the illusion of the target is alive
-		if not IsValidEntity(caster.wall_table[target]) or not caster.wall_table[target]:IsAlive() then
+		if not IsValidEntity(ability.wall_table[target]) or not ability.wall_table[target]:IsAlive() then
 			-- Create an illusion if its not
 			local illusion = CreateUnitByName(unit_name, illusion_origin, true, player_hero, nil, caster:GetTeamNumber())
 			illusion:SetPlayerID(player)
@@ -295,7 +322,7 @@ function duplexBarrierIllusionCheck( keys )
 
 			illusion:MakeIllusion() 
 			illusion:SetHealth(target:GetHealth()) -- Set the health of the illusion to be the same as the target HP
-			caster.wall_table[target] = illusion -- Keep track of the illusion
+			ability.wall_table[target] = illusion -- Keep track of the illusion
 
 			-- Deal damage for creating the illusion
 			local damage_table = {}

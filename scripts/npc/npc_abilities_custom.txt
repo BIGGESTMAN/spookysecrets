@@ -585,6 +585,8 @@
 			"soundfile"			"soundevents/game_sounds_heroes/game_sounds_dark_seer.vsndevts"
 			"particle"			"particles/units/heroes/hero_dark_seer/dark_seer_wall_of_replica.vpcf"
 			"particle"			"particles/dark_seer_wall_of_replica.vpcf"
+			"particle"			"particles/units/heroes/hero_wisp/wisp_overcharge.vpcf"
+			"particle"			"particles/dark_seer_wall_of_replica_scroll.vpcf"
 		}
 		
 		// Casting
@@ -690,7 +692,6 @@
 			{
 				"ScriptFile"	"heroes/hero_reimu/duplex_barrier.lua"
 				"Function"		"duplexBarrier"
-				//"wall_particle"	"particles/units/heroes/hero_dark_seer/dark_seer_wall_of_replica.vpcf"
 				"wall_particle"		"particles/dark_seer_wall_of_replica.vpcf"
 				"dummy_modifier"	"modifier_duplex_barrier_dummy"
 				"dummy_sound"		"Hero_Dark_Seer.Wall_of_Replica_lp"
@@ -703,6 +704,16 @@
 			{
 				"IsHidden"		"1"
 				"IsPurgable"	"0"
+
+				"OnCreated"
+				{
+					"AttachEffect"
+					{
+						"EffectName"        "particles/dark_seer_wall_of_replica.vpcf"
+						"EffectAttachType"  "follow_origin"
+						"Target"            "CASTER"
+					}
+				}
 
 				"ThinkInterval"  "%update_interval"
 				"OnIntervalThink"
@@ -718,6 +729,7 @@
 					{
 						"ScriptFile"	"heroes/hero_reimu/duplex_barrier.lua"
 						"Function"		"duplexBarrierFollow"
+						"wall_particle"	"particles/dark_seer_wall_of_replica.vpcf"
 					}
 				}
 
