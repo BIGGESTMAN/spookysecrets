@@ -72,7 +72,7 @@
 		"SoundSet"				"0"	
 		"Ability1"				"reflex_empty1" 
 		"Ability2"				"macroburst" 
-		"Ability3"				"reflex_empty2" 
+		"Ability3"				"wind_gods_fan" 
 		"Ability4"				"opening_wind"
 		"Ability5"				"illusionary_dominance"
 		"Ability6"				"reflex_empty3"

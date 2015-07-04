@@ -68,7 +68,6 @@ function illusionaryDominanceHit( keys )
 			end
 			(caster:FindModifierByName(accelerating_modifier)):IncrementStackCount()
 			ability.canAccelerate = false
-			end
 		end
 
 		-- Slash particles
