@@ -62,7 +62,7 @@ function duplexBarrier( keys )
 		-- Create the secondary dummies for the left half of the wall
 		for i=1,num_of_dummies + 2 do
 			-- Create a dummy on every interval point to fill the whole wall
-			local temporary_point = target_point + (width * 2 * i + (width - width/10)) * direction_left
+			local temporary_point = target_point + (width * 2 * i - width) --[[+ (width - width/10))--]] * direction_left
 
 			-- Create the secondary dummy and apply the dummy aura to it, make sure the caster of the aura is the main dummmy
 			-- otherwise you wont be able to save illusion targets
@@ -78,7 +78,7 @@ function duplexBarrier( keys )
 		-- Create the secondary dummies for the right half of the wall
 		for i=1,num_of_dummies + 2 do
 			-- Create a dummy on every interval point to fill the whole wall
-			local temporary_point = target_point + (width * 2 * i + (width - width/10)) * direction_right
+			local temporary_point = target_point + (width * 2 * i - width) --[[+ (width - width/10))--]] * direction_right
 			
 			-- Create the secondary dummy and apply the dummy aura to it, make sure the caster of the aura is the main dummmy
 			-- otherwise you wont be able to save illusion targets
@@ -154,7 +154,7 @@ function duplexBarrier( keys )
 		-- Create the secondary dummies for the left half of the wall
 		for i=1,num_of_dummies + 2 do
 			-- Create a dummy on every interval point to fill the whole wall
-			local temporary_point = target_point + (width * 2 * i + (width - width/10)) * direction_left
+			local temporary_point = target_point + (width * 2 * i - width) --[[+ (width - width/10))--]] * direction_left
 
 			-- Create the secondary dummy and apply the dummy aura to it, make sure the caster of the aura is the main dummmy
 			-- otherwise you wont be able to save illusion targets
@@ -170,7 +170,7 @@ function duplexBarrier( keys )
 		-- Create the secondary dummies for the right half of the wall
 		for i=1,num_of_dummies + 2 do
 			-- Create a dummy on every interval point to fill the whole wall
-			local temporary_point = target_point + (width * 2 * i + (width - width/10)) * direction_right
+			local temporary_point = target_point + (width * 2 * i - width) --[[+ (width - width/10))--]] * direction_right
 			
 			-- Create the secondary dummy and apply the dummy aura to it, make sure the caster of the aura is the main dummmy
 			-- otherwise you wont be able to save illusion targets
@@ -266,6 +266,9 @@ function duplexOuterBarrierAura( keys )
 	local target_location = target:GetAbsOrigin()
 	local ability = keys.ability
 	local ability_level = ability:GetLevel() - 1
+	local outer_barrier_modifier = keys.outer_barrier_modifier
+	local inner_barrier_modifier = keys.inner_barrier_modifier
+	local stun_modifier = keys.stun_modifier
 
 	local radius = ability:GetLevelSpecialValueFor("width", ability_level)
 
@@ -276,10 +279,10 @@ function duplexOuterBarrierAura( keys )
 	local units = FindUnitsInRadius(caster:GetTeamNumber(), target_location, nil, radius, target_teams, target_types, target_flags, FIND_CLOSEST, false)
 
 	for _,unit in ipairs(units) do
-		if not unit:HasModifier(keys.outer_barrier_modifier) then
+		if not unit:HasModifier(outer_barrier_modifier) then
 			ability:ApplyDataDrivenModifier(caster, unit, outer_barrier_modifier, {})
 			table.insert(targets_hit_table[ability.caster], unit)
-			if unit:HasModifier(keys.inner_barrier_modifier) then
+			if unit:HasModifier(inner_barrier_modifier) then
 				ability:ApplyDataDrivenModifier(caster, unit, stun_modifier, {})
 			end
 		end
@@ -292,20 +295,21 @@ function duplexInnerBarrierAura( keys )
 	local target_location = target:GetAbsOrigin()
 	local ability = keys.ability
 	local ability_level = ability:GetLevel() - 1
+	local outer_barrier_modifier = keys.outer_barrier_modifier
+	local inner_barrier_modifier = keys.inner_barrier_modifier
+	local stun_modifier = keys.stun_modifier
 
 	local radius = ability:GetLevelSpecialValueFor("width", ability_level)
 
 	local target_teams = DOTA_UNIT_TARGET_TEAM_ENEMY
 	local target_types = DOTA_UNIT_TARGET_HERO + DOTA_UNIT_TARGET_BASIC
 	local target_flags = DOTA_UNIT_TARGET_FLAG_NONE
-
 	local units = FindUnitsInRadius(caster:GetTeamNumber(), target_location, nil, radius, target_teams, target_types, target_flags, FIND_CLOSEST, false)
-
 	for _,unit in ipairs(units) do
-		if not unit:HasModifier(keys.inner_barrier_modifier) then
+		if not unit:HasModifier(inner_barrier_modifier) then
 			ability:ApplyDataDrivenModifier(caster, unit, inner_barrier_modifier, {})
 			table.insert(targets_hit_table[ability.caster], unit)
-			if unit:HasModifier(keys.outer_barrier_modifier) then
+			if unit:HasModifier(outer_barrier_modifier) then
 				ability:ApplyDataDrivenModifier(caster, unit, stun_modifier, {})
 			end
 		end
@@ -313,7 +317,7 @@ function duplexInnerBarrierAura( keys )
 end
 
 function removeDebuffs( keys )
-	for k,unit in targets_hit_table[ability.caster] do
+	for k,unit in pairs(targets_hit_table[keys.ability.caster]) do
 		if unit:HasModifier(keys.outer_barrier_modifier) then
 			unit:RemoveModifierByName(keys.outer_barrier_modifier)
 		end
@@ -321,5 +325,110 @@ function removeDebuffs( keys )
 			unit:RemoveModifierByName(keys.inner_barrier_modifier)
 		end
 	end
-	targets_hit_table[caster] = nil
+	targets_hit_table[keys.ability.caster] = nil
+end
+
+function duplexBarrierSlow( keys )
+	local caster = keys.caster
+	local caster_location = caster:GetAbsOrigin()
+	local ability = keys.ability
+	local ability_level = ability:GetLevel() - 1
+	local movespeed_modifier = keys.movespeed_modifier
+	local attackspeed_modifier = keys.attackspeed_modifier
+	local outer_radius = ability:GetLevelSpecialValueFor("outer_barrier_radius", ability_level)
+	local inner_radius = ability:GetLevelSpecialValueFor("inner_barrier_radius", ability_level)
+	local outer_dummy_locations = {}
+	local inner_dummy_locations = {}
+
+	for k,dummy in ipairs(ability.outer_dummies) do
+		table.insert(outer_dummy_locations, dummy:GetAbsOrigin())
+	end
+
+	for k,dummy in ipairs(ability.inner_dummies) do
+		table.insert(inner_dummy_locations, dummy:GetAbsOrigin())
+	end
+
+	local outer_targets = FindUnitsInRadius(caster:GetTeamNumber(), caster_location, nil, outer_radius,
+									DOTA_UNIT_TARGET_TEAM_ENEMY, DOTA_UNIT_TARGET_HERO + DOTA_UNIT_TARGET_BASIC,
+									DOTA_UNIT_TARGET_FLAG_NONE, FIND_CLOSEST, false)
+	for k,unit in pairs(outer_targets) do
+		print("outer: ", pointIsInRectangle(unit:GetAbsOrigin(), outer_dummy_locations))
+		if pointIsInRectangle(unit:GetAbsOrigin(), outer_dummy_locations) then
+			ability:ApplyDataDrivenModifier(caster, unit, movespeed_modifier, {})
+		end
+	end
+
+	local inner_targets = FindUnitsInRadius(caster:GetTeamNumber(), caster_location, nil, inner_radius,
+									DOTA_UNIT_TARGET_TEAM_ENEMY, DOTA_UNIT_TARGET_HERO + DOTA_UNIT_TARGET_BASIC,
+									DOTA_UNIT_TARGET_FLAG_NONE, FIND_CLOSEST, false)
+
+	for k,unit in pairs(outer_targets) do
+		print("inner: ", pointIsInRectangle(unit:GetAbsOrigin(), inner_dummy_locations))
+		if pointIsInRectangle(unit:GetAbsOrigin(), inner_dummy_locations) then
+			ability:ApplyDataDrivenModifier(caster, unit, attackspeed_modifier, {})
+		end
+	end
+end
+
+function pointIsInRectangle(point, rectanglePoints)
+	local sidesOfRectangle = {}
+	sidesOfRectangle[1] = distance({rectanglePoints[1], rectanglePoints[2]})
+	sidesOfRectangle[2] = distance({rectanglePoints[1], rectanglePoints[3]})
+	sidesOfRectangle[3] = distance({rectanglePoints[1], rectanglePoints[4]})
+	sidesOfRectangle[4] = distance({rectanglePoints[2], rectanglePoints[3]})
+	sidesOfRectangle[5] = distance({rectanglePoints[2], rectanglePoints[4]})
+	sidesOfRectangle[6] = distance({rectanglePoints[3], rectanglePoints[4]})
+	for i = 1, 2 do
+		for k,v in pairs(sidesOfRectangle) do
+			if v == math.max(sidesOfRectangle[1] or 0, sidesOfRectangle[2] or 0, sidesOfRectangle[3] or 0,
+							sidesOfRectangle[4] or 0, sidesOfRectangle[5] or 0, sidesOfRectangle[6] or 0) then
+				sidesOfRectangle[k] = nil
+				break
+			end
+		end
+	end
+
+	local rectanglePointPairs = {}
+	if sidesOfRectangle[1] ~= nil then
+		table.insert(rectanglePointPairs, {rectanglePoints[1], rectanglePoints[2]})
+	end
+	if sidesOfRectangle[2] ~= nil then
+		table.insert(rectanglePointPairs, {rectanglePoints[1], rectanglePoints[3]})
+	end
+	if sidesOfRectangle[3] ~= nil then
+		table.insert(rectanglePointPairs, {rectanglePoints[1], rectanglePoints[4]})
+	end
+	if sidesOfRectangle[4] ~= nil then
+		table.insert(rectanglePointPairs, {rectanglePoints[2], rectanglePoints[3]})
+	end
+	if sidesOfRectangle[5] ~= nil then
+		table.insert(rectanglePointPairs, {rectanglePoints[2], rectanglePoints[4]})
+	end
+	if sidesOfRectangle[6] ~= nil then
+		table.insert(rectanglePointPairs, {rectanglePoints[3], rectanglePoints[4]})
+	end
+	local area1 = areaOfTriangle({point, rectanglePointPairs[1][1], rectanglePointPairs[1][2]})
+	local area2 = areaOfTriangle({point, rectanglePointPairs[2][1], rectanglePointPairs[2][2]})
+	local area3 = areaOfTriangle({point, rectanglePointPairs[3][1], rectanglePointPairs[3][2]})
+	local area4 = areaOfTriangle({point, rectanglePointPairs[4][1], rectanglePointPairs[4][2]})
+	local triangleAreaSum = area1 + area2 + area3 + area4
+	-- i think actually only reliably works for squares?
+	local rectangleArea = distance({rectanglePointPairs[1][1], rectanglePointPairs[1][2]}) *
+							distance({rectanglePointPairs[2][1], rectanglePointPairs[2][2]})
+	print (triangleAreaSum, rectangleArea)
+	return triangleAreaSum <= rectangleArea * 1.01 -- god bless the united states of rounding errors
+end
+
+function areaOfTriangle(points)
+	local lengths = {}
+	lengths[1] = distance({points[1], points[2]})
+	lengths[2] = distance({points[1], points[3]})
+	lengths[3] = distance({points[2], points[3]})
+	local semiperimeter = (lengths[1] + lengths[2] + lengths[3]) / 2
+	return math.sqrt(semiperimeter * (semiperimeter - lengths[1]) * (semiperimeter - lengths[2]) * (semiperimeter - lengths[3]))
+end
+
+function distance(points)
+	--return math.sqrt((math.abs(points[1][x] - points[2][x]))^2 + (math.abs(points[1][y] - points[2][y]))^2)
+	return (points[1] - points[2]):Length2D()
 end

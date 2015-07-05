@@ -2,14 +2,14 @@
 {
 	"npc_dota_hero_reimu"
 	{
-		"AbilityLayout" 		"4"
+		"AbilityLayout" 		"5"
 		"override_hero"			"npc_dota_hero_omniknight"
 		"SoundSet"				"0"	
 		"Ability1"				"fantasy_seal" 
 		"Ability2"				"duplex_barrier" 
 		"Ability3"				"yin_yang_orbs" 
 		"Ability4"				"fantasy_nature"
-		"Ability5"				""
+		"Ability5"				"dark_seer_wall_of_replica_datadriven"
 		"Ability6"				""
 		"Ability7"				"attribute_bonus"
 		"Ability8"				""

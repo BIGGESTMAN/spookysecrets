@@ -28,7 +28,7 @@ function WallOfReplica( keys )
 	-- Ability variables
 	local length = ability:GetLevelSpecialValueFor("length", ability_level) 
 	local width = ability:GetLevelSpecialValueFor("width", ability_level)
-	local duration = 5
+	local duration = 20
 
 	-- Targeting variables
 	local direction = (target_point - caster_location):Normalized()
@@ -41,11 +41,13 @@ function WallOfReplica( keys )
 
 	-- Calculate the number of secondary dummies that we need to create
 	local num_of_dummies = (((length/2) - width) / (width*2))
+	num_of_dummies = math.ceil(num_of_dummies)
 	if num_of_dummies%2 ~= 0 then
 		-- If its an uneven number then make the number even
 		num_of_dummies = num_of_dummies + 1
 	end
 	num_of_dummies = num_of_dummies / 2
+	print(num_of_dummies)
 
 	-- Create the main wall dummy
 	local dummy = CreateUnitByName("npc_dummy_blank", end_point_left, false, caster, caster, caster_team)
@@ -56,7 +58,8 @@ function WallOfReplica( keys )
 	-- Create the secondary dummies for the left half of the wall
 	for i=1,num_of_dummies + 2 do
 		-- Create a dummy on every interval point to fill the whole wall
-		local temporary_point = target_point + (width * 2 * i + (width - width/10)) * direction_left
+		local temporary_point = target_point + (width * 2 * i - width) --[[+ (width - width/10))--]] * direction_left
+		print (width * 2 * i)
 
 		-- Create the secondary dummy and apply the dummy aura to it, make sure the caster of the aura is the main dummmy
 		-- otherwise you wont be able to save illusion targets
@@ -72,7 +75,8 @@ function WallOfReplica( keys )
 	-- Create the secondary dummies for the right half of the wall
 	for i=1,num_of_dummies + 2 do
 		-- Create a dummy on every interval point to fill the whole wall
-		local temporary_point = target_point + (width * 2 * i + (width - width/10)) * direction_right
+		local temporary_point = target_point + (width * 2 * i) --[[+ (width - width/10))--]] * direction_right
+		print (width * 2 * i)
 		
 		-- Create the secondary dummy and apply the dummy aura to it, make sure the caster of the aura is the main dummmy
 		-- otherwise you wont be able to save illusion targets
@@ -189,7 +193,7 @@ function WallOfReplicaIllusionCheck( keys )
 				end
 			end
 
-			illusion:AddNewModifier(caster, ability, "modifier_illusion", {duration = illusion_duration, outgoing_damage = illusion_outgoing_damage, incoming_damage = illusion_incoming_damage})
+			illusion:AddNewModifier(caster, ability, "modifier_illusion", {duration = 0.05, outgoing_damage = illusion_outgoing_damage, incoming_damage = illusion_incoming_damage})
 
 			illusion:MakeIllusion() 
 			illusion:SetHealth(target:GetHealth()) -- Set the health of the illusion to be the same as the target HP
@@ -203,7 +207,7 @@ function WallOfReplicaIllusionCheck( keys )
 			damage_table.damage_type = ability:GetAbilityDamageType() 
 			damage_table.damage = damage
 
-			ApplyDamage(damage_table)
+			--ApplyDamage(damage_table)
 		end
 	end
 end
@@ -228,6 +232,7 @@ function WallOfReplicaAura( keys )
 	local target_flags = DOTA_UNIT_TARGET_FLAG_MAGIC_IMMUNE_ENEMIES
 
 	local units = FindUnitsInRadius(caster:GetTeamNumber(), target_location, nil, radius, target_teams, target_types, target_flags, FIND_CLOSEST, false)
+	--print(units[1])
 
 	for _,unit in ipairs(units) do
 		ability:ApplyDataDrivenModifier(caster, unit, aura_modifier, {Duration = 0.1})

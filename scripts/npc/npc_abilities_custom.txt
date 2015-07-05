@@ -587,6 +587,8 @@
 			"particle"			"particles/units/heroes/hero_wisp/wisp_overcharge.vpcf"
 			"particle"			"particles/dark_seer_wall_of_replica_scroll.vpcf"
 			"particle"			"particles/dark_seer_wall_smoke_edited.vpcf"
+			"soundfile"			"soundevents/game_sounds_heroes/game_sounds_wisp.vsndevts"
+			"soundfile"			"C:/SteamLibrary/SteamApps/common/dota 2 beta/game/dota_addons/barebones/soundevents/custom_sounds.vsndevts"
 		}
 		
 		// Casting
@@ -664,6 +666,11 @@
 				"attackspeed_slow"		"-60"
 				"_value"				"DOTA_Tooltip_Ability_duplex_barrier_Attackspeed_Slow"
 			}
+			"11"
+			{
+				"var_type"				"FIELD_FLOAT"
+				"linger_duration"		"0.5"
+			}
 		}
 
 		"OnSpellStart"
@@ -689,6 +696,21 @@
 				"Target" 		"CASTER"
 				"ModifierName"	"modifier_duplex_barrier_active"
 			}
+
+			"DelayedAction"
+			{
+				"Delay"     "%barrier_duration + 0.01"
+				"Action"    
+				{
+					"RunScript"
+					{
+						"ScriptFile"				"heroes/hero_reimu/duplex_barrier.lua"
+						"Function"					"removeDebuffs"
+						"outer_barrier_modifier"	"modifier_duplex_barrier_outer_hit"
+						"inner_barrier_modifier"	"modifier_duplex_barrier_inner_hit"
+					}
+				}
+			}
 		}
 
 		"Modifiers"
@@ -705,8 +727,16 @@
 				{
 					"RunScript"
 					{
-						"ScriptFile"	"heroes/hero_reimu/duplex_barrier.lua"
-						"Function"		"duplexBarrierFollow"
+						"ScriptFile"			"heroes/hero_reimu/duplex_barrier.lua"
+						"Function"				"duplexBarrierFollow"
+					}
+
+					"RunScript"
+					{
+						"ScriptFile"			"heroes/hero_reimu/duplex_barrier.lua"
+						"Function"				"duplexBarrierSlow"
+						"attackspeed_modifier"	"modifier_duplex_barrier_attackspeed_slow"
+						"movespeed_modifier"	"modifier_duplex_barrier_movespeed_slow"
 					}
 				}
 			}
@@ -717,7 +747,6 @@
 				"IsPurgable"	"0"
 
 				"ThinkInterval"  "%update_interval"
-
 				"OnIntervalThink"
 				{
 					"RunScript"
@@ -726,6 +755,7 @@
 						"Function"					"duplexOuterBarrierAura"
 						"outer_barrier_modifier"	"modifier_duplex_barrier_outer_hit"
 						"inner_barrier_modifier"	"modifier_duplex_barrier_inner_hit"
+						"stun_modifier"				"modifier_duplex_barrier_stunned"
 					}
 				}
 
@@ -736,17 +766,6 @@
 					"MODIFIER_STATE_NOT_ON_MINIMAP" "MODIFIER_STATE_VALUE_ENABLED"
 					"MODIFIER_STATE_UNSELECTABLE" 	"MODIFIER_STATE_VALUE_ENABLED"
 					"MODIFIER_STATE_NO_UNIT_COLLISION"	"MODIFIER_STATE_VALUE_ENABLED"
-				}
-				// the hackiness is real
-				"OnDestroy"
-				{
-					"RunScript"
-					{
-						"ScriptFile"				"heroes/hero_reimu/duplex_barrier.lua"
-						"Function"					"removeDebuffs"
-						"outer_barrier_modifier"	"modifier_duplex_barrier_outer_hit"
-						"inner_barrier_modifier"	"modifier_duplex_barrier_inner_hit"
-					}
 				}
 
 			}
@@ -765,6 +784,7 @@
 						"Function"					"duplexInnerBarrierAura"
 						"outer_barrier_modifier"	"modifier_duplex_barrier_outer_hit"
 						"inner_barrier_modifier"	"modifier_duplex_barrier_inner_hit"
+						"stun_modifier"				"modifier_duplex_barrier_stunned"
 					}
 				}
 
@@ -816,6 +836,47 @@
 				"STATES"
 				{
 					"MODIFIER_STATE_STUNNED"	"MODIFIER_STATE_VALUE_ENABLED"
+				}
+
+				"EffectName"	"particles/generic_gameplay/generic_stunned.vpcf"
+				"EffectAttachType"	"follow_overhead"
+
+				"OnCreated"
+				{
+					"FireSound"
+					{
+						"EffectName"	"Hero_Wisp.Tether.Stun"
+						"Target" 		"TARGET"
+					}
+
+					"FireSound"
+					{
+						"EffectName"	"QopLaugh"
+						"Target"		"TARGET"
+					}
+				}
+			}
+
+			"modifier_duplex_barrier_attackspeed_slow"
+			{
+				"IsHidden"	"0"
+				"Duration"	"%linger_duration"
+
+				"Properties"
+				{
+					"MODIFIER_PROPERTY_ATTACKSPEED_BONUS_CONSTANT" "%attackspeed_slow"
+				}
+			}
+
+			"modifier_duplex_barrier_movespeed_slow"
+			{
+				"IsHidden"	"0"
+				"Duration"	"%linger_duration"
+
+				"Properties"
+				{
+
+				    "MODIFIER_PROPERTY_MOVESPEED_BONUS_PERCENTAGE" "%movespeed_slow"
 				}
 			}
 		}
@@ -1399,6 +1460,7 @@
 		{
 			"soundfile"					"soundevents/game_sounds_heroes/game_sounds_ember_spirit.vsndevts"
 			"particle"					"particles/units/heroes/hero_ember_spirit/ember_spirit_sleightoffist_tgt.vpcf"
+			"soundfile"					"soundevents/game_sounds_heroes/game_sounds_sniper.vsndevts"
 		}
 
 		// Casting
@@ -1475,6 +1537,12 @@
 			{
 				"Target" 		"CASTER"
 				"ModifierName"	"modifier_illusionary_dominance_dashing"
+			}
+
+			"FireSound"
+			{
+				"EffectName"	"Hero_Sniper.ShrapnelShoot"
+				"Target" 		"TARGET"
 			}
 		}
 
