@@ -133,13 +133,14 @@
 	"npc_dota_hero_marisa"
 	{
 		"AbilityLayout" 		"5"
-		"override_hero"			"npc_dota_hero_puck"
+		"override_hero"			"npc_dota_hero_rubick"
 		"SoundSet"				"0"	
 		"Ability1"				"master_spark" 
-		"Ability2"				"reflex_empty2" 
+		"Ability2"				"orrerys_sun" 
 		"Ability3"				"reflex_empty3" 
 		"Ability4"				"reflex_empty4"
 		"Ability5"				"reflex_empty5"
+		"Ability6"				""
 		"Ability7"				"attribute_bonus"
 		"Ability8"				""
 		"Ability9"				""
@@ -189,7 +190,7 @@
 		"AttackAnimationPoint"		"0.5"									// Normalized time in animation cycle to attack.
 		"AttackAcquisitionRange"	"600"									// Range within a target can be acquired.
 		"AttackRange"				"600"									// Range within a target can be attacked.
-		"ProjectileModel"			"ranged_hero"							// Particle system model for projectile.
+		//"ProjectileModel"			"ranged_hero"							// Particle system model for projectile.
 		"ProjectileSpeed"			"1000"									// Speed of projectile.
 
 	}
