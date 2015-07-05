@@ -909,6 +909,7 @@
 			"particle"	"particles/units/heroes/hero_phantom_assassin/phantom_assassin_blur.vpcf"
 			"particle"  "particles/units/heroes/hero_phoenix/phoenix_supernova_egg_ring_start.vpcf"
 			"particle"  "particles/units/heroes/hero_phoenix/phoenix_supernova_hit.vpcf"
+			"particle"	"particles/units/heroes/hero_phoenix/phoenix_supernova_reborn.vpcf"
 		}
 
 		// Casting
@@ -949,6 +950,16 @@
 			{
 				"var_type"				"FIELD_INTEGER"
 				"damage_interval"		"1"
+			}
+			"05"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"explosion_damage"		"300 425 550"
+			}
+			"06"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"explosion_radius"		"550"
 			}
 		}
 
@@ -1052,6 +1063,16 @@
 							"TARGET"	"attach_hitloc"
 							"TARGET"	"attach_hitloc"
 						}
+					}
+				}
+
+				"OnDestroy"
+				{
+					"RunScript"
+					{
+						"ScriptFile"				"heroes/hero_reimu/fantasy_nature.lua"
+						"Function"					"fantasyNatureExplosion"
+						"particle"					"particles/units/heroes/hero_phoenix/phoenix_supernova_reborn.vpcf"
 					}
 				}
 			}
@@ -1861,6 +1882,75 @@
 						"Function"		"WallOfReplicaIllusionCheck"
 					}
 				}
+			}
+		}
+	}
+
+	"master_spark"
+	{
+		// General
+		//-------------------------------------------------------------------------------------------------------------
+		"BaseClass"						"ability_datadriven"
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_POINT_TARGET"
+		"AbilityUnitTargetTeam"			"DOTA_UNIT_TARGET_TEAM_ENEMY"
+		"AbilityUnitTargetType"			"DOTA_UNIT_TARGET_HERO | DOTA_UNIT_TARGET_BASIC"
+		"AbilityUnitDamageType"			"DAMAGE_TYPE_MAGICAL"
+		"SpellImmunityType"				"SPELL_IMMUNITY_ENEMIES_NO"
+		"FightRecapLevel"				"1"
+		"AbilityTextureName"			"skywrath_mage_arcane_bolt"
+		"MaxLevel" 						"3"
+		"RequiredLevel"					"6"
+		"LevelsBetweenUpgrades"			"5"
+
+		// Precache
+		//-------------------------------------------------------------------------------------------------------------
+		"precache"
+		{
+			"particle"  "particles/econ/items/windrunner/windrunner_weapon_rainmaker/windrunner_spell_powershot_rainmaker.vpcf"
+		}
+
+		// Casting
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityCastPoint"				"0.1"
+		"AbilityCastRange"				"1600"
+		
+		// Time		
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityCooldown"				"80 70 60"
+
+		// Cost
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityManaCost"				"190"
+
+		"AbilityDamage"					"100 150 200"
+
+		// Special
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilitySpecial"
+		{
+			"01"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"duration"				"11 14 17"
+				"_value"				"DOTA_Tooltip_Ability_opening_wind_Illusionary_Dominance_Duration"
+			}
+			"02"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"speed"					"1500"
+				"_value"				"DOTA_Tooltip_Ability_opening_wind_Speed"
+			}
+			"03"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"radius"				"225"
+				"_value"				"DOTA_Tooltip_Ability_opening_wind_Radius"
+			}
+			"04"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"range"					"1500"
+				"_value"				"DOTA_Tooltip_Ability_opening_wind_Range"
 			}
 		}
 	}

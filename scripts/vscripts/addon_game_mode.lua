@@ -49,4 +49,35 @@ end
 function Activate()
 	GameRules.GameMode = GameMode()
 	GameRules.GameMode:InitGameMode()
+
+	ListenToGameEvent("dota_item_purchased", updateAghsAbilities, nil)
+	ListenToGameEvent("dota_item_picked_up", updateAghsAbilities, nil)
 end
+
+function updateAghsAbilities(eventInfo)
+	print("item purchased or picked up")
+-- 	if eventInfo.itemname == "item_ultimate_scepter" and not eventInfo.HeroEntityIndex:HasAbility("fantasy_nature") then
+-- 		if eventInfo.HeroEntityIndex == "npc_dota_hero_reimu" then
+-- 			eventInfo.HeroEntityIndex:RemoveAbility("fantasy_nature")
+-- 			eventInfo.HeroEntityIndex:AddAbility("fantasy_nature_aghs")
+-- 		end
+-- 	end
+end
+
+-- dota_item_purchased( edit: not dota_item_purchase )
+-- userid ( short )
+-- itemid ( short )
+
+-- dota_item_picked_up
+-- itemname ( string )
+-- PlayerID ( short )
+-- ItemEntityIndex( short )
+-- HeroEntityIndex( short )
+
+-- [   VScript ]: [BAREBONES] OnItemPurchased
+-- [   VScript ]: {
+-- [   VScript ]:    itemcost                        	= 900 (number)
+-- [   VScript ]:    itemname                        	= "item_recipe_mekansm" (string)
+-- [   VScript ]:    PlayerID                        	= 0 (number)
+-- [   VScript ]:    splitscreenplayer               	= -1 (number)
+-- [   VScript ]: }

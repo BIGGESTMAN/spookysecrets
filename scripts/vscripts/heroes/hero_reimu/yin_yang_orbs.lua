@@ -53,6 +53,7 @@ function yinYangOrbsDummyCreated( keys )
 				break;
 			end
 		end
+		print "slowing"
 		ability:ApplyDataDrivenModifier(caster, target, keys.modifier_slow, {})
 		print (caster:HasModifier(keys.modifier_slow))
 		if alreadySlowed then

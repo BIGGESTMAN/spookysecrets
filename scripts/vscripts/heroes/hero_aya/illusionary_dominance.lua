@@ -40,6 +40,7 @@ function illusionaryDominance( keys )
 			return 0.03
 		else
 			caster:RemoveModifierByName(keys.dashing_modifier)
+			FindClearSpaceForUnit(caster, caster:GetAbsOrigin(), false)
 		end
 	end)
 end

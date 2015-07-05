@@ -352,7 +352,6 @@ function duplexBarrierSlow( keys )
 									DOTA_UNIT_TARGET_TEAM_ENEMY, DOTA_UNIT_TARGET_HERO + DOTA_UNIT_TARGET_BASIC,
 									DOTA_UNIT_TARGET_FLAG_NONE, FIND_CLOSEST, false)
 	for k,unit in pairs(outer_targets) do
-		print("outer: ", pointIsInRectangle(unit:GetAbsOrigin(), outer_dummy_locations))
 		if pointIsInRectangle(unit:GetAbsOrigin(), outer_dummy_locations) then
 			ability:ApplyDataDrivenModifier(caster, unit, movespeed_modifier, {})
 		end
@@ -363,7 +362,6 @@ function duplexBarrierSlow( keys )
 									DOTA_UNIT_TARGET_FLAG_NONE, FIND_CLOSEST, false)
 
 	for k,unit in pairs(outer_targets) do
-		print("inner: ", pointIsInRectangle(unit:GetAbsOrigin(), inner_dummy_locations))
 		if pointIsInRectangle(unit:GetAbsOrigin(), inner_dummy_locations) then
 			ability:ApplyDataDrivenModifier(caster, unit, attackspeed_modifier, {})
 		end
@@ -415,7 +413,6 @@ function pointIsInRectangle(point, rectanglePoints)
 	-- i think actually only reliably works for squares?
 	local rectangleArea = distance({rectanglePointPairs[1][1], rectanglePointPairs[1][2]}) *
 							distance({rectanglePointPairs[2][1], rectanglePointPairs[2][2]})
-	print (triangleAreaSum, rectangleArea)
 	return triangleAreaSum <= rectangleArea * 1.01 -- god bless the united states of rounding errors
 end
 
