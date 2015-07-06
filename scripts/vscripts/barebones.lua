@@ -268,9 +268,7 @@ function GameMode:OnHeroInGame(hero)
 	hero:SetGold(500, false)
 
 	-- These lines will create an item and add it to the player, effectively ensuring they start with the item
-	local item = CreateItem("item_rod_of_atos", hero, hero)
-	hero:AddItem(item)
-	hero:AddItem(CreateItem("item_rod_of_atos_datadriven", hero, hero))
+	hero:AddItem(CreateItem("item_blink", hero, hero))
 end
 
 --[[

@@ -28,7 +28,6 @@ function orrerysSunStart( event )
 		for k,orb in pairs(caster.orbs) do
 			existing_orb_count = existing_orb_count + 1
 		end
-		print(existing_orb_count)
 
 		print("Spawning "..orbs - existing_orb_count.." orbs")
 		for i=1,orbs - existing_orb_count do
@@ -199,7 +198,6 @@ function orrerysSunAttack( event )
 	for i=1,ability:GetLevelSpecialValueFor("orbs", ability:GetLevel() - 1) do
 		Timers:CreateTimer(i * ability:GetLevelSpecialValueFor("delay_between_orb_attacks", ability:GetLevel() - 1), function()
 			caster.orbs[i]:PerformAttack(target, true, true, true, true )
-			print("orb attacking")
 		end)
 	end
 end
@@ -217,8 +215,6 @@ function orbAttackHit( event )
 		damage_table.damage = caster:GetAverageTrueAttackDamage() / 10
 
 	ApplyDamage(damage_table)
-	--print(damage_table.damage)
-	--print(caster, target, event.attacker)
 end
 
 -- Kill all units when the owner dies or the spell is cast while the first one is still going
