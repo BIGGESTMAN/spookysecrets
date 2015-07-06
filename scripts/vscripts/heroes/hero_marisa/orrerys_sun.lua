@@ -1,56 +1,47 @@
 --[[
 	Author: Noya, physics by BMD
 	Date: 02.02.2015.
-	Spawns spirits for exorcism and applies the modifier that takes care of its logic
+	Spawns orbs for exorcism and applies the modifier that takes care of its logic
 ]]
 
 require "Physics"
 
 function orrerysSunStart( event )
 	local caster = event.caster
-	local ability = event.ability
-	local playerID = caster:GetPlayerID()
-	local radius = ability:GetLevelSpecialValueFor( "radius", ability:GetLevel() - 1 )
-	local duration = 10
-	local spirits = ability:GetLevelSpecialValueFor( "spirits", ability:GetLevel() - 1 )
-	local delay_between_spirits = ability:GetLevelSpecialValueFor( "delay_between_spirits", ability:GetLevel() - 1 )
-	local unit_name = "orrerys_sun_orb"
-	
-	ability.last_caster_location = caster_location
+	if (caster:IsAlive()) then
+		local ability = event.ability
+		local playerID = caster:GetPlayerID()
+		local radius = ability:GetLevelSpecialValueFor( "radius", ability:GetLevel() - 1 )
+		local duration = 10
+		local orbs = ability:GetLevelSpecialValueFor( "orbs", ability:GetLevel() - 1 )
+		local delay_between_orb_spawns = ability:GetLevelSpecialValueFor( "delay_between_orb_spawns", ability:GetLevel() - 1 )
+		local unit_name = "orrerys_sun_orb"
+		
+		ability.last_caster_location = caster_location
 
-	-- Witchcraft level
-	local witchcraft_ability = caster:FindAbilityByName("death_prophet_witchcraft_datadriven")
-	if not witchcraft_ability then
-		caster:FindAbilityByName("death_prophet_witchcraft")
-	end
-
-	-- If witchcraft ability found, get the number of extra spirits and increase
-	if witchcraft_ability then
-		local extra_spirits = witchcraft_ability:GetLevelSpecialValueFor( "exorcism_1_extra_spirits", witchcraft_ability:GetLevel() - 1 )
-		if extra_spirits then
-			spirits = spirits + extra_spirits
+		-- Initialize the table to keep track of all orbs
+		if not caster.orbs then
+			caster.orbs = {}
 		end
-	end
 
-	-- Initialize the table to keep track of all spirits
-	caster.spirits = {}
-	print("Spawning "..spirits.." spirits")
-	for i=1,spirits do
-		Timers:CreateTimer(i * delay_between_spirits, function()
-			local unit = CreateUnitByName(unit_name, caster:GetAbsOrigin(), true, caster, caster, caster:GetTeamNumber())
+		local existing_orb_count = 0
+		for k,orb in pairs(caster.orbs) do
+			existing_orb_count = existing_orb_count + 1
+		end
+		print(existing_orb_count)
 
-			-- The modifier takes care of the physics and logic
-			ability:ApplyDataDrivenModifier(caster, unit, "modifier_orrerys_sun_orb", {})
-			
-			-- Add the spawned unit to the table
-			table.insert(caster.spirits, unit)
+		print("Spawning "..orbs - existing_orb_count.." orbs")
+		for i=1,orbs - existing_orb_count do
+			Timers:CreateTimer(i * delay_between_orb_spawns, function()
+				local unit = CreateUnitByName(unit_name, caster:GetAbsOrigin(), true, caster, caster, caster:GetTeamNumber())
 
-			-- Initialize the number of hits, to define the heal done after the ability ends
-			unit.numberOfHits = 0
-
-			-- Double check to kill the units, remove this later
-			Timers:CreateTimer(duration+10, function() if unit and IsValidEntity(unit) then unit:RemoveSelf() end end)
-		end)
+				-- The modifier takes care of the physics and logic
+				ability:ApplyDataDrivenModifier(caster, unit, "modifier_orrerys_sun_orb", {})
+				
+				-- Add the spawned unit to the table
+				table.insert(caster.orbs, unit)
+			end)
+		end
 	end
 end
 
@@ -108,7 +99,7 @@ function orbPhysics( event )
 	unit.last_attack_time = GameRules:GetGameTime() - min_time_between_attacks
 
 	-- Color Debugging for points and paths. Turn it false later!
-	local Debug = true
+	local Debug = false
 	local pathColor = Vector(255,255,255) -- White to draw path
 	local targetColor = Vector(255,0,0) -- Red for enemy targets
 	local idleColor = Vector(0,255,0) -- Green for moving to idling points
@@ -192,55 +183,25 @@ function orbPhysics( event )
 		if collision then
 			unit.target_acquired = false
 		end
-
-		if unit.state == "end" then
-			point = source
-			if Debug then DebugDrawCircle(point, endColor, 100, 25, true, 2) end
-
-			-- Last collision ends the unit
-			if collision then 
-
-				-- Heal is calculated as: a percentage of the units average attack damage multiplied by the amount of attacks the spirit did.
-				local heal_done =  unit.numberOfHits * average_damage* heal_percent
-				caster:Heal(heal_done, ability)
-				caster:EmitSound("Hero_DeathProphet.Exorcism.Heal")
-				--print("Healed ",heal_done)
-
-				unit:SetPhysicsVelocity(Vector(0,0,0))
-	        	unit:OnPhysicsFrame(nil)
-	        	unit:ForceKill(false)
-
-	        end
-	    end
     end)
-end
-
--- Change the state to end when the modifier is removed
-function ExorcismEnd( event )
-	local caster = event.caster
-	local targets = caster.spirits
-
-	print("Exorcism End")
-	caster:StopSound("Hero_DeathProphet.Exorcism")
-	for _,unit in pairs(targets) do		
-	   	if unit and IsValidEntity(unit) then
-    	  	unit.state = "end"
-    	end
-	end
-
-	-- Reset the last_targeted
-	caster.last_targeted = nil
 end
 
 -- Updates the last_targeted enemy, to focus the ghosts on it.
 function orrerysSunAttack( event )
 	local caster = event.caster
 	local target = event.target
+	local ability = event.ability
 
-	for k,spirit in pairs(caster.spirits) do
-		spirit:PerformAttack(target, true, true, true, true )
+	-- for k,spirit in pairs(caster.orbs) do
+	-- 	spirit:PerformAttack(target, true, true, true, true )
+	-- end
+
+	for i=1,ability:GetLevelSpecialValueFor("orbs", ability:GetLevel() - 1) do
+		Timers:CreateTimer(i * ability:GetLevelSpecialValueFor("delay_between_orb_attacks", ability:GetLevel() - 1), function()
+			caster.orbs[i]:PerformAttack(target, true, true, true, true )
+			print("orb attacking")
+		end)
 	end
-	--print("LAST TARGET: "..target:GetUnitName())
 end
 
 function orbAttackHit( event )
@@ -256,17 +217,16 @@ function orbAttackHit( event )
 		damage_table.damage = caster:GetAverageTrueAttackDamage() / 10
 
 	ApplyDamage(damage_table)
-	print(damage_table.damage)
-	print(caster, target, event.attacker)
+	--print(damage_table.damage)
+	--print(caster, target, event.attacker)
 end
 
 -- Kill all units when the owner dies or the spell is cast while the first one is still going
 function endOrrerysSun( event )
 	local caster = event.caster
-	local targets = caster.spirits or {}
+	local targets = caster.orbs or {}
 
 	print("Exorcism Death")
-	caster:StopSound("Hero_DeathProphet.Exorcism")
 	for _,unit in pairs(targets) do		
 	   	if unit and IsValidEntity(unit) then
     	  	unit:SetPhysicsVelocity(Vector(0,0,0))
@@ -276,4 +236,5 @@ function endOrrerysSun( event )
 	        unit:ForceKill(false)
     	end
 	end
+	caster.orbs = {}
 end
