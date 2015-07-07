@@ -1,4 +1,4 @@
-function masterSparkStart(event)
+function finalSparkStart(event)
 	local caster = event.caster
 	local ability = event.ability
 	local ability_level = ability:GetLevel() - 1
@@ -30,20 +30,20 @@ function masterSparkStart(event)
 	end
 end
 
-function masterSparkEnd(event)
+function finalSparkEnd(event)
 	for k,particle in pairs(event.ability.particles) do
 		ParticleManager:DestroyParticle(particle, false)
 	end
 	StopSoundEvent("Hero_Phoenix.SunRay.Beam", event.ability.sound_dummy)
 end
 
-function masterSparkCancelled(event)
+function finalSparkCancelled(event)
 	for k,particle in pairs(event.ability.particles) do
 		ParticleManager:DestroyParticle(particle, true)
 	end
 end
 
-function masterSpark(event)
+function finalSpark(event)
 	local caster = event.caster
 	local target = event.target
 	local ability = event.ability
@@ -64,10 +64,10 @@ function masterSpark(event)
 	
 		-- Damage
 		ApplyDamage({ victim = unit, attacker = caster, damage = damage, damage_type = AbilityDamageType})
-		ability:ApplyDataDrivenModifier(caster, unit, event.slow_modifier, {})
+		ability:ApplyDataDrivenModifier(caster, unit, event.stun_modifier, {})
 
 		-- Particle
-		local pfx = ParticleManager:CreateParticle(event.burn_particle, PATTACH_ABSORIGIN, unit )
+		local pfx = ParticleManager:CreateParticle( event.burn_particle, PATTACH_ABSORIGIN, unit )
 		ParticleManager:SetParticleControlEnt( pfx, 1, unit, PATTACH_POINT_FOLLOW, "attach_hitloc", unit:GetAbsOrigin(), true )
 		ParticleManager:ReleaseParticleIndex( pfx )
 	end

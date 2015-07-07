@@ -1537,14 +1537,16 @@
 		"MaxLevel" 						"4"
 		"RequiredLevel"					"1"
 		"LevelsBetweenUpgrades"			"2"
+		"AbilityCastAnimation"			"ACT_DOTA_RUN"
+		"ActivityModifier"				"+haste"
 
 		// Precache
 		//-------------------------------------------------------------------------------------------------------------
 		"precache"
 		{
-			"particle"					"particles/units/heroes/hero_shadowshaman/shadowshaman_ether_shock.vpcf"
-			"soundfile"					"soundevents/game_sounds_heroes/game_sounds_shadowshaman.vsndevts"
+			"soundfile"					"soundevents/game_sounds_heroes/game_sounds_phoenix.vsndevts"
 			"particle"					"particles/units/heroes/hero_phoenix/phoenix_sunray.vpcf"
+			"particle"					"particles/units/heroes/hero_phoenix/phoenix_sunray_beam_enemy.vpcf"
 		}
 
 		// Casting
@@ -1593,11 +1595,6 @@
 				"var_type"				"FIELD_INTEGER"
 				"end_radius"			"450"
 			}
-			"06"
-			{
-				"var_type"				"FIELD_FLOAT"
-				"full_radius_factor"	"0.33"
-			}
 			"07"
 			{
 				"var_type"				"FIELD_FLOAT"
@@ -1619,13 +1616,15 @@
 	    {
 			"RunScript"
 			{
-				"ScriptFile"	"heroes/hero_marisa/master_spark.lua"
-				"Function"		"masterSparkStart"			}
+				"ScriptFile"			"heroes/hero_marisa/master_spark.lua"
+				"Function"				"masterSparkStart"
+				"sound_dummy_modifier"	"modifier_master_spark_dummy"
+			}
 
 	    	"ApplyModifier"
 	    	{
-	    		"ModifierName"	"modifier_master_spark"
-	    		"Target" 		"CASTER"
+	    		"ModifierName"			"modifier_master_spark"
+	    		"Target" 				"CASTER"
 	    	}
 	    }
 
@@ -1633,22 +1632,17 @@
 	    {
 	    	"modifier_master_spark"
 	    	{
-	    		"IsHidden"		"0"
+	    		"IsHidden"		"1"
 	    		"ThinkInterval"	"%damage_interval"
 
 				"OnIntervalThink"
 				{
-					"FireSound"
-					{
-						"EffectName"	"Hero_ShadowShaman.EtherShock"
-						"Target" 		"CASTER"
-					}
-
 					"RunScript"
 					{
 						"ScriptFile"	"heroes/hero_marisa/master_spark.lua"
 						"Function"		"masterSpark"
 						"slow_modifier"	"modifier_master_spark_slow"
+						"burn_particle"	"particles/units/heroes/hero_phoenix/phoenix_sunray_beam_enemy.vpcf"
 					}
 				}
 	    	}
@@ -1666,6 +1660,28 @@
 				    "MODIFIER_PROPERTY_MOVESPEED_BONUS_PERCENTAGE" "%slow"
 				}
 	    	}
+
+	    	"modifier_master_spark_dummy"
+	    	{
+	    		"OnCreated"
+				{
+					"ApplyModifier"
+					{
+						"Target"		"TARGET"
+						"ModifierName"	"modifier_phased"
+					}
+				}
+				
+				"States"
+				{
+					"MODIFIER_STATE_PROVIDES_VISION"		"MODIFIER_STATE_VALUE_ENABLED"
+					"MODIFIER_STATE_INVULNERABLE"			"MODIFIER_STATE_VALUE_ENABLED"
+					"MODIFIER_STATE_NO_HEALTH_BAR"			"MODIFIER_STATE_VALUE_ENABLED"
+					"MODIFIER_STATE_NO_UNIT_COLLISION"		"MODIFIER_STATE_VALUE_ENABLED"
+					"MODIFIER_STATE_NOT_ON_MINIMAP"			"MODIFIER_STATE_VALUE_ENABLED"
+					"MODIFIER_STATE_UNSELECTABLE"			"MODIFIER_STATE_VALUE_ENABLED"
+				}
+	    	}
 	    }
 
 	   "OnChannelFinish"
@@ -1680,7 +1696,15 @@
 			{
 				"ScriptFile"	"heroes/hero_marisa/master_spark.lua"
 				"Function"		"masterSparkEnd"
-				"slow_modifier"	"modifier_master_spark_slow"
+			}
+	   }
+
+	   "OnChannelInterrupted"
+	   {
+			"RunScript"
+			{
+				"ScriptFile"	"heroes/hero_marisa/master_spark.lua"
+				"Function"		"masterSparkCancelled"
 			}
 	   }
 	}
@@ -1862,30 +1886,45 @@
 		}
 	}
 
-	"phoenix_sun_ray_datadriven"
+	"final_spark"
 	{
 		// General
 		//-------------------------------------------------------------------------------------------------------------
-		"BaseClass"				"ability_datadriven"
-		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_POINT"
-		"AbilityUnitDamageType"			"DAMAGE_TYPE_PURE"	
-		"SpellImmunityType"				"SPELL_IMMUNITY_ENEMIES_NO"
-		"FightRecapLevel"				"1"
+		"BaseClass"						"ability_datadriven"
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_POINT_TARGET"
+		"AbilityUnitTargetTeam"			"DOTA_UNIT_TARGET_TEAM_ENEMY"
+		"AbilityUnitTargetType"			"DOTA_UNIT_TARGET_HERO | DOTA_UNIT_TARGET_BASIC"
+		"AbilityUnitDamageType"			"DAMAGE_TYPE_PURE"
+		"SpellImmunityType"				"SPELL_IMMUNITY_ENEMIES_YES"
+		"FightRecapLevel"				"2"
 		"AbilityTextureName"			"phoenix_sun_ray"
+		"MaxLevel" 						"3"
+		"RequiredLevel"					"6"
+		"LevelsBetweenUpgrades"			"5"
+		"AbilityCastAnimation"			"ACT_DOTA_RUN"
+		"ActivityModifier"				"+haste"
+
+		// Precache
+		//-------------------------------------------------------------------------------------------------------------
+		"precache"
+		{
+			"soundfile"					"soundevents/game_sounds_heroes/game_sounds_phoenix.vsndevts"
+			"particle"					"particles/units/heroes/hero_phoenix/phoenix_sunray.vpcf"
+			"particle"					"particles/units/heroes/hero_phoenix/phoenix_sunray_beam_enemy.vpcf"
+		}
 
 		// Casting
 		//-------------------------------------------------------------------------------------------------------------
-		"AbilityCastRange"				"1300"
-		"AbilityCastPoint"				"0.01"
-
+		"AbilityCastPoint"				"1.2 1.0 0.8"
+		"AbilityCastRange"				"1100"
+		
 		// Time		
 		//-------------------------------------------------------------------------------------------------------------
-		"AbilityCooldown"				"20"
-		"AbilityDuration"				"6.0"
+		"AbilityCooldown"				"120 100 80"
 
 		// Cost
 		//-------------------------------------------------------------------------------------------------------------
-		"AbilityManaCost"				"100"
+		"AbilityManaCost"				"220 340 460"
 
 		// Special
 		//-------------------------------------------------------------------------------------------------------------
@@ -1893,230 +1932,122 @@
 		{
 			"01"
 			{
-				"var_type"						"FIELD_INTEGER"
-				"hp_cost_perc_per_second"		"6"
+				"var_type"				"FIELD_INTEGER"
+				"stun_duration"			"1"
+				"_value"				"DOTA_Tooltip_Ability_final_spark_Stun_Duration"
 			}
 			"02"
 			{
-				"var_type"			"FIELD_INTEGER"
-				"base_dmg"			"15 20 25 30"
+				"var_type"				"FIELD_INTEGER"
+				"range"					"1000"
+				"_value"				"DOTA_Tooltip_Ability_final_spark_Range"
 			}
 			"03"
 			{
-				"var_type"			"FIELD_INTEGER"
-				"hp_perc_dmg"		"1 2 3 4"
+				"var_type"				"FIELD_INTEGER"
+				"start_radius"			"400"
 			}
 			"04"
 			{
-				"var_type"			"FIELD_FLOAT"
-				"ally_heal"			"0.5"
+				"var_type"				"FIELD_INTEGER"
+				"end_radius"			"550"
 			}
-			
 			"05"
 			{
-				"var_type"			"FIELD_INTEGER"
-				"radius"			"130"
+				"var_type"				"FIELD_FLOAT"
+				"damage_interval"		"0.1"
 			}
 			"06"
 			{
-				"var_type"			"FIELD_FLOAT"
-				"tick_interval"		"0.2"
+				"var_type"				"FIELD_INTEGER"
+				"damage"				"250 340 430"
 			}
 			"07"
 			{
-				"var_type"			"FIELD_FLOAT"
-				"forward_move_speed"	"250"
-			}
-			"08"
-			{
-				"var_type"			"FIELD_INTEGER"
-				"beam_range"		"1300"
-			}
-			"09"
-			{
-				"var_type"					"FIELD_FLOAT"
-				"turn_rate_initial"			"250"
-			}
-			"10"
-			{
-				"var_type"					"FIELD_FLOAT"
-				"turn_rate"					"20"
-			}
-			"11"
-			{
-				"var_type"			"FIELD_INTEGER"
-				"tooltip_duration"	"6"
-			}
-			// Extra variables
-			"12"
-			{
-				"var_type"			"FIELD_INTEGER"
-				"num_thinkers"		"9"
-			}
-			"13"
-			{
-				"var_type"			"FIELD_FLOAT"
-				"thinker_step"		"150"
-			}
-			"14"
-			{
-				"var_type"			"FIELD_INTEGER"
-				"thinker_radius"	"192"
-			}
-			"15"
-			{
-				"var_type"					"FIELD_FLOAT"
-				"initial_turn_max_duration"	"0.75"
+				"var_type"				"FIELD_INTEGER"
+				"duration"				"1 1 1 1"
 			}
 		}
-		
-		// Data driven
-		//-------------------------------------------------------------------------------------------------------------
-		"precache"
-		{
-			"soundfile"					"soundevents/game_sounds_heroes/game_sounds_phoenix.vsndevts"
-			"particle"					"particles/units/heroes/hero_phoenix/phoenix_sunray.vpcf"
-			"particle"					"particles/units/heroes/hero_phoenix/phoenix_sunray_beam_friend.vpcf"
-			"particle"					"particles/units/heroes/hero_phoenix/phoenix_sunray_beam_enemy.vpcf"
-			"particle"					"particles/units/heroes/hero_phoenix/phoenix_sunray_debuff.vpcf"
-		}
-		
+
 		"OnSpellStart"
-		{
-			"FireSound"
-			{
-				"EffectName"		"Hero_Phoenix.SunRay.Cast"
-				"Target"			"CASTER"
-			}
-			
-			"FireSound"
-			{
-				"EffectName"		"Hero_Phoenix.SunRay.Loop"
-				"Target"			"CASTER"
-			}
-			
-			"ApplyModifier"
-			{
-				"Target"		"CASTER"
-				"ModifierName"	"modifier_sun_ray_caster_datadriven"
-			}
-			
+	    {
 			"RunScript"
 			{
-				"ScriptFile"		"heroes/hero_phoenix/sun_ray.lua"
-				"Function"			"CastSunRay"
-				
-				"hp_cost_perc_per_second"	"%hp_cost_perc_per_second"
-				
-				"path_length"				"%beam_range"
-				"num_thinkers"				"%num_thinkers"
-				"thinker_step"				"%thinker_step"
-				"thinker_radius"			"%thinker_radius"
-				
-				"turn_rate_initial"			"%turn_rate_initial"
-				"turn_rate"					"%turn_rate"
-				"initial_turn_max_duration"	"%initial_turn_max_duration"
-				"forward_move_speed"		"%forward_move_speed"
-				
-				"modifier_caster_name"					"modifier_sun_ray_caster_datadriven"
-				"modifier_thinker_name"					"modifier_sun_ray_thinker_datadriven"
-				"modifier_ignore_turn_rate_limit_name"	"modifier_ignore_turn_rate_limit_datadriven"
-				
-				"sub_ability_name"					"phoenix_sun_ray_stop_datadriven"
-				"toggle_move_empty_ability_name"	"phoenix_sun_ray_toggle_move_empty_datadriven"
-				"toggle_move_ability_name"			"phoenix_sun_ray_toggle_move_datadriven"
+				"ScriptFile"			"heroes/hero_marisa/final_spark.lua"
+				"Function"				"finalSparkStart"
+				"sound_dummy_modifier"	"modifier_final_spark_dummy"
 			}
-		}
-		
-		"Modifiers"
-		{
-			"modifier_sun_ray_caster_datadriven"
-			{
-				"IsPurgable"	"true"
-			
-				"Duration"	"%AbilityDuration"
-				
-				"States"
+
+	    	"ApplyModifier"
+	    	{
+	    		"ModifierName"			"modifier_final_spark"
+	    		"Target" 				"CASTER"
+	    	}
+	    }
+
+	    "Modifiers"
+	    {
+	    	"modifier_final_spark"
+	    	{
+	    		"IsHidden"		"0"
+	    		"ThinkInterval"	"%damage_interval"
+
+	    		"Duration"		"%duration"
+
+	    		"STATES"
 				{
-					"MODIFIER_STATE_NO_UNIT_COLLISION"	"MODIFIER_STATE_VALUE_ENABLED"
-					"MODIFIER_STATE_DISARMED"			"MODIFIER_STATE_VALUE_ENABLED"
-					"MODIFIER_STATE_ROOTED"				"MODIFIER_STATE_VALUE_ENABLED"
-					"MODIFIER_STATE_FLYING"				"MODIFIER_STATE_VALUE_ENABLED"
+					"MODIFIER_STATE_STUNNED"	"MODIFIER_STATE_VALUE_ENABLED"
 				}
-				
-				"OnStateChanged"
-				{
-					"RunScript"
-					{
-						"ScriptFile"		"heroes/hero_phoenix/sun_ray.lua"
-						"Function"			"CheckToInterrupt"
-						
-						"modifier_caster_name"	"modifier_sun_ray_caster_datadriven"
-					}
-				}
-				
-				"OnDestroy"
-				{
-					"RunScript"
-					{
-						"ScriptFile"		"heroes/hero_phoenix/sun_ray.lua"
-						"Function"			"StopSound"
-						"sound_name"		"Hero_Phoenix.SunRay.Loop"
-					}
-				
-					"FireSound"
-					{
-						"EffectName"		"Hero_Phoenix.SunRay.Stop"
-						"Target"			"CASTER"
-					}
-					
-					"RemoveModifier"
-					{
-						"Target"			"CASTER"
-						"ModifierName"		"modifier_sun_ray_caster_move_datadriven"
-					}
-				
-					"RunScript"
-					{
-						"ScriptFile"		"heroes/hero_phoenix/sun_ray.lua"
-						"Function"			"EndSunRay"
-						
-						"sub_ability_name"			"phoenix_sun_ray_stop_datadriven"
-						"toggle_move_empty_ability_name"	"phoenix_sun_ray_toggle_move_empty_datadriven"
-						"toggle_move_ability_name"			"phoenix_sun_ray_toggle_move_datadriven"
-					}
-				}
-				
-				"ThinkInterval"		"%tick_interval"
 
 				"OnIntervalThink"
 				{
 					"RunScript"
 					{
-						"ScriptFile"		"heroes/hero_phoenix/sun_ray.lua"
-						"Function"			"SpendHPCost"
-						
-						"tick_interval"				"%tick_interval"
-						"hp_cost_perc_per_second"	"%hp_cost_perc_per_second"
+						"ScriptFile"	"heroes/hero_marisa/final_spark.lua"
+						"Function"		"finalSpark"
+						"stun_modifier"	"modifier_final_spark_stun"
+						"burn_particle"	"particles/units/heroes/hero_phoenix/phoenix_sunray_beam_enemy.vpcf"
 					}
 				}
-			}
-			
-			"modifier_sun_ray_caster_move_datadriven"
-			{
-				"IsHidden"	"1"
-			}
-			
-			"modifier_sun_ray_thinker_datadriven"
-			{
-				"Duration"	"%AbilityDuration"
-				
-				"Aura"			"modifier_sun_ray_check_datadriven"
-				"Aura_Radius"	"%thinker_radius"
-				"Aura_Teams"	"DOTA_UNIT_TARGET_TEAM_BOTH"
-				"Aura_Types"	"DOTA_UNIT_TARGET_HERO"
-				
+
+				"OnDestroy"
+				{
+					"RunScript"
+					{
+						"ScriptFile"	"heroes/hero_marisa/final_spark.lua"
+						"Function"		"finalSparkEnd"
+					}
+				}
+	    	}
+
+	    	"modifier_final_spark_stun"
+	    	{
+	    		"IsHidden"		"0"
+	    		"IsDebuff"		"1"
+
+				"Duration"	"%stun_duration"
+
+				"STATES"
+				{
+					"MODIFIER_STATE_STUNNED"	"MODIFIER_STATE_VALUE_ENABLED"
+				}
+
+				"EffectName"	"particles/generic_gameplay/generic_stunned.vpcf"
+				"EffectAttachType"	"follow_overhead"
+
 				"OnCreated"
+				{
+					"FireSound"
+					{
+						"EffectName"	"Hero_Slarder.Bash"
+						"Target" 		"TARGET"
+					}
+				}
+	    	}
+
+	    	"modifier_final_spark_dummy"
+	    	{
+	    		"OnCreated"
 				{
 					"ApplyModifier"
 					{
@@ -2134,438 +2065,9 @@
 					"MODIFIER_STATE_NOT_ON_MINIMAP"			"MODIFIER_STATE_VALUE_ENABLED"
 					"MODIFIER_STATE_UNSELECTABLE"			"MODIFIER_STATE_VALUE_ENABLED"
 				}
-			}
-			
-			"modifier_sun_ray_check_datadriven"
-			{
-				"IsHidden"	"1"
-				
-				"ThinkInterval"		"%tick_interval"
-
-				"OnIntervalThink"
-				{
-					"RunScript"
-					{
-						"ScriptFile"		"heroes/hero_phoenix/sun_ray.lua"
-						"Function"			"CheckForCollision"
-						
-						"path_length"		"%beam_range"
-						"path_radius"		"%radius"
-						
-						"tick_interval"		"%tick_interval"
-						"base_dmg"			"%base_dmg"
-						"hp_perc_dmg"		"%hp_perc_dmg"
-						"ally_heal"			"%ally_heal"
-						
-						"particle_burn_name"	"particles/units/heroes/hero_phoenix/phoenix_sunray_beam_enemy.vpcf"
-						"particle_heal_name"	"particles/units/heroes/hero_phoenix/phoenix_sunray_beam_friend.vpcf"
-					}
-				}
-			}
-		}
-	}
-
-	"phoenix_sun_ray_stop_datadriven"
-	{
-		// General
-		//-------------------------------------------------------------------------------------------------------------
-		"BaseClass"				"ability_datadriven"
-		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_NOT_LEARNABLE | DOTA_ABILITY_BEHAVIOR_HIDDEN | DOTA_ABILITY_BEHAVIOR_DONT_RESUME_ATTACK | DOTA_ABILITY_BEHAVIOR_IMMEDIATE"
-		"AbilityTextureName"			"phoenix_sun_ray_stop"
-		
-		// Casting
-		//-------------------------------------------------------------------------------------------------------------
-		"AbilityCastPoint"				"0.0 0.0 0.0 0.0"
-		
-		"OnSpellStart"
-		{
-			"RemoveModifier"
-			{
-				"Target"		"CASTER"
-				"ModifierName"	"modifier_sun_ray_caster_datadriven"
-			}
-		}
-	}
-
-	"phoenix_sun_ray_toggle_move_datadriven"
-	{
-		// General
-		//-------------------------------------------------------------------------------------------------------------
-		"BaseClass"				"ability_datadriven"
-		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_NOT_LEARNABLE | DOTA_ABILITY_BEHAVIOR_HIDDEN | DOTA_ABILITY_BEHAVIOR_DONT_RESUME_ATTACK | DOTA_ABILITY_BEHAVIOR_IMMEDIATE"
-		"AbilityTextureName"			"phoenix_sun_ray_toggle_move"
-		
-		// Casting
-		//-------------------------------------------------------------------------------------------------------------
-		"AbilityCastPoint"				"0.0 0.0 0.0 0.0"
-		
-		"OnSpellStart"
-		{
-			"RunScript"
-			{
-				"ScriptFile"	"heroes/hero_phoenix/sun_ray.lua"
-				"Function"		"ToggleMove"
-				"modifier_name"	"modifier_sun_ray_caster_move_datadriven"
-			}
-		}
-	}
-
-	"phoenix_sun_ray_toggle_move_empty_datadriven"
-	{
-		// General
-		//-------------------------------------------------------------------------------------------------------------
-		"BaseClass"				"ability_datadriven"
-		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_PASSIVE | DOTA_ABILITY_BEHAVIOR_NOT_LEARNABLE"
-		"MaxLevel"						"0"
-		"AbilityTextureName"			"phoenix_sun_ray_toggle_move_empty"
-	}
-
-	"far_seer_earthquake"
-	{
-		"BaseClass"						"ability_datadriven"
-		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_CHANNELLED | DOTA_ABILITY_BEHAVIOR_POINT | DOTA_ABILITY_BEHAVIOR_AOE"
-		"AbilityUnitTargetTeam"			"DOTA_UNIT_TARGET_TEAM_ENEMY"
-		"AbilityUnitTargetType"			"DOTA_UNIT_TARGET_HERO | DOTA_UNIT_TARGET_BASIC"
-		"AbilityUnitDamageType"			"DAMAGE_TYPE_MAGICAL"
-		"SpellImmunityType"				"SPELL_IMMUNITY_ENEMIES_NO"
-		"FightRecapLevel"				"1"
-		"AbilityTextureName"			"wisp_tether"
-		"AbilityCastAnimation"			"ACT_DOTA_CHANNEL_ABILITY_5+black_hole"
-
-		"MaxLevel" 						"4"
-		"RequiredLevel"					"1"
-		"LevelsBetweenUpgrades"			"2"
-
-		"AbilityCastRange"				"700 800 900 1000"
-		"AbilityCastPoint"				"0.4"
-		"AbilityCooldown"				"10 9 8 7"
-
-		"AbilityManaCost"				"100 120 140 160"
-		"AbilityChannelTime"			"2.0"
-
-		"AOERadius"						"%radius"
-
-		"precache"
-		{
-			"particle"	"particles/units/heroes/hero_leshrac/leshrac_split_earth.vpcf"
-			"particle"	"particles/units/heroes/hero_warlock/warlock_rain_of_chaos_explosion.vpcf"
-			"particle"	"particles/units/heroes/hero_earthshaker/temp_eruption_dirt.vpcf"
-			"particle"	"particles/dire_fx/dire_lava_falling_rocks.vpcf"
-			"particle"	"particles/units/heroes/hero_earthshaker/earthshaker_echoslam_start_fallback_mid.vpcf"
-			"particle"	"particles/econ/items/earthshaker/egteam_set/hero_earthshaker_egset/earthshaker_echoslam_start_egset.vpcf"
-			"soundfile"	"soundevents/game_sounds_heroes/game_sounds_leshrac.vsndevts"
-		}
-		
-		"AbilitySpecial"
-		{
-			"01"
-			{
-				"var_type"					"FIELD_INTEGER"
-				"duration"					"25"
-			}
-			"02"
-			{
-				"var_type"					"FIELD_INTEGER"
-				"building_damage_per_sec"	"50"
-			}
-			"03"
-			{
-				"var_type"					"FIELD_INTEGER"
-				"radius"					"250"
-			}
-			"04"
-			{
-				"var_type"					"FIELD_INTEGER"
-				"movement_speed_slow_pct"	"-75"
-			}
-			"05"
-			{
-				"var_type"					"FIELD_FLOAT"
-				"wave_interval"				"1.0"
-			}
-		}
-
-		"OnSpellStart"
-		{
-			"RunScript"
-			{
-				"ScriptFile"	"heroes/far_seer/earthquake.lua"
-				"Function"		"EarthquakeStart"
-				"Target"		"POINT"
-			}
-
-			"DestroyTrees"
-			{
-				"Target" 		"POINT"
-				"Radius"		"%radius"
-			}		
-
-			// Animation needs to start half a second later to sync with the damage
-			//"DelayedAction"
-			//{
-			//	"Delay"     "0.5"
-			//	"Action"    
-			//	{
-			//		"ApplyModifier"
-			//		{
-			//			"ModifierName"	"modifier_earthquake_channelling"
-			//			"Target" 		"CASTER"
-			//		}
-			//	}
-			//}	
-		}
-
-		"OnChannelFinish"
-	    {
-	    	"RunScript"
-	    	{
-	    		"ScriptFile"	"heroes/far_seer/earthquake.lua"
-				"Function"		"EarthquakeEnd"
-	    	} 
-
-	    	"RemoveModifier"
-			{
-				"ModifierName"	"modifier_earthquake_channelling"
-				"Target" 		"CASTER"
-			}  			
+	    	}
 	    }
-
-	    "Modifiers"
-	    {
-	        "modifier_earthquake_channelling"
-	        {
-	        	"IsHidden"			"1"
-	            "ThinkInterval"		"1.0"
-	            "OverrideAnimation"     "ACT_DOTA_KINETIC_FIELD"
-	            "OnIntervalThink"
-	         	{
-	 				"ApplyModifier"
-	         		{
-	         			"ModifierName"	"modifier_channeling"
-	         			"Target" 		"CASTER"
-	         			"Duration"		"0.9"
-	         		}    		
-				}
-			}
-
-			"modifier_channeling"
-			{
-				"IsHidden"				"1"
-				"OverrideAnimation"     "ACT_DOTA_KINETIC_FIELD"
-			}
-
-			"modifier_earthquake_thinker"
-			{
-				"Aura"          "modifier_eartquake_slow"
-				"Aura_Radius"   "%radius"
-				"Aura_Teams"    "DOTA_UNIT_TARGET_TEAM_ENEMY"
-				"Aura_Types"    "DOTA_UNIT_TARGET_HERO | DOTA_UNIT_TARGET_BASIC"		
-
-				"OnCreated"
-				{
-					"FireSound"
-					{
-						"EffectName"	"Hero_Leshrac.Split_Earth"
-						"Target" 		"TARGET"
-					}
-
-					"AttachEffect"
-					{
-						"EffectName"        "particles/econ/items/earthshaker/egteam_set/hero_earthshaker_egset/earthshaker_echoslam_start_egset.vpcf"
-						"EffectAttachType"  "follow_origin"
-						"Target"            "TARGET"
-					}
-					
-
-					"AttachEffect"
-					{
-						"Target"			"TARGET"
-						"EffectAttachType" 	"follow_origin"
-						"EffectName"		"particles/units/heroes/hero_earth_spirit/espirit_spawn.vpcf"
-						"ControlPointEntities"
-						{
-							"TARGET"	"attach_origin"
-							"TARGET"	"attach_origin"
-						}
-					}
-
-					"AttachEffect"
-					{
-						"Target"			"TARGET"
-						"EffectAttachType" 	"follow_origin"
-						"EffectName"		"particles/dire_fx/dire_lava_falling_rocks.vpcf"
-					}
-
-					"AttachEffect"
-					{
-						"Target"			"TARGET"
-						"EffectAttachType" 	"follow_origin"
-						"EffectName"		"particles/units/heroes/hero_leshrac/leshrac_pulse_nova.vpcf"
-					}
-				}
-
-				"ThinkInterval"  "%wave_interval"
-				"OnIntervalThink"
-				{
-					// Custom Building Damage
-					"RunScript"
-					{
-						"ScriptFile"	"buildings/damage.lua"
-						"Function"		"DoBuildingDamage"
-						"Target"
-						{
-							"Center"  	"TARGET"
-							"Radius" 	"%radius"
-							"Teams" 	"DOTA_UNIT_TARGET_TEAM_ENEMY"
-							"Types" 	"DOTA_UNIT_TARGET_BASIC"
-							"Flags"     "DOTA_UNIT_TARGET_FLAG_MAGIC_IMMUNE_ENEMIES"
-						}
-						"Damage"		"%building_damage_per_sec"
-					}
-
-					"FireSound"
-					{
-						"EffectName"	"Hero_Leshrac.Split_Earth"
-						"Target" 		"TARGET"
-					}
-
-					"FireEffect"
-					{
-						"EffectName"		"particles/units/heroes/hero_warlock/warlock_rain_of_chaos_explosion.vpcf"
-						"EffectAttachType" 	"follow_origin"
-						"Target" 			"TARGET"
-					}
-					"FireEffect"
-					{
-						"EffectName"		"particles/units/heroes/hero_earthshaker/temp_eruption_dirt.vpcf"
-						"EffectAttachType" 	"follow_origin"
-						"Target" 			"TARGET"
-					}
-					"AttachEffect"
-					{
-						"Target"	"TARGET"
-						"EffectAttachType" "follow_origin"
-						"EffectName"	"particles/units/heroes/hero_leshrac/leshrac_split_earth.vpcf"
-						"ControlPoints"
-						{
-							"01"		"%radius 50 50"
-						}
-					}
-
-					"AttachEffect"
-					{
-						"Target"			"TARGET"
-						"EffectAttachType" 	"follow_origin"
-						"EffectName"		"particles/units/heroes/hero_leshrac/leshrac_pulse_nova.vpcf"
-						"ControlPoints"
-						{
-							"01"	"%radius 0 %radius"
-						}
-					}
-
-					"AttachEffect"
-					{
-						"Target"			"TARGET"
-						"EffectAttachType" 	"follow_origin"
-						"EffectName"		"particles/units/heroes/hero_earthshaker/earthshaker_echoslam_start_fallback_mid.vpcf"
-						"ControlPoints"
-						{
-							"01"	"1 0 0"
-						}		
-					}
-				}
-			}
-
-			"modifier_eartquake_slow"
-			{
-				"IsDebuff"		"1"
-				"Properties"
-				{
-				    "MODIFIER_PROPERTY_MOVESPEED_BONUS_PERCENTAGE" "%movement_speed_slow_pct" 
-				}		
-			}
-		}
 	}
-
-	"shadow_shaman_ether_shock_datadriven"
-	{
-		// General
-		//-------------------------------------------------------------------------------------------------------------
-		"BaseClass"				"ability_datadriven"
-		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_UNIT_TARGET"
-		"AbilityUnitTargetTeam"			"DOTA_UNIT_TARGET_TEAM_ENEMY"
-		"AbilityUnitTargetType"			"DOTA_UNIT_TARGET_HERO | DOTA_UNIT_TARGET_BASIC"
-		"AbilityUnitDamageType"			"DAMAGE_TYPE_MAGICAL"	
-		"SpellImmunityType"				"SPELL_IMMUNITY_ENEMIES_NO"
-		"FightRecapLevel"				"1"
-		"AbilityTextureName"			"shadow_shaman_ether_shock"
-		
-		// Casting
-		//-------------------------------------------------------------------------------------------------------------
-		"AbilityCastRange"				"600"
-		"AbilityCastPoint"				"0.3 0.3 0.3 0.3"
-		
-		// Time		
-		//-------------------------------------------------------------------------------------------------------------
-		"AbilityCooldown"				"8.0 8.0 8.0 8.0"
-
-		// Cost
-		//-------------------------------------------------------------------------------------------------------------
-		"AbilityManaCost"				"95 105 135 160"
-
-		// Special
-		//-------------------------------------------------------------------------------------------------------------
-		"AbilitySpecial"
-		{
-			"01"
-			{
-				"var_type"					"FIELD_INTEGER"
-				"start_radius"				"200 200 200 200"
-			}
-			"02"
-			{
-				"var_type"					"FIELD_INTEGER"
-				"end_radius"				"300 300 300 300"
-			}
-			"03"
-			{
-				"var_type"					"FIELD_INTEGER"
-				"end_distance"				"500 500 500 500"
-			}
-			"04"
-			{
-				"var_type"					"FIELD_INTEGER"
-				"targets"					"1 3 5 7"
-			}
-			"05"
-			{
-				"var_type"					"FIELD_INTEGER"
-				"damage"					"140 200 260 320"
-			}
-		}
-
-		"precache"
-		{
-			"particle"  "particles/units/heroes/hero_shadowshaman/shadowshaman_ether_shock.vpcf"
-			"soundfile" "soundevents/game_sounds_heroes/game_sounds_shadowshaman.vsndevts"
-		}
-
-		"OnSpellStart"
-		{
-			"FireSound"
-			{
-				"EffectName"	"Hero_ShadowShaman.EtherShock"
-				"Target" 		"CASTER"
-			}
-
-			"RunScript"
-			{
-				"ScriptFile"	"heroes/hero_shadow_shaman/shock.lua"
-				"Function"		"Shock"
-			}
-		}
-	}
-
 	  
 	//-------------------
 	// Dummy stuff
