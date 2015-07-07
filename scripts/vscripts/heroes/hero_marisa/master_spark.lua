@@ -50,3 +50,20 @@ function masterSpark(keys)
 	-- end)
 
 end
+
+function startMasterSpark(keys)
+end
+
+function checkForHits(keys)
+	
+end
+
+for i=1, numThinkers do
+		local thinker = CreateUnitByName( "npc_dota_invisible_vision_source", casterOrigin, false, caster, caster, caster:GetTeam() )
+		vThinkers[i] = thinker
+
+		thinker:SetDayTimeVisionRange( thinkerRadius )
+		thinker:SetNightTimeVisionRange( thinkerRadius )
+
+		ability:ApplyDataDrivenModifier( caster, thinker, modifierThinkerName, {} )
+	end

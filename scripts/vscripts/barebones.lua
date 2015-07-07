@@ -269,6 +269,14 @@ function GameMode:OnHeroInGame(hero)
 
 	-- These lines will create an item and add it to the player, effectively ensuring they start with the item
 	hero:AddItem(CreateItem("item_blink", hero, hero))
+	hero:AddItem(CreateItem("item_ultimate_scepter", hero, hero))
+
+	for i=0,15 do
+	    local ability = hero:GetAbilityByIndex(i)
+	    if ability then 
+	        ability:SetLevel(ability:GetMaxLevel())
+	    end
+	end
 end
 
 --[[
@@ -279,9 +287,13 @@ end
 function GameMode:OnGameInProgress()
 	print("[BAREBONES] The game has officially begun")
 
-	Timers:CreateTimer(30, function() -- Start this timer 30 game-time seconds later
+	Timers:CreateTimer(0, function() -- Start this timer 30 game-time seconds later
 		--print("This function is called 30 seconds after the game begins, and every 30 seconds thereafter")
-		return 30.0 -- Rerun this timer every 30 game-time seconds
+		EmitGlobalSound("barebones.Music")
+		--[[Returns:void
+		Play named sound for all players
+		]]
+		return 480.0 -- Rerun this timer every 30 game-time seconds
 	end)
 end
 

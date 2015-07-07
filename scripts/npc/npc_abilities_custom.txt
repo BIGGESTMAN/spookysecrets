@@ -851,7 +851,7 @@
 
 					"FireSound"
 					{
-						"EffectName"	"QopLaugh"
+						"EffectName"	"barebones.QopLaugh"
 						"Target"		"TARGET"
 					}
 				}
@@ -882,7 +882,7 @@
 		}
 	}
 
-	"fantasy_nature"
+	"fantasy_nature_datadriven"
 	{
 		// General
 		//-------------------------------------------------------------------------------------------------------------
@@ -903,13 +903,13 @@
 		"precache"
 		{
 			"soundfile"	"soundevents/game_sounds_heroes/game_sounds_omniknight.vsndevts"
-			"particle"	"particles/units/heroes/hero_omniknight/omniknight_guardian_angel_halo_buff.vpcf"
+			//"particle"	"particles/units/heroes/hero_omniknight/omniknight_guardian_angel_halo_buff.vpcf"
 			"particle"  "particles/status_fx/status_effect_guardian_angel.vpcf"
-			"particle"  "particles/units/heroes/hero_omniknight/omniknight_guardian_angel_ally.vpcf"
+			//"particle"  "particles/units/heroes/hero_omniknight/omniknight_guardian_angel_ally.vpcf"
 			"particle"	"particles/units/heroes/hero_phantom_assassin/phantom_assassin_blur.vpcf"
 			"particle"  "particles/units/heroes/hero_phoenix/phoenix_supernova_egg_ring_start.vpcf"
 			"particle"  "particles/units/heroes/hero_phoenix/phoenix_supernova_hit.vpcf"
-			"particle"	"particles/units/heroes/hero_phoenix/phoenix_supernova_reborn.vpcf"
+			"particle"	"particles/units/heroes/hero_phoenix/phoenix_supernova_death.vpcf"
 		}
 
 		// Casting
@@ -1027,6 +1027,14 @@
 						"EffectName"        "particles/units/heroes/hero_phoenix/phoenix_supernova_egg_ring_start.vpcf"
 						"EffectAttachType"  "follow_origin"
 						"Target"            "CASTER"
+
+						"ControlPointEntities"
+				        {
+				            "TARGET"    "attach_origin"
+				            "TARGET"    "attach_origin"
+				            "TARGET"    "attach_origin"
+				            "TARGET"    "attach_origin"
+				        }
 					}
 
 					"ActOnTargets"
@@ -1068,13 +1076,133 @@
 
 				"OnDestroy"
 				{
-					"RunScript"
+
+					"ActOnTargets"
 					{
-						"ScriptFile"				"heroes/hero_reimu/fantasy_nature.lua"
-						"Function"					"fantasyNatureExplosion"
-						"particle"					"particles/units/heroes/hero_phoenix/phoenix_supernova_reborn.vpcf"
+						"Target"
+			            {
+			                "Center" "CASTER"
+			                "Radius" "%explosion_radius"
+			                "Teams" "DOTA_UNIT_TARGET_TEAM_ENEMY" 
+			                "Types" "DOTA_UNIT_TARGET_BASIC | DOTA_UNIT_TARGET_HERO"
+			            }
+
+			            "Action"
+			            {
+			            	"Damage"
+			            	{
+			            		"Target"	"TARGET"
+			            		"Type"		"DAMAGE_TYPE_PHYSICAL"
+			            		"Damage"	"%explosion_damage"
+			            	}
+			            }
+					}
+
+					"FireEffect"
+					{
+						"EffectName"        "particles/units/heroes/hero_phoenix/phoenix_supernova_death.vpcf"
+						"EffectAttachType"  "follow_origin"
+						"Target"            "CASTER"
+
+						"ControlPointEntities"
+				        {
+				            "TARGET"    "attach_origin"
+				            "TARGET"    "attach_origin"
+				        }
 					}
 				}
+			}
+		}
+	}
+
+	"fantasy_nature"
+	{
+		"BaseClass"		"ability_lua"
+		"ScriptFile"	"fantasy_nature"
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET"
+		"AbilityUnitTargetTeam"			"DOTA_UNIT_TARGET_TEAM_ENEMY"
+		"AbilityUnitTargetType"			"DOTA_UNIT_TARGET_HERO | DOTA_UNIT_TARGET_BASIC"
+		"AbilityUnitDamageType"			"DAMAGE_TYPE_PHYSICAL"
+		"SpellImmunityType"				"SPELL_IMMUNITY_ENEMIES_YES"
+		"FightRecapLevel"				"2"
+		"AbilityTextureName"			"omniknight_guardian_angel"
+		"MaxLevel" 						"3"
+		"RequiredLevel"					"6"
+		"LevelsBetweenUpgrades"			"5"
+
+		// Precache
+		//-------------------------------------------------------------------------------------------------------------
+		"precache"
+		{
+			"soundfile"	"soundevents/game_sounds_heroes/game_sounds_omniknight.vsndevts"
+			"soundfile"	"soundevents/game_sounds_heroes/game_sounds_phoenix.vsndevts"
+			//"particle"	"particles/units/heroes/hero_omniknight/omniknight_guardian_angel_halo_buff.vpcf"
+			"particle"  "particles/status_fx/status_effect_guardian_angel.vpcf"
+			//"particle"  "particles/units/heroes/hero_omniknight/omniknight_guardian_angel_ally.vpcf"
+			"particle"	"particles/units/heroes/hero_phantom_assassin/phantom_assassin_blur.vpcf"
+			"particle"  "particles/units/heroes/hero_phoenix/phoenix_supernova_egg_ring_start.vpcf"
+			"particle"  "particles/units/heroes/hero_phoenix/phoenix_supernova_hit.vpcf"
+			"particle"	"particles/units/heroes/hero_phoenix/phoenix_supernova_death.vpcf"
+		}
+
+		// Casting
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityCastPoint"				"0.3"
+		
+		// Time		
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityCooldown"				"120 110 100"
+
+		// Cost
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityManaCost"				"150 200 250"
+
+		// Special
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilitySpecial"
+		{
+			"01"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"duration"				"6 8 10"
+				"_value"				"DOTA_Tooltip_Ability_Fantasy_Nature_Duration"
+			}
+			"02"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"damage"				"60 85 110"
+				"_value"				"DOTA_Tooltip_Ability_Fantasy_Nature_Damage"
+			}
+			"03"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"radius"				"350"
+				"_value"				"DOTA_Tooltip_Ability_Fantasy_Nature_Radius"
+			}
+			"04"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"damage_interval"		"1"
+			}
+			"05"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"explosion_damage"		"300 425 550"
+			}
+			"06"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"explosion_radius"		"550"
+			}
+			"07"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"scepter_cooldown"		"90 80 70"
+			}
+			"08"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"scepter_manacost"		"130"
 			}
 		}
 	}
@@ -1562,7 +1690,7 @@
 
 			"FireSound"
 			{
-				"EffectName"	"Hero_Sniper.ShrapnelShoot"
+				"EffectName"	"barebones.Hohohaha"
 				"Target" 		"TARGET"
 			}
 		}
@@ -1740,7 +1868,8 @@
 		//-------------------------------------------------------------------------------------------------------------
 		"precache"
 		{
-			"particle"  "particles/units/heroes/hero_phoenix/phoenix_sunray.vpcf"
+			"particle"  "particles/units/heroes/hero_queenofpain/queen_sonic_wave.vpcf"
+			"particle"	"particles/units/heroes/hero_phoenix/phoenix_sunray_beam_enemy.vpcf"
 		}
 
 		// Casting
@@ -1801,68 +1930,78 @@
 				"var_type"				"FIELD_FLOAT"
 				"damage_interval"		"0.1"
 			}
+			"08"
+			{
+				"var_type"
+				"pulse_speed"			"1000"
+			}
 		}
 
 		"OnSpellStart"
 	    {
-	    	"RunScript"
+	    	"ApplyModifier"
 	    	{
-	    		"ScriptFile"	"heroes/hero_marisa/master_spark.lua"
-	    		"Function"		"masterSpark"
-	    		"dummy_modifer"	"modifier_master_spark"
+	    		"ModifierName"	"modifier_master_spark"
+	    		"Target" 		"CASTER"
+	    		"Duration"		"%AbilityChannelTime"
 	    	}
 	    }
 
 	    "Modifiers"
 	    {
 	    	"modifier_master_spark"
-			{
-				"IsHidden"		"1"
-				"IsPurgable"	"0"
-
-				"EffectName"			"particles/units/heroes/hero_phoenix/phoenix_sunray.vpcf"
-				"EffectAttachType"		"follow_origin"
-
-				"States"
-				{
-					"MODIFIER_STATE_INVULNERABLE" 	"MODIFIER_STATE_VALUE_ENABLED"
-					"MODIFIER_STATE_NO_HEALTH_BAR" 	"MODIFIER_STATE_VALUE_ENABLED"				
-					"MODIFIER_STATE_NOT_ON_MINIMAP" "MODIFIER_STATE_VALUE_ENABLED"
-					"MODIFIER_STATE_UNSELECTABLE" 	"MODIFIER_STATE_VALUE_ENABLED"
-					"MODIFIER_STATE_NO_UNIT_COLLISION"	"MODIFIER_STATE_VALUE_ENABLED"
-				}
-
-				"ThinkInterval"	"%damage_interval"
+	    	{
+	    		"ThinkInterval"	"%damage_interval"
 
 				"OnIntervalThink"
 				{
-					"ActOnTargets"
+					"LinearProjectile"
 					{
-						"Target"
-			            {
-			                "Center" "CASTER"
-			                "Radius" "%radius"
-			                "Teams" "DOTA_UNIT_TARGET_TEAM_ENEMY" 
-			                "Types" "DOTA_UNIT_TARGET_BASIC | DOTA_UNIT_TARGET_HERO"
-			            }
-
-			            "Action"
-			            {
-			            	"Damage"
-			            	{
-			            		"Target"	"TARGET"
-			            		"Type"		"DAMAGE_TYPE_MAGICAL"
-			            		"Damage"	"%AbilityDamage * %damage_interval / %AbilityChannelTime"
-			            	}
-			            }
+						"Target"			"POINT"
+					    "EffectName"		"particles/units/heroes/hero_queenofpain/queen_sonic_wave.vpcf"
+					    "MoveSpeed"			"%pulse_speed"
+					    "StartRadius"		"%start_radius"
+					    "StartPosition"		"attach_origin"
+					    "EndRadius"			"%end_radius"
+					    "FixedDistance"		"%range"
+					    "TargetTeams"		"DOTA_UNIT_TARGET_TEAM_ENEMY"
+					    "TargetTypes"		"DOTA_UNIT_TARGET_BASIC | DOTA_UNIT_TARGET_HERO"
+					    "TargetFlags"		"DOTA_UNIT_TARGET_FLAG_NONE"
+					    "HasFrontalCone"	"1"
+					    "ProvidesVision"	"1"
 					}
 				}
-			}
+	    	}
 	    }
 
-	   // "OnChannelFinish"
-	    //{
-	    //}
+	    "OnProjectileHitUnit"
+		{
+			"DeleteOnHit"	"0"
+			"Damage"
+			{
+				"Target"	"TARGET"
+				"Type"		"DAMAGE_TYPE_MAGICAL"
+				"Damage"	"%AbilityDamage * %damage_interval / %AbilityChannelTime"
+			}
+
+			"FireEffect"
+			{
+				"EffectName"		"particles/units/heroes/hero_phoenix/phoenix_sunray_beam_enemy.vpcf"
+				"EffectAttachType"	"follow_origin"
+				"Target"			"TARGET"
+			}
+		}
+
+	    
+
+	   "OnChannelFinish"
+	   {
+			"RemoveModifier"
+			{
+				"ModifierName"	"modifier_master_spark"
+				"Target" 		"CASTER"
+			}
+	   }
 	}
 
 	"orrerys_sun"

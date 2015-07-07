@@ -1,0 +1,158 @@
+modifier_fantasy_nature = class({})
+
+-- damage_interval = nil
+-- radius = nil
+-- damage = nil
+-- explosion_radius = nil
+-- explosion_damage = nil
+
+function modifier_fantasy_nature:OnCreated( kv )
+	if IsServer() then
+		local caster = self:GetCaster()
+		self.damage_interval = kv.damage_interval
+		self.radius = kv.radius
+		self.damage = kv.damage
+		self.explosion_radius = kv.explosion_radius
+		self.explosion_damage = kv.explosion_damage
+		self.damage_type = kv.damage_type
+
+		local blur_particle = ParticleManager:CreateParticle("particles/units/heroes/hero_phantom_assassin/phantom_assassin_blur.vpcf",
+															PATTACH_ABSORIGIN_FOLLOW, caster)
+		ParticleManager:SetParticleControl(blur_particle, 0, caster:GetOrigin())
+		self:AddParticle(blur_particle, false, false, -1, false, false)
+
+		self:StartIntervalThink(self.damage_interval)
+	end
+end
+
+function modifier_fantasy_nature:GetEffectName()
+	return "particles/units/heroes/hero_phantom_assassin/phantom_assassin_blur.vpcf"
+end
+
+function modifier_fantasy_nature:GetEffectAttachType()
+	return PATTACH_POINT_FOLLOW
+end
+
+function modifier_fantasy_nature:IsHidden()
+	return false
+end
+
+function modifier_fantasy_nature:IsDebuff()
+	return false
+end
+
+function modifier_fantasy_nature:IsBuff()
+	return true
+end
+
+function modifier_fantasy_nature:DeclareFunctions()
+	return { MODIFIER_PROPERTY_ABSOLUTE_NO_DAMAGE_PHYSICAL }
+end
+
+function modifier_fantasy_nature:GetAbsoluteNoDamagePhysical( params )
+	return true
+end
+
+function modifier_fantasy_nature:GetCooldown( nLevel )
+	if self:GetCaster():HasScepter() then
+		return self:GetLevelSpecialValueFor( "scepter_cooldown" )
+	end
+
+	return self.BaseClass.GetCooldown( self, nLevel )
+end
+
+function modifier_fantasy_nature:GetManaCost( nLevel )
+	if self:GetCaster():HasScepter() then
+		return self:GetLevelSpecialValueFor( "scepter_manacost" )
+	end
+
+	return self.BaseClass.GetManaCost() ( self, nLevel )
+end
+
+function modifier_fantasy_nature:OnIntervalThink()
+	local caster = self:GetCaster()
+	if IsServer() then
+		local particle = ParticleManager:CreateParticle("particles/units/heroes/hero_phoenix/phoenix_supernova_egg_ring_start.vpcf",
+														PATTACH_ABSORIGIN_FOLLOW, caster)
+		ParticleManager:SetParticleControl(particle, 0, caster:GetOrigin())
+		ParticleManager:SetParticleControl(particle, 1, caster:GetOrigin())
+		ParticleManager:SetParticleControl(particle, 2, caster:GetOrigin())
+		ParticleManager:SetParticleControl(particle, 3, caster:GetOrigin())
+		self:AddParticle(particle, false, false, -1, false, false)
+
+		local targets = FindUnitsInRadius(caster:GetTeamNumber(),
+		                            caster:GetAbsOrigin(),
+		                            nil,
+		                            self.radius,
+		                            DOTA_UNIT_TARGET_TEAM_ENEMY,
+		                            DOTA_UNIT_TARGET_BASIC + DOTA_UNIT_TARGET_HERO,
+		                            DOTA_UNIT_TARGET_FLAG_MAGIC_IMMUNE_ENEMIES,
+		                            FIND_CLOSEST,
+		                            false)
+
+		local damage_table = {}
+		damage_table.attacker = caster
+		damage_table.damage_type = self.damage_type
+		damage_table.damage = self.damage
+		damage_table.ability = self
+
+		for k,unit in pairs(targets) do
+			damage_table.victim = unit
+			ApplyDamage(damage_table)
+		end
+
+		-- local nDamageType = DAMAGE_TYPE_MAGICAL
+		-- if self:GetCaster():HasScepter() then
+		-- 	nDamageType = DAMAGE_TYPE_PURE
+		-- end
+
+		-- local damage = {
+		-- 	victim = self:GetParent(),
+		-- 	attacker = self:GetCaster(),
+		-- 	damage = self:GetAbility():GetSpecialValueFor( "damage" ),
+		-- 	damage_type = nDamageType,
+		-- 	ability = self:GetAbility()
+		-- }
+
+		-- ApplyDamage( damage )
+
+	end
+end
+
+function modifier_fantasy_nature:OnAttacked()
+	local particle = ParticleManager:CreateParticle("particles/units/heroes/hero_phoenix/phoenix_supernova_hit.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
+	ParticleManager:SetParticleControl(particle, 0, getCaster())
+	ParticleManager:SetParticleControl(particle, 1, getCaster())
+	self:AddParticle(particle, false, false, -1, false, false)
+end
+
+function modifier_fantasy_nature:OnDestroy()
+	local caster = self:GetCaster()
+	if IsServer() and caster:HasScepter() then
+		local particle = ParticleManager:CreateParticle("particles/units/heroes/hero_phoenix/phoenix_supernova_reborn.vpcf",
+														PATTACH_ABSORIGIN_FOLLOW, caster)
+		ParticleManager:SetParticleControl(particle, 0, caster:GetOrigin())
+
+		local targets = FindUnitsInRadius(caster:GetTeamNumber(),
+		                            caster:GetAbsOrigin(),
+		                            nil,
+		                        	self.explosion_radius,
+		                            DOTA_UNIT_TARGET_TEAM_ENEMY,
+		                            DOTA_UNIT_TARGET_BASIC + DOTA_UNIT_TARGET_HERO,
+		                            DOTA_UNIT_TARGET_FLAG_MAGIC_IMMUNE_ENEMIES,
+		                            FIND_CLOSEST,
+		                            false)
+
+		local damage_table = {}
+		damage_table.attacker = caster
+		damage_table.damage_type = self.damage_type
+		damage_table.damage = self.explosion_damage
+
+		for k,target in pairs(targets) do
+			damage_table.victim = target
+			ApplyDamage(damage_table)
+		end
+
+		EmitSoundOn("Hero_Phoenix.SuperNova.Explode", caster)
+	end
+end
