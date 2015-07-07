@@ -1,3 +1,37 @@
+function masterSparkStart(event)
+	local caster = event.caster
+	local ability = event.ability
+	local ability_level = ability:GetLevel() - 1
+	local particleName = "particles/units/heroes/hero_phoenix/phoenix_sunray.vpcf"
+	ability.particles = {}
+
+	local pfx = ParticleManager:CreateParticle( particleName, PATTACH_ABSORIGIN_FOLLOW, caster )
+	table.insert(ability.particles, pfx)
+	ParticleManager:SetParticleControlEnt( pfx, 0, caster, PATTACH_POINT_FOLLOW, "attach_hitloc", caster:GetAbsOrigin(), true )
+
+	local range = ability:GetLevelSpecialValueFor("range", ability_level) + ability:GetLevelSpecialValueFor("end_radius", ability_level)
+	local endcapPos = caster:GetAbsOrigin() + caster:GetForwardVector() * range
+	ParticleManager:SetParticleControl( pfx, 1, endcapPos )
+
+	local rotationPoint = caster:GetAbsOrigin() + caster:GetForwardVector() * ability:GetLevelSpecialValueFor("range", ability_level)
+	for i=1,3 do
+		if i % 2 == 1 then
+			local secondarypfx = ParticleManager:CreateParticle( particleName, PATTACH_ABSORIGIN_FOLLOW, caster )
+			table.insert(ability.particles, secondarypfx)
+			ParticleManager:SetParticleControlEnt( secondarypfx, 0, caster, PATTACH_POINT_FOLLOW, "attach_hitloc", caster:GetAbsOrigin(), true )
+
+			secondaryLaserPoint = RotatePosition(endcapPos, QAngle(0,i * 90,0), rotationPoint)
+			ParticleManager:SetParticleControl( secondarypfx, 1, secondaryLaserPoint )
+		end
+	end
+end
+
+function masterSparkEnd(event)
+	for k,particle in pairs(event.ability.particles) do
+		ParticleManager:DestroyParticle(particle, false)
+	end
+end
+
 function masterSpark(event)
 	local caster = event.caster
 	local target = event.target
@@ -12,17 +46,15 @@ function masterSpark(event)
 	local particleName = "particles/units/heroes/hero_shadowshaman/shadowshaman_ether_shock.vpcf"
 	local cone_units = GetEnemiesInCone( caster, start_radius, end_radius, end_distance )
 	for _,unit in pairs(cone_units) do
-		if unit ~= target then
-			-- Particle
-			local origin = unit:GetAbsOrigin()
-			local lightningBolt = ParticleManager:CreateParticle(particleName, PATTACH_WORLDORIGIN, caster)
-			ParticleManager:SetParticleControl(lightningBolt,0,Vector(caster:GetAbsOrigin().x,caster:GetAbsOrigin().y,caster:GetAbsOrigin().z + caster:GetBoundingMaxs().z ))	
-			ParticleManager:SetParticleControl(lightningBolt,1,Vector(origin.x,origin.y,origin.z + unit:GetBoundingMaxs().z ))
-		
-			-- Damage
-			ApplyDamage({ victim = unit, attacker = caster, damage = damage, damage_type = AbilityDamageType})
-			ability:ApplyDataDrivenModifier(caster, unit, event.slow_modifier, {})
-		end
+		-- Particle
+		local origin = unit:GetAbsOrigin()
+		local lightningBolt = ParticleManager:CreateParticle(particleName, PATTACH_WORLDORIGIN, caster)
+		ParticleManager:SetParticleControl(lightningBolt,0,Vector(caster:GetAbsOrigin().x,caster:GetAbsOrigin().y,caster:GetAbsOrigin().z + caster:GetBoundingMaxs().z ))	
+		ParticleManager:SetParticleControl(lightningBolt,1,Vector(origin.x,origin.y,origin.z + unit:GetBoundingMaxs().z ))
+	
+		-- Damage
+		ApplyDamage({ victim = unit, attacker = caster, damage = damage, damage_type = AbilityDamageType})
+		ability:ApplyDataDrivenModifier(caster, unit, event.slow_modifier, {})
 	end
 end
 
@@ -37,8 +69,8 @@ function GetEnemiesInCone( unit, start_radius, end_radius, end_distance)
 	local end_point = origin + fv * (start_radius + end_distance) -- Position to find units with end_radius
 
 	if DEBUG then
-		DebugDrawCircle(start_point, Vector(255,0,0), 100, start_radius, true, 3)
-		DebugDrawCircle(end_point, Vector(255,0,0), 100, end_radius, true, 3)
+		DebugDrawCircle(start_point, Vector(255,0,0), 5, start_radius, true, 1)
+		DebugDrawCircle(end_point, Vector(255,0,0), 5, end_radius, true, 1)
 	end
 
 	-- 1 medium circle should be enough as long as the mid_interval isn't too large
@@ -48,7 +80,7 @@ function GetEnemiesInCone( unit, start_radius, end_radius, end_distance)
 	
 	if DEBUG then
 		--print("There's a space of "..mid_interval.." between the circles at the cone edges")
-		DebugDrawCircle(mid_point, Vector(0,255,0), 100, mid_radius, true, 3)
+		DebugDrawCircle(mid_point, Vector(0,255,0), 5, mid_radius, true, 1)
 	end
 
 	-- Find the units
@@ -80,11 +112,9 @@ function GetEnemiesInCone( unit, start_radius, end_radius, end_distance)
 		end
 	end
 
-	if DEBUG then
-		DeepPrintTable(cone_units)
-	end
-	return cone_units
+	--	DeepPrintTable(cone_units)
 
+	return cone_units
 end
 
 -- Returns true if the element can be found on the list, false otherwise

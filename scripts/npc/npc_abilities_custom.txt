@@ -1542,8 +1542,9 @@
 		//-------------------------------------------------------------------------------------------------------------
 		"precache"
 		{
-			"particle"  "particles/units/heroes/hero_shadowshaman/shadowshaman_ether_shock.vpcf"
-			"soundfile" "soundevents/game_sounds_heroes/game_sounds_shadowshaman.vsndevts"
+			"particle"					"particles/units/heroes/hero_shadowshaman/shadowshaman_ether_shock.vpcf"
+			"soundfile"					"soundevents/game_sounds_heroes/game_sounds_shadowshaman.vsndevts"
+			"particle"					"particles/units/heroes/hero_phoenix/phoenix_sunray.vpcf"
 		}
 
 		// Casting
@@ -1616,6 +1617,11 @@
 
 		"OnSpellStart"
 	    {
+			"RunScript"
+			{
+				"ScriptFile"	"heroes/hero_marisa/master_spark.lua"
+				"Function"		"masterSparkStart"			}
+
 	    	"ApplyModifier"
 	    	{
 	    		"ModifierName"	"modifier_master_spark"
@@ -1668,6 +1674,13 @@
 			{
 				"ModifierName"	"modifier_master_spark"
 				"Target" 		"CASTER"
+			}
+
+			"RunScript"
+			{
+				"ScriptFile"	"heroes/hero_marisa/master_spark.lua"
+				"Function"		"masterSparkEnd"
+				"slow_modifier"	"modifier_master_spark_slow"
 			}
 	   }
 	}
