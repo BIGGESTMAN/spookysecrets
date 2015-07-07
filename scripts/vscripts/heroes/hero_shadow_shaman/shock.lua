@@ -1,33 +1,60 @@
-function masterSpark(event)
+--[[
+	Author: Noya
+	Date: April 4, 2015.
+	Finds targets to fire the ether shock effect and damage.
+]]
+function Shock( event )
 	local caster = event.caster
 	local target = event.target
 	local ability = event.ability
 	local level = ability:GetLevel() - 1
 	local start_radius = ability:GetLevelSpecialValueFor("start_radius", level )
 	local end_radius = ability:GetLevelSpecialValueFor("end_radius", level )
-	local end_distance = ability:GetLevelSpecialValueFor("range", level )
-	local damage = ability:GetLevelSpecialValueFor("damage", level) * ability:GetLevelSpecialValueFor("damage_interval", level) /
-																	  ability:GetLevelSpecialValueFor("duration", level)
+	local end_distance = ability:GetLevelSpecialValueFor("end_distance", level )
+	local targets = ability:GetLevelSpecialValueFor("targets", level )
+	local damage = ability:GetLevelSpecialValueFor("damage", level )
 	local AbilityDamageType = ability:GetAbilityDamageType()
 	local particleName = "particles/units/heroes/hero_shadowshaman/shadowshaman_ether_shock.vpcf"
+
+	-- Make sure the main target is damaged
+	local lightningBolt = ParticleManager:CreateParticle(particleName, PATTACH_WORLDORIGIN, caster)
+	ParticleManager:SetParticleControl(lightningBolt,0,Vector(caster:GetAbsOrigin().x,caster:GetAbsOrigin().y,caster:GetAbsOrigin().z + caster:GetBoundingMaxs().z ))	
+	ParticleManager:SetParticleControl(lightningBolt,1,Vector(target:GetAbsOrigin().x,target:GetAbsOrigin().y,target:GetAbsOrigin().z + target:GetBoundingMaxs().z ))
+	ApplyDamage({ victim = target, attacker = caster, damage = damage, damage_type = AbilityDamageType})
+	target:EmitSound("Hero_ShadowShaman.EtherShock.Target")
+
 	local cone_units = GetEnemiesInCone( caster, start_radius, end_radius, end_distance )
+	local targets_shocked = 1 --Is targets=extra targets or total?
 	for _,unit in pairs(cone_units) do
-		if unit ~= target then
-			-- Particle
-			local origin = unit:GetAbsOrigin()
-			local lightningBolt = ParticleManager:CreateParticle(particleName, PATTACH_WORLDORIGIN, caster)
-			ParticleManager:SetParticleControl(lightningBolt,0,Vector(caster:GetAbsOrigin().x,caster:GetAbsOrigin().y,caster:GetAbsOrigin().z + caster:GetBoundingMaxs().z ))	
-			ParticleManager:SetParticleControl(lightningBolt,1,Vector(origin.x,origin.y,origin.z + unit:GetBoundingMaxs().z ))
-		
-			-- Damage
-			ApplyDamage({ victim = unit, attacker = caster, damage = damage, damage_type = AbilityDamageType})
-			ability:ApplyDataDrivenModifier(caster, unit, event.slow_modifier, {})
+		print(unit)
+		if targets_shocked < targets then
+			if unit ~= target then
+				-- Particle
+				local origin = unit:GetAbsOrigin()
+				local lightningBolt = ParticleManager:CreateParticle(particleName, PATTACH_WORLDORIGIN, caster)
+				ParticleManager:SetParticleControl(lightningBolt,0,Vector(caster:GetAbsOrigin().x,caster:GetAbsOrigin().y,caster:GetAbsOrigin().z + caster:GetBoundingMaxs().z ))	
+				ParticleManager:SetParticleControl(lightningBolt,1,Vector(origin.x,origin.y,origin.z + unit:GetBoundingMaxs().z ))
+			
+				-- Damage
+				ApplyDamage({ victim = unit, attacker = caster, damage = damage, damage_type = AbilityDamageType})
+
+				-- Increment counter
+				targets_shocked = targets_shocked + 1
+			end
+		else
+			break
 		end
 	end
 end
 
+--[[
+	Author: Noya
+	Date: April 4, 2015.
+	Returns a table of enemy units in a frontal cone of the unit
+	The cone starts with start_radius and reaches its end_radius after start_radius + end_distance
+]]
 function GetEnemiesInCone( unit, start_radius, end_radius, end_distance)
-	local DEBUG = false
+	local DEBUG = true
 	
 	-- Positions
 	local fv = unit:GetForwardVector()
@@ -80,9 +107,7 @@ function GetEnemiesInCone( unit, start_radius, end_radius, end_distance)
 		end
 	end
 
-	if DEBUG then
-		DeepPrintTable(cone_units)
-	end
+	DeepPrintTable(cone_units)
 	return cone_units
 
 end
