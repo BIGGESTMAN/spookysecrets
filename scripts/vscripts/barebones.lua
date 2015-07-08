@@ -269,6 +269,7 @@ function GameMode:OnHeroInGame(hero)
 
 	-- These lines will create an item and add it to the player, effectively ensuring they start with the item
 	hero:AddItem(CreateItem("item_blink", hero, hero))
+	hero:AddItem(CreateItem("item_force_staff", hero, hero))
 	hero:AddItem(CreateItem("item_ultimate_scepter", hero, hero))
 
 	for i=0,15 do

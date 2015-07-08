@@ -1768,23 +1768,30 @@
 			"07"
 			{
 				"var_type"					"FIELD_INTEGER"
-				"laser_damage"				""
+				"laser_damage"				"30 36 42 48"
 				"_value"					"DOTA_Tooltip_Ability_orrerys_sun_Laser_Damage"
 			}
 			"08"
 			{
 				"var_type"					"FIELD_INTEGER"
-				"search_radius"				""
+				"search_radius"				"1000"
 				"_value"					"DOTA_Tooltip_Ability_orrerys_sun_Search_Radius"
+			}
+			"09"
+			{
+				"var_type"					"FIELD_INTEGER"
+				"laser_radius"				"150"
+				"_value"					"DOTA_Tooltip_Ability_orrerys_sun_Laser_Radius"
 			}
 		}
 
 		"precache"
 		{
-			"soundfile" "soundevents/game_sounds_heroes/game_sounds_death_prophet.vsndevts"
+			"soundfile" "soundevents/game_sounds_heroes/game_sounds_tinker.vsndevts"
 			"particle"	"particles/wisp_relocate_channel.vpcf"
 			"particle"	"particles/units/heroes/hero_wisp/wisp_death.vpcf"
 			"particle"	"particles/orb_projectile.vpcf"
+			"particle"	"particles/units/heroes/hero_tinker/tinker_laser.vpcf"
 		}
 
 		"OnUpgrade"
@@ -1801,7 +1808,7 @@
 			"modifier_orrerys_sun"
 			{	
 				"Passive"				"1"
-				"IsHidden"				"1"
+				"IsHidden"				"0"
 
 				"Attributes"			"MODIFIER_ATTRIBUTE_PERMANENT"
 
@@ -1836,6 +1843,17 @@
 					{
 						"EffectName"	"Hero_Wisp.Death"
 						"Target" 		"CASTER"
+					}
+				}
+
+				"OnAbilityExecuted"
+				{
+					"RunScript"
+					{
+						"ScriptFile"		"heroes/hero_marisa/orrerys_sun.lua"
+						"Function"			"spellCast"
+						"thinker_modifier"	"modifier_orrerys_sun_dummy"
+						"particleName"		"particles/units/heroes/hero_tinker/tinker_laser.vpcf"
 					}
 				}
 			}
@@ -1881,6 +1899,28 @@
 					"MODIFIER_STATE_UNSELECTABLE"		"MODIFIER_STATE_VALUE_ENABLED"
 					"MODIFIER_STATE_FLYING"				"MODIFIER_STATE_VALUE_ENABLED"
 					"MODIFIER_STATE_DISARMED"			"MODIFIER_STATE_VALUE_ENABLED"
+				}
+			}
+
+			"modifier_orrerys_sun_dummy"
+			{
+				"OnCreated"
+				{
+					"ApplyModifier"
+					{
+						"Target"		"TARGET"
+						"ModifierName"	"modifier_phased"
+					}
+				}
+				
+				"States"
+				{
+					"MODIFIER_STATE_PROVIDES_VISION"		"MODIFIER_STATE_VALUE_ENABLED"
+					"MODIFIER_STATE_INVULNERABLE"			"MODIFIER_STATE_VALUE_ENABLED"
+					"MODIFIER_STATE_NO_HEALTH_BAR"			"MODIFIER_STATE_VALUE_ENABLED"
+					"MODIFIER_STATE_NO_UNIT_COLLISION"		"MODIFIER_STATE_VALUE_ENABLED"
+					"MODIFIER_STATE_NOT_ON_MINIMAP"			"MODIFIER_STATE_VALUE_ENABLED"
+					"MODIFIER_STATE_UNSELECTABLE"			"MODIFIER_STATE_VALUE_ENABLED"
 				}
 			}
 		}
@@ -1990,9 +2030,10 @@
 	    	"modifier_final_spark"
 	    	{
 	    		"IsHidden"		"0"
-	    		"ThinkInterval"	"%damage_interval"
-
+	    		"IsPurgable"	"0"
 	    		"Duration"		"%duration"
+
+	    		"ThinkInterval"	"%damage_interval"
 
 	    		"STATES"
 				{

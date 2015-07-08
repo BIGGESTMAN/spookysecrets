@@ -71,6 +71,22 @@ function finalSpark(event)
 		ParticleManager:SetParticleControlEnt( pfx, 1, unit, PATTACH_POINT_FOLLOW, "attach_hitloc", unit:GetAbsOrigin(), true )
 		ParticleManager:ReleaseParticleIndex( pfx )
 	end
+
+	-- update particles for if Marisa is moved
+	local range = end_distance + end_radius
+	local rotationPoint = caster:GetAbsOrigin() + caster:GetForwardVector() * end_distance
+	local laserPoints = {}
+	laserPoints[1] = caster:GetAbsOrigin() + caster:GetForwardVector() * range
+	
+	for i=1,3 do
+		if i % 2 == 1 then
+			table.insert(laserPoints, RotatePosition(laserPoints[1], QAngle(0,i * 90,0), rotationPoint))
+		end
+	end
+
+	for k,particle in pairs(event.ability.particles) do
+		ParticleManager:SetParticleControl(particle, 1, laserPoints[k])
+	end
 end
 
 function GetEnemiesInCone( unit, start_radius, end_radius, end_distance)

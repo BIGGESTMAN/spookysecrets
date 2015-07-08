@@ -191,10 +191,6 @@ function orrerysSunAttack( event )
 	local target = event.target
 	local ability = event.ability
 
-	-- for k,spirit in pairs(caster.orbs) do
-	-- 	spirit:PerformAttack(target, true, true, true, true )
-	-- end
-
 	for i=1,ability:GetLevelSpecialValueFor("orbs", ability:GetLevel() - 1) do
 		Timers:CreateTimer(i * ability:GetLevelSpecialValueFor("delay_between_orb_attacks", ability:GetLevel() - 1), function()
 			caster.orbs[i]:PerformAttack(target, true, true, true, true )
@@ -233,4 +229,116 @@ function endOrrerysSun( event )
     	end
 	end
 	caster.orbs = {}
+end
+function spellCast( event )
+	local caster = event.caster
+	local ability = event.ability
+	local ability_level = ability:GetLevel()
+	local search_radius = ability:GetLevelSpecialValueFor("search_radius", ability_level)
+
+	local team = caster:GetTeamNumber()
+	local iTeam = DOTA_UNIT_TARGET_TEAM_ENEMY
+	local iType = DOTA_UNIT_TARGET_BASIC + DOTA_UNIT_TARGET_HERO
+	local iFlag = DOTA_UNIT_TARGET_FLAG_NONE
+	local iOrder = FIND_CLOSEST
+
+	for k,orb in pairs(caster.orbs) do
+		local units = FindUnitsInRadius(team, orb:GetAbsOrigin(), nil, search_radius, iTeam, iType, iFlag, iOrder, false)
+		if #units > 0 then
+			local target = units[RandomInt(1, #units)]
+			fireLaserAt(event, orb, target)
+		end
+	end
+end
+
+function fireLaserAt(event, orb, target)
+	print("firelaserat")
+	local caster = event.caster
+	local orb_location = orb:GetAbsOrigin()
+	local ability = event.ability
+	local ability_level = ability:GetLevel()
+	local range = ability:GetLevelSpecialValueFor("search_radius", ability_level)
+	local radius = ability:GetLevelSpecialValueFor("laser_radius", ability_level)
+	local thinkerRadius = radius * 1.5
+	local targetDirection = (target:GetAbsOrigin() - orb_location):Normalized()
+
+	local targets = {}
+
+	local number_of_thinkers = math.ceil(range / radius)
+	local distance_per_thinker = (range / number_of_thinkers)
+	local thinkers = {}
+	for i=1, number_of_thinkers do
+		local thinker = CreateUnitByName("npc_dota_invisible_vision_source", orb_location, false, caster, caster, caster:GetTeam() )
+		thinkers[i] = thinker
+
+		thinker:SetDayTimeVisionRange( thinkerRadius )
+		thinker:SetNightTimeVisionRange( thinkerRadius )
+
+		thinker:SetAbsOrigin(orb_location + targetDirection * (distance_per_thinker * (i-1) + thinkerRadius / 2))
+		ability:ApplyDataDrivenModifier(caster, thinker, event.thinker_modifier, {})
+		print(distance_per_thinker * (i-1))
+
+		local team = caster:GetTeamNumber()
+		local iTeam = DOTA_UNIT_TARGET_TEAM_ENEMY
+		local iType = DOTA_UNIT_TARGET_BASIC + DOTA_UNIT_TARGET_HERO
+		local iFlag = DOTA_UNIT_TARGET_FLAG_NONE
+		local iOrder = FIND_CLOSEST
+
+		local possible_targets = FindUnitsInRadius(team, thinker:GetAbsOrigin(), nil, thinkerRadius, iTeam, iType, iFlag, iOrder, false)
+		for k,unit in pairs(possible_targets) do
+			-- Calculate distance
+			local pathStartPos	= orb_location * Vector( 1, 1, 0 )
+			local pathEndPos	= pathStartPos + targetDirection * range
+
+			local distance = DistancePointSegment(unit:GetAbsOrigin() * Vector( 1, 1, 0 ), pathStartPos, pathEndPos )
+			if distance <= radius and not tableContains(targets, unit) then
+				table.insert(targets, unit)
+			end
+		end
+	end
+
+	for k,thinker in pairs(thinkers) do
+		thinker:RemoveSelf()
+	end
+
+	print("laser hit target:", tableContains(targets, target))
+
+	for k,unit in pairs(targets) do
+		ApplyDamage({ victim = unit, attacker = caster, damage = ability:GetLevelSpecialValueFor("laser_damage", ability_level),
+					damage_type = ability:GetAbilityDamageType()})
+		print(unit, caster, ability:GetLevelSpecialValueFor("laser_damage", ability_level), ability:GetAbilityDamageType())
+	end
+
+	-- Particle
+	local origin = orb:GetAbsOrigin()
+	local particle = ParticleManager:CreateParticle(event.particleName, PATTACH_WORLDORIGIN, orb)
+	ParticleManager:SetParticleControl(particle,9,orb_location)	
+	ParticleManager:SetParticleControl(particle,1,target:GetAbsOrigin())
+
+	-- Sound
+	orb:EmitSound("Hero_Tinker.Laser.Cast")
+end
+
+function tableContains(list, element)
+    if list == nil then return false end
+    for i=1,#list do
+        if list[i] == element then
+            return true
+        end
+    end
+    return false
+end
+
+function DistancePointSegment( p, v, w )
+	local l = w - v
+	local l2 = l:Dot( l )
+	t = ( p - v ):Dot( w - v ) / l2
+	if t < 0.0 then
+		return ( v - p ):Length2D()
+	elseif t > 1.0 then
+		return ( w - p ):Length2D()
+	else
+		local proj = v + t * l
+		return ( proj - p ):Length2D()
+	end
 end
