@@ -11,7 +11,6 @@ function FantasySealHit( keys )
 	local target = keys.target
 	local target_location = target:GetAbsOrigin()
 	local ability = keys.ability
-	local ability_damage = ability:GetAbilityDamage()
 
 	-- Initializing the damage table
 	local damage_table = {}
@@ -20,7 +19,7 @@ function FantasySealHit( keys )
 	damage_table.damage_type = ability:GetAbilityDamageType()
 	damage_table.ability = ability	
 
-	local max_damage = ability:GetAbilityDamage()
+	local max_damage = ability:GetLevelSpecialValueFor("max_damage", (ability:GetLevel() - 1))
 	local min_damage = ability:GetLevelSpecialValueFor("min_damage", (ability:GetLevel() - 1))
 	local max_damage_distance = ability:GetLevelSpecialValueFor("max_damage_distance", (ability:GetLevel() - 1))
 	local min_damage_distance = ability:GetLevelSpecialValueFor("min_damage_distance", (ability:GetLevel() - 1))

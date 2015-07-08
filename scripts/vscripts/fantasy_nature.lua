@@ -1,14 +1,6 @@
 fantasy_nature = class({})
 LinkLuaModifier("modifier_fantasy_nature", LUA_MODIFIER_MOTION_NONE )
 
-function fantasy_nature:GetCooldown( nLevel )
-	if self:GetCaster():HasScepter() then
-		return (self:GetSpecialValueFor("scepter_cooldown"))
-	end
- 
-	return self.BaseClass.GetCooldown( self, nLevel )
-end
-
 function fantasy_nature:OnSpellStart()
 	local caster = self:GetCaster()
 	local ability = self
@@ -26,6 +18,22 @@ function fantasy_nature:OnSpellStart()
 	caster:AddNewModifier(caster, self, "modifier_fantasy_nature", {duration = duration,
 							damage_interval = damage_interval, radius = radius, damage = damage, explosion_radius = explosion_radius,
 							explosion_damage = explosion_damage, damage_type = damage_type})
+end
+
+function fantasy_nature:GetCooldown( nLevel )
+	if self:GetCaster():HasScepter() then
+		return self:GetSpecialValueFor("scepter_cooldown")
+	end
+
+	return self.BaseClass.GetCooldown( self, nLevel )
+end
+
+function fantasy_nature:GetManaCost( nLevel )
+	if self:GetCaster():HasScepter() then
+		return self:GetSpecialValueFor("scepter_manacost")
+	end
+
+	return self.BaseClass.GetManaCost(self, nLevel )
 end
 
 -- function fantasyNatureExplosion( keys )

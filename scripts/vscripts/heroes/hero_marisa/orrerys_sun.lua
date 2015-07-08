@@ -42,6 +42,8 @@ function orrerysSunStart( event )
 			end)
 		end
 	end
+
+	--caster:AddNewModifier(caster, ability, "modifier_orrerys_sun_spell_detector", {})
 end
 
 -- Movement logic for each spirit
@@ -234,6 +236,24 @@ function spellCast( event )
 	local caster = event.caster
 	local ability = event.ability
 	local ability_level = ability:GetLevel()
+
+	local team = caster:GetTeamNumber()
+	local iTeam = DOTA_UNIT_TARGET_TEAM_ENEMY
+	local iType = DOTA_UNIT_TARGET_BASIC + DOTA_UNIT_TARGET_HERO
+	local iFlag = DOTA_UNIT_TARGET_FLAG_NONE
+	local iOrder = FIND_CLOSEST
+
+	for i=1,ability:GetLevelSpecialValueFor("orbs", ability:GetLevel() - 1) do
+		Timers:CreateTimer(i * ability:GetLevelSpecialValueFor("delay_between_orb_attacks", ability:GetLevel() - 1), function()
+			fireLaser(event, caster.orbs[i])
+		end)
+	end
+end
+
+function fireLaser(event, orb)
+	local caster = event.caster
+	local ability = event.ability
+	local ability_level = ability:GetLevel()
 	local search_radius = ability:GetLevelSpecialValueFor("search_radius", ability_level)
 
 	local team = caster:GetTeamNumber()
@@ -242,17 +262,15 @@ function spellCast( event )
 	local iFlag = DOTA_UNIT_TARGET_FLAG_NONE
 	local iOrder = FIND_CLOSEST
 
-	for k,orb in pairs(caster.orbs) do
-		local units = FindUnitsInRadius(team, orb:GetAbsOrigin(), nil, search_radius, iTeam, iType, iFlag, iOrder, false)
-		if #units > 0 then
-			local target = units[RandomInt(1, #units)]
-			fireLaserAt(event, orb, target)
-		end
+	local units = FindUnitsInRadius(team, orb:GetAbsOrigin(), nil, search_radius, iTeam, iType, iFlag, iOrder, false)
+	if #units > 0 then
+		local target = units[RandomInt(1, #units)]
+		fireLaserAt(event, orb, target)
+		orb:EmitSound("Hero_Tinker.Laser")
 	end
 end
 
 function fireLaserAt(event, orb, target)
-	print("firelaserat")
 	local caster = event.caster
 	local orb_location = orb:GetAbsOrigin()
 	local ability = event.ability
@@ -276,7 +294,7 @@ function fireLaserAt(event, orb, target)
 
 		thinker:SetAbsOrigin(orb_location + targetDirection * (distance_per_thinker * (i-1) + thinkerRadius / 2))
 		ability:ApplyDataDrivenModifier(caster, thinker, event.thinker_modifier, {})
-		print(distance_per_thinker * (i-1))
+		--print(distance_per_thinker * (i-1))
 
 		local team = caster:GetTeamNumber()
 		local iTeam = DOTA_UNIT_TARGET_TEAM_ENEMY
@@ -301,22 +319,22 @@ function fireLaserAt(event, orb, target)
 		thinker:RemoveSelf()
 	end
 
-	print("laser hit target:", tableContains(targets, target))
+	--print("laser hit target:", tableContains(targets, target))
 
 	for k,unit in pairs(targets) do
 		ApplyDamage({ victim = unit, attacker = caster, damage = ability:GetLevelSpecialValueFor("laser_damage", ability_level),
 					damage_type = ability:GetAbilityDamageType()})
-		print(unit, caster, ability:GetLevelSpecialValueFor("laser_damage", ability_level), ability:GetAbilityDamageType())
 	end
 
 	-- Particle
 	local origin = orb:GetAbsOrigin()
-	local particle = ParticleManager:CreateParticle(event.particleName, PATTACH_WORLDORIGIN, orb)
+	local particle = ParticleManager:CreateParticle(event.particleName, PATTACH_POINT_FOLLOW, orb)
 	ParticleManager:SetParticleControl(particle,9,orb_location)	
 	ParticleManager:SetParticleControl(particle,1,target:GetAbsOrigin())
+	ParticleManager:SetParticleControl(particle,0,orb_location)
 
 	-- Sound
-	orb:EmitSound("Hero_Tinker.Laser.Cast")
+	-- orb:EmitSound("Hero_Tinker.Laser")
 end
 
 function tableContains(list, element)

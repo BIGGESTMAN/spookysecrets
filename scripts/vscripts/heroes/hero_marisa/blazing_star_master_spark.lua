@@ -1,64 +1,52 @@
-particles_table = {}
-
 function masterSparkStart(event)
 	local caster = event.caster
 	local ability = event.ability
 	local ability_level = ability:GetLevel() - 1
 	local particleName = "particles/units/heroes/hero_phoenix/phoenix_sunray.vpcf"
-	particles_table[caster] = {}
-	-- Reverse if cast by Blazing Star
-	ability.reverse = caster:HasModifier("modifier_blazing_star")
-	print(ability.reverse)
-
-	local caster_forward = caster:GetForwardVector()
-	if ability.reverse then caster_forward = caster_forward * -1 end
+	ability.particles = {}
 
 	local pfx = ParticleManager:CreateParticle( particleName, PATTACH_ABSORIGIN_FOLLOW, caster )
-	table.insert(particles_table[caster], pfx)
+	table.insert(ability.particles, pfx)
 	ParticleManager:SetParticleControlEnt( pfx, 0, caster, PATTACH_POINT_FOLLOW, "attach_hitloc", caster:GetAbsOrigin(), true )
 
 	local range = ability:GetLevelSpecialValueFor("range", ability_level) + ability:GetLevelSpecialValueFor("end_radius", ability_level)
-	local endcapPos = caster:GetAbsOrigin() + caster_forward * range
+	local endcapPos = caster:GetAbsOrigin() + caster:GetForwardVector() * range
 	ParticleManager:SetParticleControl( pfx, 1, endcapPos )
 
 	ability.sound_dummy = CreateUnitByName( "npc_dota_invisible_vision_source", endcapPos, false, caster, caster, caster:GetTeam() )
 	ability:ApplyDataDrivenModifier(caster, ability.sound_dummy, event.sound_dummy_modifier, {})
 	StartSoundEvent("Hero_Phoenix.SunRay.Beam", ability.sound_dummy )
 
-	local rotationPoint = caster:GetAbsOrigin() + caster_forward * ability:GetLevelSpecialValueFor("range", ability_level)
+	local rotationPoint = caster:GetAbsOrigin() + caster:GetForwardVector() * ability:GetLevelSpecialValueFor("range", ability_level)
 	for i=1,3 do
 		if i % 2 == 1 then
 			local secondarypfx = ParticleManager:CreateParticle( particleName, PATTACH_ABSORIGIN_FOLLOW, caster )
-			table.insert(particles_table[caster], secondarypfx)
+			table.insert(ability.particles, secondarypfx)
 			ParticleManager:SetParticleControlEnt( secondarypfx, 0, caster, PATTACH_POINT_FOLLOW, "attach_hitloc", caster:GetAbsOrigin(), true )
 
 			secondaryLaserPoint = RotatePosition(endcapPos, QAngle(0,i * 90,0), rotationPoint)
 			ParticleManager:SetParticleControl( secondarypfx, 1, secondaryLaserPoint )
 		end
 	end
+
+	ability.durationElapsed = 0
 end
 
 function masterSparkEnd(event)
-	for k,particle in pairs(particles_table[event.caster]) do
+	for k,particle in pairs(event.ability.particles) do
 		ParticleManager:DestroyParticle(particle, false)
 	end
 	StopSoundEvent("Hero_Phoenix.SunRay.Beam", event.ability.sound_dummy)
 end
 
 function masterSparkCancelled(event)
-	for k,particle in pairs(particles_table[caster]) do
+	for k,particle in pairs(event.ability.particles) do
 		ParticleManager:DestroyParticle(particle, true)
 	end
 end
 
 function masterSpark(event)
 	local caster = event.caster
-
-	print("modifiers:")
-	for i=1,caster:GetModifierCount() do
-		print(caster:GetModifierNameByIndex(i - 1))
-	end
-
 	local target = event.target
 	local ability = event.ability
 	local level = ability:GetLevel() - 1
@@ -68,12 +56,7 @@ function masterSpark(event)
 	local damage = ability:GetLevelSpecialValueFor("damage", level) * ability:GetLevelSpecialValueFor("damage_interval", level) /
 																	  ability:GetLevelSpecialValueFor("duration", level)
 	local AbilityDamageType = ability:GetAbilityDamageType()
-
-	local caster_forward = caster:GetForwardVector()
-	-- Reverse if cast by Blazing Btar
-	if ability.reverse then caster_forward = caster_forward * -1 end
-
-	local cone_units = GetEnemiesInCone( caster, start_radius, end_radius, end_distance, caster_forward)
+	local cone_units = GetEnemiesInCone( caster, start_radius, end_radius, end_distance )
 	for _,unit in pairs(cone_units) do
 		-- Particle
 		-- local origin = unit:GetAbsOrigin()
@@ -91,12 +74,11 @@ function masterSpark(event)
 		ParticleManager:ReleaseParticleIndex( pfx )
 	end
 
-	-- Update particles for if Marisa is moved
-
+	-- update particles for if Marisa is moved
 	local range = end_distance + end_radius
-	local rotationPoint = caster:GetAbsOrigin() + caster_forward * end_distance
+	local rotationPoint = caster:GetAbsOrigin() + caster:GetForwardVector() * end_distance
 	local laserPoints = {}
-	laserPoints[1] = caster:GetAbsOrigin() + caster_forward * range
+	laserPoints[1] = caster:GetAbsOrigin() + caster:GetForwardVector() * range
 	
 	for i=1,3 do
 		if i % 2 == 1 then
@@ -104,16 +86,23 @@ function masterSpark(event)
 		end
 	end
 
-	for k,particle in pairs(particles_table[caster]) do
+	for k,particle in pairs(event.ability.particles) do
 		ParticleManager:SetParticleControl(particle, 1, laserPoints[k])
 	end
+
+	durationElapsed = durationElapsed + ability:GetLevelSpecialValueFor("damage_interval", level)
+	if durationElapsed >= ability:GetLevelSpecialValueFor("duration", level) then
+		masterSparkEnd(event)
+		caster:removeModifierByName(event.modifier)
+	end
+
 end
 
-function GetEnemiesInCone(unit, start_radius, end_radius, end_distance, caster_forward)
+function GetEnemiesInCone( unit, start_radius, end_radius, end_distance)
 	local DEBUG = false
 	
 	-- Positions
-	local fv = caster_forward
+	local fv = unit:GetForwardVector()
 	local origin = unit:GetAbsOrigin()
 
 	local start_point = origin + fv * start_radius -- Position to find units with start_radius

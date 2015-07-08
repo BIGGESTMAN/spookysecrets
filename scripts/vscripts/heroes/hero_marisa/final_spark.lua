@@ -90,7 +90,7 @@ function finalSpark(event)
 end
 
 function GetEnemiesInCone( unit, start_radius, end_radius, end_distance)
-	local DEBUG = true
+	local DEBUG = false
 	
 	-- Positions
 	local fv = unit:GetForwardVector()

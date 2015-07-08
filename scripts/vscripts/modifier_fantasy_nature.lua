@@ -46,27 +46,12 @@ function modifier_fantasy_nature:IsBuff()
 end
 
 function modifier_fantasy_nature:DeclareFunctions()
-	return { MODIFIER_PROPERTY_ABSOLUTE_NO_DAMAGE_PHYSICAL }
+	return { MODIFIER_PROPERTY_ABSOLUTE_NO_DAMAGE_PHYSICAL,
+			MODIFIER_PROPERTY_TRANSLATE_ACTIVITY_MODIFIERS }
 end
 
 function modifier_fantasy_nature:GetAbsoluteNoDamagePhysical( params )
 	return true
-end
-
-function modifier_fantasy_nature:GetCooldown( nLevel )
-	if self:GetCaster():HasScepter() then
-		return self:GetLevelSpecialValueFor( "scepter_cooldown" )
-	end
-
-	return self.BaseClass.GetCooldown( self, nLevel )
-end
-
-function modifier_fantasy_nature:GetManaCost( nLevel )
-	if self:GetCaster():HasScepter() then
-		return self:GetLevelSpecialValueFor( "scepter_manacost" )
-	end
-
-	return self.BaseClass.GetManaCost() ( self, nLevel )
 end
 
 function modifier_fantasy_nature:OnIntervalThink()
@@ -100,21 +85,6 @@ function modifier_fantasy_nature:OnIntervalThink()
 			damage_table.victim = unit
 			ApplyDamage(damage_table)
 		end
-
-		-- local nDamageType = DAMAGE_TYPE_MAGICAL
-		-- if self:GetCaster():HasScepter() then
-		-- 	nDamageType = DAMAGE_TYPE_PURE
-		-- end
-
-		-- local damage = {
-		-- 	victim = self:GetParent(),
-		-- 	attacker = self:GetCaster(),
-		-- 	damage = self:GetAbility():GetSpecialValueFor( "damage" ),
-		-- 	damage_type = nDamageType,
-		-- 	ability = self:GetAbility()
-		-- }
-
-		-- ApplyDamage( damage )
 
 	end
 end
@@ -155,4 +125,12 @@ function modifier_fantasy_nature:OnDestroy()
 
 		EmitSoundOn("Hero_Phoenix.SuperNova.Explode", caster)
 	end
+end
+
+function modifier_fantasy_nature:GetActivityTranslationModifiers( params )
+	if self:GetParent() == self:GetCaster() then
+		return "fantasy_nature"
+	end
+
+	return 0
 end

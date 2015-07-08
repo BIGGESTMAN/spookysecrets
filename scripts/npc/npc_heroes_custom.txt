@@ -136,7 +136,7 @@
 		"override_hero"			"npc_dota_hero_rubick"
 		"SoundSet"				"0"	
 		"Ability1"				"master_spark" 
-		"Ability2"				"reflex_empty1" 
+		"Ability2"				"blazing_star" 
 		"Ability3"				"orrerys_sun" 
 		"Ability4"				"final_spark"
 		"Ability5"				""

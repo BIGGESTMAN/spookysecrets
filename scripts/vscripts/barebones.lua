@@ -125,7 +125,7 @@ function GameMode:InitGameMode()
 	self.bSeenWaitForPlayers = false
 
 	-- Commands can be registered for debugging purposes or as functions that can be called by the custom Scaleform UI
-	Convars:RegisterCommand( "command_example", Dynamic_Wrap(dotacraft, 'ExampleConsoleCommand'), "A console command example", 0 )
+	--Convars:RegisterCommand( "command_example", Dynamic_Wrap(dotacraft, 'ExampleConsoleCommand'), "A console command example", 0 )
 
 	print('[BAREBONES] Done loading Barebones gamemode!\n\n')
 end
@@ -342,8 +342,8 @@ end
 
 -- An NPC has spawned somewhere in game.  This includes heroes
 function GameMode:OnNPCSpawned(keys)
-	print("[BAREBONES] NPC Spawned")
-	DeepPrintTable(keys)
+	--print("[BAREBONES] NPC Spawned")
+	--DeepPrintTable(keys)
 	local npc = EntIndexToHScript(keys.entindex)
 
 	if npc:IsRealHero() and npc.bFirstSpawned == nil then
@@ -511,8 +511,8 @@ end
 
 -- An entity died
 function GameMode:OnEntityKilled( keys )
-	print( '[BAREBONES] OnEntityKilled Called' )
-	DeepPrintTable( keys )
+	--print( '[BAREBONES] OnEntityKilled Called' )
+	--DeepPrintTable( keys )
 
 	-- The Unit that was Killed
 	local killedUnit = EntIndexToHScript( keys.entindex_killed )
