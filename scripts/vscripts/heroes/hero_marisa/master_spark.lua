@@ -8,7 +8,6 @@ function masterSparkStart(event)
 	particles_table[caster] = {}
 	-- Reverse if cast by Blazing Star
 	ability.reverse = caster:HasModifier("modifier_blazing_star")
-	print(ability.reverse)
 
 	local caster_forward = caster:GetForwardVector()
 	if ability.reverse then caster_forward = caster_forward * -1 end
@@ -54,11 +53,6 @@ end
 function masterSpark(event)
 	local caster = event.caster
 
-	print("modifiers:")
-	for i=1,caster:GetModifierCount() do
-		print(caster:GetModifierNameByIndex(i - 1))
-	end
-
 	local target = event.target
 	local ability = event.ability
 	local level = ability:GetLevel() - 1
@@ -70,7 +64,7 @@ function masterSpark(event)
 	local AbilityDamageType = ability:GetAbilityDamageType()
 
 	local caster_forward = caster:GetForwardVector()
-	-- Reverse if cast by Blazing Btar
+	-- Reverse if cast by Blazing Star
 	if ability.reverse then caster_forward = caster_forward * -1 end
 
 	local cone_units = GetEnemiesInCone( caster, start_radius, end_radius, end_distance, caster_forward)

@@ -10,7 +10,12 @@ function blazingStarStart( keys )
 
 	ability:ApplyDataDrivenModifier(caster, caster, keys.dashing_modifier, {})
 	caster:CastAbilityImmediately(caster:FindAbilityByName("master_spark"), 1)
-	--caster:CastAbilityOnPosition(caster:GetAbsOrigin() + caster:GetForwardVector(), caster:FindAbilityByName("blazing_star_master_spark"), 1)
+
+	-- Enable reverse-direction ability
+	local main_ability_name	= ability:GetAbilityName()
+	local sub_ability_name	= keys.reverse_ability_name
+	caster:SwapAbilities(main_ability_name, sub_ability_name, false, true)
+	caster:FindAbilityByName(sub_ability_name):SetActivated(true)
 
 	-- Moving the caster
 	Timers:CreateTimer(0, function()
@@ -20,17 +25,23 @@ function blazingStarStart( keys )
 
 		if traveled_distance < distance then
 
-			if not direction then direction = caster:GetForwardVector() end
+			if (not direction) or caster:HasModifier(keys.reversed_modifier) then
+				direction = caster:GetForwardVector()
+			end
 			local target_distance = (target:GetAbsOrigin() - caster:GetAbsOrigin()):Length2D()
 
-			if not caught_target and target:IsAlive() then
-				direction = (target:GetAbsOrigin() - caster:GetAbsOrigin()):Normalized()
+			if not caught_target then
+				-- Check if target is in range to be caught
+				if not caster:HasModifier(keys.reversed_modifier) then
+					direction = (target:GetAbsOrigin() - caster:GetAbsOrigin()):Normalized()
+				end
 
 				if target_distance < ability:GetLevelSpecialValueFor("catch_radius", ability_level) then
 					caught_target = true
 					ability:ApplyDataDrivenModifier(caster, target, keys.caught_modifier, {})
 				end
 			else
+				-- Pull caught target
 				local drag_distance = ability:GetLevelSpecialValueFor("drag_distance", ability_level)
 				local target_direction = (target:GetAbsOrigin() - caster:GetAbsOrigin()):Normalized()
 				if (target_distance > drag_distance) then
@@ -46,7 +57,24 @@ function blazingStarStart( keys )
 			FindClearSpaceForUnit(caster, caster:GetAbsOrigin(), false)
 			FindClearSpaceForUnit(target, target:GetAbsOrigin(), false)
 			caster:RemoveModifierByName(keys.dashing_modifier)
+			caster:RemoveModifierByName(keys.reversed_modifier)
 			target:RemoveModifierByName(keys.caught_modifier)
+
+			caster:SwapAbilities(main_ability_name, sub_ability_name, true, false)
 		end
 	end)
+end
+
+function reverse(keys)
+	local caster = keys.caster
+	caster:SetForwardVector(caster:GetForwardVector() * -1) 
+	caster:FindAbilityByName(keys.reverse_ability_name):SetActivated(false)
+	keys.ability:ApplyDataDrivenModifier(caster, caster, "modifier_blazing_star_reversed", {})
+end
+
+function displayModifiers(hero)
+	print("modifiers:")
+	for i=1,hero:GetModifierCount() do
+		print(hero:GetModifierNameByIndex(i - 1))
+	end
 end

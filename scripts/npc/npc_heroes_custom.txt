@@ -142,7 +142,7 @@
 		"Ability5"				""
 		"Ability6"				""
 		"Ability7"				"attribute_bonus"
-		"Ability8"				""
+		"Ability8"				"blazing_star_reverse"
 		"Ability9"				""
 		"Ability10"				""
 		"Ability11"				""
