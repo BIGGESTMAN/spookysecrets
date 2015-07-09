@@ -9,7 +9,10 @@ function blazingStarStart( keys )
 	local direction = nil
 
 	ability:ApplyDataDrivenModifier(caster, caster, keys.dashing_modifier, {})
-	caster:CastAbilityImmediately(caster:FindAbilityByName("master_spark"), 1)
+	local master_spark_ability = caster:FindAbilityByName("master_spark")
+	if master_spark_ability:GetLevel() > 0 then
+		caster:CastAbilityImmediately(master_spark_ability, 1)
+	end
 
 	-- Enable reverse-direction ability
 	local main_ability_name	= ability:GetAbilityName()
@@ -76,5 +79,12 @@ function displayModifiers(hero)
 	print("modifiers:")
 	for i=1,hero:GetModifierCount() do
 		print(hero:GetModifierNameByIndex(i - 1))
+	end
+end
+
+function onUpgrade(keys)
+	local reverse_ability = keys.caster:FindAbilityByName(keys.reverse_ability)
+	if reverse_ability:GetLevel() < 1 then
+		reverse_ability:SetLevel(1)
 	end
 end

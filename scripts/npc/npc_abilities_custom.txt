@@ -1869,6 +1869,16 @@
 				}
 	    	}
 	    }
+
+	    "OnUpgrade"
+	    {
+			"RunScript"
+			{
+				"ScriptFile"		"heroes/hero_marisa/blazing_star.lua"
+				"Function"			"onUpgrade"
+				"reverse_ability"	"blazing_star_reverse"
+			}
+	    }
 	}
 
 	"blazing_star_reverse"

@@ -38,8 +38,10 @@ function masterSparkStart(event)
 end
 
 function masterSparkEnd(event)
-	for k,particle in pairs(particles_table[event.caster]) do
-		ParticleManager:DestroyParticle(particle, false)
+	if particles_table[event.caster] then
+		for k,particle in pairs(particles_table[event.caster]) do
+			ParticleManager:DestroyParticle(particle, false)
+		end
 	end
 	StopSoundEvent("Hero_Phoenix.SunRay.Beam", event.ability.sound_dummy)
 end
