@@ -45,9 +45,9 @@ function masterSparkEnd(event)
 end
 
 function masterSparkCancelled(event)
-	for k,particle in pairs(particles_table[caster]) do
-		ParticleManager:DestroyParticle(particle, true)
-	end
+	-- for k,particle in pairs(particles_table[caster]) do
+	-- 	ParticleManager:DestroyParticle(particle, true)
+	-- end
 end
 
 function masterSpark(event)

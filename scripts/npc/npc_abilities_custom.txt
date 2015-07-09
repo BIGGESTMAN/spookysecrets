@@ -1937,45 +1937,41 @@
 			"03"
 			{
 				"var_type"					"FIELD_INTEGER"
-				"orb_speed"					"100"
+				"distance_from_caster"		"100"
 			}
-			"04"
-			{
-				"var_type"					"FIELD_INTEGER"
-				"max_distance"				"200"
-			}
-			"05"	
+			"04"	
 			{
 				"var_type"					"FIELD_FLOAT"
-				"delay_between_orb_spawns"	"0.0"
+				"orb_update_interval"		"0.05"
 			}
-			"06"
-			{
-				"var_type"					"FIELD_FLOAT"
-				"acceleration_factor"		"5"
-			}
-			"07"
+			"05"
 			{
 				"var_type"					"FIELD_FLOAT"
 				"delay_between_orb_attacks"	"0.1"
 			}
-			"07"
+			"06"
 			{
 				"var_type"					"FIELD_INTEGER"
 				"laser_damage"				"30 36 42 48"
 				"_value"					"DOTA_Tooltip_Ability_orrerys_sun_Laser_Damage"
 			}
-			"08"
+			"07"
 			{
 				"var_type"					"FIELD_INTEGER"
 				"search_radius"				"1000"
 				"_value"					"DOTA_Tooltip_Ability_orrerys_sun_Search_Radius"
 			}
-			"09"
+			"08"
 			{
 				"var_type"					"FIELD_INTEGER"
 				"laser_radius"				"150"
 				"_value"					"DOTA_Tooltip_Ability_orrerys_sun_Laser_Radius"
+			}
+			"09"
+			{
+				"var_type"					"FIELD_FLOAT"
+				"rotation_time"				"3"
+				"_value"					"DOTA_Tooltip_Ability_orrerys_sun_Rotation_time"
 			}
 		}
 
@@ -2048,6 +2044,17 @@
 						"Function"			"spellCast"
 						"thinker_modifier"	"modifier_orrerys_sun_dummy"
 						"particleName"		"particles/units/heroes/hero_tinker/tinker_laser.vpcf"
+					}
+				}
+
+				"ThinkInterval"			"%orb_update_interval"
+
+				"OnIntervalThink"
+				{
+					"RunScript"
+					{
+						"ScriptFile"		"heroes/hero_marisa/orrerys_sun.lua"
+						"Function"			"updateOrbs"
 					}
 				}
 			}

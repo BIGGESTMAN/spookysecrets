@@ -16,8 +16,6 @@ function orrerysSunStart( event )
 		local orbs = ability:GetLevelSpecialValueFor( "orbs", ability:GetLevel() - 1 )
 		local delay_between_orb_spawns = ability:GetLevelSpecialValueFor( "delay_between_orb_spawns", ability:GetLevel() - 1 )
 		local unit_name = "orrerys_sun_orb"
-		
-		ability.last_caster_location = caster_location
 
 		-- Initialize the table to keep track of all orbs
 		if not caster.orbs then
@@ -41,153 +39,41 @@ function orrerysSunStart( event )
 				table.insert(caster.orbs, unit)
 			end)
 		end
+		
+		caster.orbs_angle = 0
 	end
-
-	--caster:AddNewModifier(caster, ability, "modifier_orrerys_sun_spell_detector", {})
 end
 
--- Movement logic for each spirit
--- Units have 4 states: 
-	-- acquiring: transition after completing one target-return cycle.
-	-- target_acquired: tracking an enemy or point to collide
-	-- returning: After colliding with an enemy, move back to the casters location
-	-- end: moving back to the caster to be destroyed and heal
-function orbPhysics( event )
+-- Movement logic for each orb
+function updateOrbs( event )
+
 	local caster = event.caster
-	local unit = event.target
+	local caster_location = caster:GetAbsOrigin()
 	local ability = event.ability
 	local radius = ability:GetLevelSpecialValueFor( "radius", ability:GetLevel() - 1 )
-	local duration = ability:GetLevelSpecialValueFor( "duration", ability:GetLevel() - 1 )
-	local orb_speed = ability:GetLevelSpecialValueFor( "orb_speed", ability:GetLevel() - 1 )
-	local min_damage = ability:GetLevelSpecialValueFor( "min_damage", ability:GetLevel() - 1 )
-	local max_damage = ability:GetLevelSpecialValueFor( "max_damage", ability:GetLevel() - 1 )
-	local max_damage = ability:GetLevelSpecialValueFor( "max_damage", ability:GetLevel() - 1 )
-	local average_damage = ability:GetLevelSpecialValueFor( "average_damage", ability:GetLevel() - 1 )
-	local give_up_distance = ability:GetLevelSpecialValueFor( "give_up_distance", ability:GetLevel() - 1 )
-	local max_distance = ability:GetLevelSpecialValueFor( "max_distance", ability:GetLevel() - 1 )
-	local heal_percent = ability:GetLevelSpecialValueFor( "heal_percent", ability:GetLevel() - 1 ) * 0.01
-	local min_time_between_attacks = ability:GetLevelSpecialValueFor( "min_time_between_attacks", ability:GetLevel() - 1 )
-	local abilityDamageType = ability:GetAbilityDamageType()
-	local abilityTargetType = ability:GetAbilityTargetType()
-	local particleDamage = "particles/units/heroes/hero_death_prophet/death_prophet_exorcism_attack.vpcf"
-	local particleDamageBuilding = "particles/units/heroes/hero_death_prophet/death_prophet_exorcism_attack_building.vpcf"
-	--local particleNameHeal = "particles/units/heroes/hero_nyx_assassin/nyx_assassin_vendetta_start_sparks_b.vpcf"
+	local distance_from_caster = ability:GetLevelSpecialValueFor( "distance_from_caster", ability:GetLevel() - 1 )
+	local number_of_orbs = #caster.orbs
 
-	-- Make the spirit a physics unit
-	Physics:Unit(unit)
+	local caster_facing = caster:GetForwardVector()
+	local caster_facing_degrees = math.atan2(caster_facing.y, caster_facing.x) * 180 / math.pi
+	local direction = caster_facing * -1
+	local rotation_point = caster_location + direction * distance_from_caster
 
-	-- General properties
-	unit:PreventDI(true)
-	unit:SetAutoUnstuck(false)
-	unit:SetNavCollisionType(PHYSICS_NAV_NOTHING)
-	unit:FollowNavMesh(false)
-	unit:SetPhysicsVelocityMax(orb_speed)
-	unit:SetPhysicsVelocity(orb_speed * RandomVector(1))
-	unit:SetPhysicsFriction(0)
-	unit:Hibernate(false)
-	unit:SetGroundBehavior(PHYSICS_GROUND_LOCK)
+	-- Make orbs spin
+	local rotation_time = ability:GetLevelSpecialValueFor("rotation_time", ability:GetLevel() - 1)
+	caster.orbs_angle = caster.orbs_angle + (360 / rotation_time) * ability:GetLevelSpecialValueFor("orb_update_interval", ability:GetLevel() - 1)
+	local overallAngleInRadians = caster.orbs_angle * math.pi / 180
+	local prototype_target_point = rotation_point + Vector(0, math.cos(overallAngleInRadians), math.sin(overallAngleInRadians)) * radius
 
-	-- Initial default state
-	unit.target_acquired = false
-
-	-- This is to skip frames
-	local frameCount = 0
-
-	-- Store the damage done
-	unit.damage_done = 0
-
-	-- Store the interval between attacks, starting at min_time_between_attacks
-	unit.last_attack_time = GameRules:GetGameTime() - min_time_between_attacks
-
-	-- Color Debugging for points and paths. Turn it false later!
-	local Debug = false
-	local pathColor = Vector(255,255,255) -- White to draw path
-	local targetColor = Vector(255,0,0) -- Red for enemy targets
-	local idleColor = Vector(0,255,0) -- Green for moving to idling points
-	local returnColor = Vector(0,0,255) -- Blue for the return
-	local endColor = Vector(0,0,0) -- Back when returning to the caster to end
-	local draw_duration = 3
-
-	-- Find one target point at random which will be used for the first acquisition.
-	local point = caster:GetAbsOrigin() + RandomVector(RandomInt(radius/2, radius))
-
-	-- This is set to repeat on each frame
-	unit:OnPhysicsFrame(function(unit)
-
-		orb_speed = ability:GetLevelSpecialValueFor( "orb_speed", ability:GetLevel() - 1 )
-
-		-- Current positions
-		local source = caster:GetAbsOrigin()
-		local current_position = unit:GetAbsOrigin()
-
-		-- COLLISION CHECK
-		local distance = (point - current_position):Length()
-		local collision = distance < 50
-
-		-- MAX DISTANCE CHECK
-		local distance_to_caster = (source - current_position):Length()
-		if distance_to_caster > max_distance then
-			if distance > max_distance then
-				unit.target_acquired = false
-				unit:SetPhysicsVelocity(unit:GetPhysicsVelocity():Length() * (source - unit:GetAbsOrigin()):Normalized())
-			end
-			orb_speed = orb_speed + ability:GetLevelSpecialValueFor("acceleration_factor", ability:GetLevel() - 1) * (distance_to_caster - max_distance)
-		else
-			orb_speed = ability:GetLevelSpecialValueFor("orb_speed", ability:GetLevel() - 1)
-		end
-
-		unit:SetPhysicsVelocityMax(orb_speed)
-		unit:SetPhysicsVelocity(orb_speed * unit:GetPhysicsVelocity())
-
-		-- Move the unit orientation to adjust the particle
-		unit:SetForwardVector( ( unit:GetPhysicsVelocity() ):Normalized() )
-
-		-- Print the path on Debug mode
-		if Debug then DebugDrawCircle(current_position, pathColor, 0, 2, true, draw_duration) end
-
-		local enemies = nil
-
-		-- Use this if skipping frames is needed (--if frameCount == 0 then..)
-		frameCount = (frameCount + 1) % 3
-
-		-- Movement and Collision detection are state independent
-
-		-- MOVEMENT	
-		-- Get the direction
-		local diff = point - unit:GetAbsOrigin()
-        diff.z = 0
-        local direction = diff:Normalized()
-
-		-- Calculate the angle difference
-		local angle_difference = RotationDelta(VectorToAngles(unit:GetPhysicsVelocity():Normalized()), VectorToAngles(direction)).y
-		
-		-- Set the new velocity
-		if math.abs(angle_difference) < 5 then
-			-- CLAMP
-			local newVel = unit:GetPhysicsVelocity():Length() * direction
-			unit:SetPhysicsVelocity(newVel)
-		elseif angle_difference > 0 then
-			local newVel = RotatePosition(Vector(0,0,0), QAngle(0,10,0), unit:GetPhysicsVelocity())
-			unit:SetPhysicsVelocity(newVel)
-		else		
-			local newVel = RotatePosition(Vector(0,0,0), QAngle(0,-10,0), unit:GetPhysicsVelocity())
-			unit:SetPhysicsVelocity(newVel)
-		end
-
-		if not unit.target_acquired then
-			unit.target_acquired = true
-			point = source + RandomVector(RandomInt(radius/2, radius))
-			--print("Acquiring -> Random Point Target acquired")
-			if Debug then DebugDrawCircle(point, idleColor, 100, 25, true, draw_duration) end
-		end
-
-		if collision then
-			unit.target_acquired = false
-		end
-    end)
+	for orb_number=1, number_of_orbs do
+		local angle = (360 / number_of_orbs) * (orb_number - 1)
+		local angleRadians = angle * math.pi / 180
+		local target_point = RotatePosition(rotation_point, QAngle(0,caster_facing_degrees,angle), prototype_target_point)
+		caster.orbs[orb_number]:SetAbsOrigin(target_point)
+	end
 end
 
--- Updates the last_targeted enemy, to focus the ghosts on it.
+-- Fire autoattack bolts when caster attacks
 function orrerysSunAttack( event )
 	local caster = event.caster
 	local target = event.target
@@ -215,22 +101,19 @@ function orbAttackHit( event )
 	ApplyDamage(damage_table)
 end
 
--- Kill all units when the owner dies or the spell is cast while the first one is still going
+-- Kill all units when the owner dies
 function endOrrerysSun( event )
 	local caster = event.caster
 	local targets = caster.orbs or {}
 
-	print("Exorcism Death")
-	for _,unit in pairs(targets) do		
+	for _,unit in pairs(targets) do
 	   	if unit and IsValidEntity(unit) then
-    	  	unit:SetPhysicsVelocity(Vector(0,0,0))
-	        unit:OnPhysicsFrame(nil)
-
-			-- Kill
 	        unit:ForceKill(false)
     	end
 	end
+
 	caster.orbs = {}
+	caster.orbs_angle = 0
 end
 function spellCast( event )
 	local caster = event.caster
@@ -294,7 +177,6 @@ function fireLaserAt(event, orb, target)
 
 		thinker:SetAbsOrigin(orb_location + targetDirection * (distance_per_thinker * (i-1) + thinkerRadius / 2))
 		ability:ApplyDataDrivenModifier(caster, thinker, event.thinker_modifier, {})
-		--print(distance_per_thinker * (i-1))
 
 		local team = caster:GetTeamNumber()
 		local iTeam = DOTA_UNIT_TARGET_TEAM_ENEMY

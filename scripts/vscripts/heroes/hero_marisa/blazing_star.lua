@@ -67,7 +67,7 @@ end
 
 function reverse(keys)
 	local caster = keys.caster
-	caster:SetForwardVector(caster:GetForwardVector() * -1) 
+	caster:SetForwardVector(caster:GetForwardVector() * -1)
 	caster:FindAbilityByName(keys.reverse_ability_name):SetActivated(false)
 	keys.ability:ApplyDataDrivenModifier(caster, caster, "modifier_blazing_star_reversed", {})
 end
