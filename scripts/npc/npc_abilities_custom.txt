@@ -829,7 +829,7 @@
 			"particle"	"particles/units/heroes/hero_phantom_assassin/phantom_assassin_blur.vpcf"
 			"particle"  "particles/units/heroes/hero_phoenix/phoenix_supernova_egg_ring_start.vpcf"
 			"particle"  "particles/units/heroes/hero_phoenix/phoenix_supernova_hit.vpcf"
-			"particle"	"particles/units/heroes/hero_phoenix/phoenix_supernova_death.vpcf"
+			"particle"	"particles/units/heroes/hero_phoenix/phoenix_supernova_reborn.vpcf"
 		}
 
 		// Casting

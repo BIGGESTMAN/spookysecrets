@@ -51,7 +51,7 @@ function modifier_fantasy_nature:DeclareFunctions()
 end
 
 function modifier_fantasy_nature:GetAbsoluteNoDamagePhysical( params )
-	return true
+	return "1"
 end
 
 function modifier_fantasy_nature:OnIntervalThink()
@@ -98,7 +98,7 @@ end
 
 function modifier_fantasy_nature:OnDestroy()
 	local caster = self:GetCaster()
-	if IsServer() and caster:HasScepter() then
+	if IsServer() and caster:HasScepter() and caster:IsAlive() then
 		local particle = ParticleManager:CreateParticle("particles/units/heroes/hero_phoenix/phoenix_supernova_reborn.vpcf",
 														PATTACH_ABSORIGIN_FOLLOW, caster)
 		ParticleManager:SetParticleControl(particle, 0, caster:GetOrigin())
