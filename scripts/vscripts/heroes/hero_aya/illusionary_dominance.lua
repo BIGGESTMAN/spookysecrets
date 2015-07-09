@@ -63,7 +63,7 @@ function illusionaryDominanceHit( keys )
 
 	if not hit then
 		caster:PerformAttack(target, true, true, true, true )
-		if ability.canAccelerate then
+		if ability.canAccelerate and target:IsHero() then
 			if not caster:HasModifier(keys.accelerating_modifier) then
 				ability:ApplyDataDrivenModifier(caster, caster, accelerating_modifier, {})
 			end
