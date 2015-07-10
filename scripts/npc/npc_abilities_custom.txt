@@ -1944,49 +1944,44 @@
 				"orbs"						"3 4 5 6"
 				"_value"					"DOTA_Tooltip_Ability_orrerys_sun_Orbs"
 			}
-			"03"
-			{
-				"var_type"					"FIELD_INTEGER"
-				"distance_from_caster"		"100"
-			}
-			"04"	
+			"03"	
 			{
 				"var_type"					"FIELD_FLOAT"
 				"orb_update_interval"		"0.05"
 			}
-			"05"
+			"04"
 			{
 				"var_type"					"FIELD_FLOAT"
 				"delay_between_orb_attacks"	"0.1"
 			}
-			"06"
+			"05"
 			{
 				"var_type"					"FIELD_INTEGER"
 				"laser_damage"				"30 36 42 48"
 				"_value"					"DOTA_Tooltip_Ability_orrerys_sun_Laser_Damage"
 			}
-			"07"
+			"06"
 			{
 				"var_type"					"FIELD_INTEGER"
 				"search_radius"				"1000"
 				"_value"					"DOTA_Tooltip_Ability_orrerys_sun_Search_Radius"
 			}
-			"08"
+			"07"
 			{
 				"var_type"					"FIELD_INTEGER"
 				"laser_radius"				"150"
 				"_value"					"DOTA_Tooltip_Ability_orrerys_sun_Laser_Radius"
 			}
-			"09"
+			"08"
 			{
 				"var_type"					"FIELD_FLOAT"
 				"rotation_time"				"3"
 				"_value"					"DOTA_Tooltip_Ability_orrerys_sun_Rotation_time"
 			}
-			"10"
+			"09"
 			{
 				"var_type"					"FIELD_INTEGER"
-				"vertical_distance_from_caster"		"160"
+				"vertical_distance_from_caster"		"80"
 			}
 		}
 
@@ -2314,6 +2309,71 @@
 				}
 	    	}
 	    }
+	}
+
+	"little_legion"
+	{
+		// General
+		//-------------------------------------------------------------------------------------------------------------
+		"BaseClass"						"ability_datadriven"
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_UNIT_TARGET"
+		"AbilityUnitTargetTeam"			"DOTA_UNIT_TARGET_TEAM_BOTH"
+		"AbilityUnitTargetType"			"DOTA_UNIT_TARGET_HERO | DOTA_UNIT_TARGET_BASIC"
+		//"AbilityUnitDamageType"			"DAMAGE_TYPE_PHYSICAL"
+		"SpellImmunityType"				"SPELL_IMMUNITY_ENEMIES_NO"
+		"FightRecapLevel"				"1"
+		"AbilityTextureName"			"weaver_geminate_attack"
+		"MaxLevel" 						"4"
+		"RequiredLevel"					"1"
+		"LevelsBetweenUpgrades"			"2"
+
+		// Precache
+		//-------------------------------------------------------------------------------------------------------------
+		"precache"
+		{
+
+		}
+
+		// Casting
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityCastPoint"				"0.3"
+		"AbilityCastRange"				"2000"
+		
+		// Time		
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityCooldown"				"10 8 6 4"
+
+		// Cost
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityManaCost"				"80 100 120 140"
+
+		// Special
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilitySpecial"
+		{
+			"01"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"hourai_damage"			"70 120 170 220"
+				"_value"				"DOTA_Tooltip_Ability_final_spark_Stun_Duration"
+			}
+			"02"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"shanghai_damage"		"30 55 80 105"
+				"_value"				"DOTA_Tooltip_Ability_final_spark_Range"
+			}
+			"03"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"armor_bonus"			"2 4 6 8"
+			}
+			"04"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"doll_duration"			"20"
+			}
+		}
 	}
 	  
 	//-------------------
