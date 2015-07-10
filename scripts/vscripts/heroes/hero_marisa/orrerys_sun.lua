@@ -1,11 +1,3 @@
---[[
-	Author: Noya, physics by BMD
-	Date: 02.02.2015.
-	Spawns orbs for exorcism and applies the modifier that takes care of its logic
-]]
-
-require "Physics"
-
 function orrerysSunStart( event )
 	local caster = event.caster
 	if (caster:IsAlive()) then
@@ -14,7 +6,6 @@ function orrerysSunStart( event )
 		local radius = ability:GetLevelSpecialValueFor( "radius", ability:GetLevel() - 1 )
 		local duration = 10
 		local orbs = ability:GetLevelSpecialValueFor( "orbs", ability:GetLevel() - 1 )
-		local delay_between_orb_spawns = ability:GetLevelSpecialValueFor( "delay_between_orb_spawns", ability:GetLevel() - 1 )
 		local unit_name = "orrerys_sun_orb"
 
 		-- Initialize the table to keep track of all orbs
@@ -27,17 +18,21 @@ function orrerysSunStart( event )
 			existing_orb_count = existing_orb_count + 1
 		end
 
+		local particles = {"particles/orrerys_sun_yellow.vpcf", "particles/orrerys_sun_green.vpcf", "particles/orrerys_sun_orange.vpcf",
+						   "particles/orrerys_sun_pink.vpcf", "particles/orrerys_sun_blue.vpcf", "particles/orrerys_sun_red.vpcf"}
 		print("Spawning "..orbs - existing_orb_count.." orbs")
 		for i=1,orbs - existing_orb_count do
-			Timers:CreateTimer(i * delay_between_orb_spawns, function()
-				local unit = CreateUnitByName(unit_name, caster:GetAbsOrigin(), true, caster, caster, caster:GetTeamNumber())
+			local unit = CreateUnitByName(unit_name, caster:GetAbsOrigin(), true, caster, caster, caster:GetTeamNumber())
+			local particle = ParticleManager:CreateParticle(particles[#caster.orbs + 1], PATTACH_ABSORIGIN, unit)
+			--print(particle, particles[#caster.orbs - 1], #caster.orbs + 1)
+			ParticleManager:SetParticleControlEnt(particle, 1, unit, PATTACH_ABSORIGIN, "attach_origin", unit:GetAbsOrigin(), true)
+			ParticleManager:SetParticleControlEnt(particle, 0, unit, PATTACH_ABSORIGIN, "attach_origin", unit:GetAbsOrigin(), true)
 
-				-- The modifier takes care of the physics and logic
-				ability:ApplyDataDrivenModifier(caster, unit, "modifier_orrerys_sun_orb", {})
-				
-				-- Add the spawned unit to the table
-				table.insert(caster.orbs, unit)
-			end)
+			-- The modifier takes care of the rotation logic
+			ability:ApplyDataDrivenModifier(caster, unit, "modifier_orrerys_sun_orb", {})
+			
+			-- Add the spawned unit to the table
+			table.insert(caster.orbs, unit)
 		end
 		
 		caster.orbs_angle = 0

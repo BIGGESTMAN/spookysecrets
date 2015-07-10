@@ -1993,10 +1993,15 @@
 		"precache"
 		{
 			"soundfile" "soundevents/game_sounds_heroes/game_sounds_tinker.vsndevts"
-			"particle"	"particles/wisp_relocate_channel.vpcf"
 			"particle"	"particles/units/heroes/hero_wisp/wisp_death.vpcf"
 			"particle"	"particles/orb_projectile.vpcf"
 			"particle"	"particles/units/heroes/hero_tinker/tinker_laser.vpcf"
+			"particle"	"particles/orrerys_sun_blue.vpcf"
+			"particle"	"particles/orrerys_sun_red.vpcf"
+			"particle"	"particles/orrerys_sun_orange.vpcf"
+			"particle"	"particles/orrerys_sun_pink.vpcf"
+			"particle"	"particles/orrerys_sun_green.vpcf"
+			"particle"	"particles/orrerys_sun_yellow.vpcf"
 		}
 
 		"OnUpgrade"
@@ -2076,27 +2081,6 @@
 
 			"modifier_orrerys_sun_orb"
 			{	
-				"OnCreated"
-				{
-					"RunScript"
-					{
-						"ScriptFile"	"heroes/hero_marisa/orrerys_sun.lua"
-						"Function"		"orbPhysics"
-					}
-
-					"AttachEffect"
-					{
-						"EffectName"        "particles/wisp_relocate_channel.vpcf"
-						"EffectAttachType"  "follow_origin"
-						"Target"            "TARGET"
-						"ControlPointEntities"
-						{
-							"TARGET"	"attach_origin"
-							"CASTER"	"attach_origin"
-						}
-					}
-				}
-
 				"OnAttackLanded"
 				{
 					"RunScript"
