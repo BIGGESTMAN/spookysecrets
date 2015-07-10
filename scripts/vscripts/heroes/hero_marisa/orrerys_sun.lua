@@ -46,23 +46,29 @@ end
 
 -- Movement logic for each orb
 function updateOrbs( event )
+	local frozen = false
 
 	local caster = event.caster
 	local caster_location = caster:GetAbsOrigin()
 	local ability = event.ability
 	local radius = ability:GetLevelSpecialValueFor( "radius", ability:GetLevel() - 1 )
 	local distance_from_caster = ability:GetLevelSpecialValueFor( "distance_from_caster", ability:GetLevel() - 1 )
+	local vertical_distance_from_caster = ability:GetLevelSpecialValueFor( "vertical_distance_from_caster", ability:GetLevel() - 1 )
 	local number_of_orbs = #caster.orbs
 
 	local caster_facing = caster:GetForwardVector()
 	local caster_facing_degrees = math.atan2(caster_facing.y, caster_facing.x) * 180 / math.pi
 	local direction = caster_facing * -1
-	local rotation_point = caster_location + direction * distance_from_caster
+	local rotation_point = caster_location + direction * distance_from_caster + Vector(0,0,1) * vertical_distance_from_caster
 
 	-- Make orbs spin
 	local rotation_time = ability:GetLevelSpecialValueFor("rotation_time", ability:GetLevel() - 1)
 	caster.orbs_angle = caster.orbs_angle + (360 / rotation_time) * ability:GetLevelSpecialValueFor("orb_update_interval", ability:GetLevel() - 1)
-	local overallAngleInRadians = caster.orbs_angle * math.pi / 180
+
+	local overallAngleInRadians = 0
+	if not frozen then
+		overallAngleInRadians = caster.orbs_angle * math.pi / 180
+	end
 	local prototype_target_point = rotation_point + Vector(0, math.cos(overallAngleInRadians), math.sin(overallAngleInRadians)) * radius
 
 	for orb_number=1, number_of_orbs do

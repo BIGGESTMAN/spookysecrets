@@ -1983,6 +1983,11 @@
 				"rotation_time"				"3"
 				"_value"					"DOTA_Tooltip_Ability_orrerys_sun_Rotation_time"
 			}
+			"10"
+			{
+				"var_type"					"FIELD_INTEGER"
+				"vertical_distance_from_caster"		"160"
+			}
 		}
 
 		"precache"
@@ -2108,7 +2113,6 @@
 					"MODIFIER_STATE_NO_UNIT_COLLISION"	"MODIFIER_STATE_VALUE_ENABLED"
 					"MODIFIER_STATE_NOT_ON_MINIMAP"		"MODIFIER_STATE_VALUE_ENABLED"
 					"MODIFIER_STATE_UNSELECTABLE"		"MODIFIER_STATE_VALUE_ENABLED"
-					"MODIFIER_STATE_FLYING"				"MODIFIER_STATE_VALUE_ENABLED"
 					"MODIFIER_STATE_DISARMED"			"MODIFIER_STATE_VALUE_ENABLED"
 				}
 			}
