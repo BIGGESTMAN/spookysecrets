@@ -35,4 +35,5 @@ function spin(keys, doll)
 
 	ParticleManager:CreateParticle(keys.spin_particle, PATTACH_ABSORIGIN, doll)
 	StartAnimation(doll, {duration=23 * 0.03 / 2, activity=ACT_DOTA_RATTLETRAP_POWERCOGS, rate=2, translate = "telebolt"})
+	StartSoundEvent(keys.spin_sound, doll)
 end

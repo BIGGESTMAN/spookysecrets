@@ -1558,8 +1558,6 @@
 		"MaxLevel" 						"4"
 		"RequiredLevel"					"1"
 		"LevelsBetweenUpgrades"			"2"
-		"AbilityCastAnimation"			"ACT_DOTA_RUN"
-		"ActivityModifier"				"+haste"
 
 		// Precache
 		//-------------------------------------------------------------------------------------------------------------
@@ -2337,6 +2335,7 @@
 			"model"						"models/heroes/rattletrap/rattletrap_rocket.vmdl"
 			"model"						"models/heroes/rattletrap/rattletrap_weapon.vmdl"
 			"particle"					"particles/units/heroes/hero_sandking/sandking_caustic_finale_explode.vpcf"
+			"particle"					"particles/shanghai_doll_counter.vpcf"
 		}
 
 		// Casting
@@ -2397,6 +2396,7 @@
 				"ScriptFile"			"heroes/hero_alice/little_legion.lua"
 				"Function"				"spawnDoll"
 				"modifier"				"modifier_little_legion_doll"
+				"shanghai_buff"			"modifier_little_legion_shanghai_buff"
 			}
 		}
 
@@ -2419,6 +2419,7 @@
 						"Function"		"killDoll"
 						"dolls_war"		"dolls_war"
 						"explosion_particle"	"particles/units/heroes/hero_sandking/sandking_caustic_finale_explode.vpcf"
+						"shanghai_buff"	"modifier_little_legion_shanghai_buff"
 					}
 				}
 
@@ -2431,6 +2432,39 @@
 						"ScriptFile"	"heroes/hero_alice/little_legion.lua"
 						"Function"		"deathCheck"
 						"modifier"		"modifier_little_legion_doll"
+					}
+				}
+			}
+
+			"modifier_little_legion_shanghai_buff"
+			{
+				"IsHidden"				"0"
+				"IsPurgable"			"0"
+
+				"Properties"
+				{
+				    "MODIFIER_PROPERTY_PHYSICAL_ARMOR_BONUS" "%armor_bonus"
+				}
+
+				"OnAttacked"
+				{
+					"Damage"
+	                {
+	                    "Target" "ATTACKER"
+	                    "Type"   "DAMAGE_TYPE_MAGICAL"
+	                    "Damage" "%shanghai_damage"
+	                }
+
+					"FireEffect"
+					{
+						"EffectName"		"particles/shanghai_doll_counter.vpcf"
+						"EffectAttachType"  "attach_hitloc"
+						"Target" 			"CASTER"
+						"ControlPointEntities"
+						{
+							"CASTER" 		"attach_hitloc"
+							"ATTACKER" 		"attach_hitloc"
+						}
 					}
 				}
 			}
@@ -2458,6 +2492,7 @@
 		"precache"
 		{
 			"soundfile"					"soundevents/game_sounds_heroes/game_sounds_shredder.vsndevts"
+			"particle"					"particles/units/heroes/hero_shredder/shredder_whirling_death.vpcf"
 		}
 
 		// Casting
@@ -2521,12 +2556,7 @@
 				"spin_ability"	"dolls_war_spin"
 				"slow_modifier"	"modifier_dolls_war_slow"
 				"spin_particle"	"particles/units/heroes/hero_shredder/shredder_whirling_death.vpcf"
-			}
-
-			"FireSound"
-			{
-				"EffectName"	"Hero_Shredder.WhirlingDeath.Cast"
-				"Target" 		"TARGET"
+				"spin_sound"	"Hero_Shredder.WhirlingDeath.Damage"
 			}
 		}
 
@@ -2541,17 +2571,7 @@
 
 				"Properties"
 				{
-
 				    "MODIFIER_PROPERTY_MOVESPEED_BONUS_PERCENTAGE" "%spin_slow"
-				}
-
-				"OnCreated"
-				{
-					"FireSound"
-					{
-						"EffectName"	"Hero_Shredder.WhirlingDeath.Damage"
-						"Target" 		"TARGET"
-					}
 				}
 			}
 		}
