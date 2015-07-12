@@ -3,7 +3,7 @@
 ]]
 
 -- Required files to be visible from anywhere
-require( 'timers' )
+require( 'libraries/timers' )
 require( 'barebones' )
 
 function Precache( context )
