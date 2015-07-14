@@ -25,6 +25,7 @@ function spawnDoll(keys)
 	caster.dolls[doll] = true
 
 	ability:ApplyDataDrivenModifier(caster, doll, keys.modifier, {})
+	ability:ApplyDataDrivenModifier(caster, doll, "modifier_kill", {duration = ability:GetLevelSpecialValueFor("doll_duration", ability_level)})
 	local speed = ability:GetLevelSpecialValueFor("dash_speed", ability_level) * 0.03
 
 
