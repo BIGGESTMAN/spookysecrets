@@ -13,10 +13,12 @@ function dollsWarActivation(keys)
 		else
 			spin(keys, doll)
 		end
-		--local laser_ability = doll:FindAbilityByName(keys.laser_ability)
-		--print(laser_ability, laser_ability:GetLevel())
-		--doll:CastAbilityImmediately(laser_ability, 1)
-		--doll:CastAbilityOnPosition(doll:GetForwardVector() * ability:GetLevelSpecialValueFor("laser_range", ability_level) / 2, laser_ability, 1)
+	end
+
+	if caster.goliath_dolls then
+		for goliath_doll,v in pairs(caster.goliath_dolls) do
+			caster:FindAbilityByName("goliath_doll"):ApplyDataDrivenModifier(caster, goliath_doll, keys.goliath_doll_buff, {})
+		end
 	end
 end
 
@@ -54,25 +56,48 @@ function fireLaser(keys, doll)
 	local thinker_modifier = keys.thinker_modifier
 	local range = ability:GetLevelSpecialValueFor("laser_range", ability_level)
 	local radius = ability:GetLevelSpecialValueFor("laser_radius", ability_level)
+	local direction = doll.target:GetForwardVector()
 
-	local targets = unitsInLine(caster, ability, thinker_modifier, doll:GetAbsOrigin(), range, radius, doll:GetForwardVector(), false)
+	local targets = unitsInLine(caster, ability, thinker_modifier, doll:GetAbsOrigin(), range, radius, direction, false)
 	local damage = ability:GetLevelSpecialValueFor("laser_damage", ability_level)
 
 	for k,unit in pairs(targets) do
 		ApplyDamage({ victim = unit, attacker = doll, damage = damage, damage_type = DAMAGE_TYPE_MAGICAL})
 	end
 
-	StartAnimation(doll, {duration=23 * 0.03 / 2, activity=ACT_DOTA_RATTLETRAP_POWERCOGS, rate=2, translate = "telebolt"})
+	doll:SetForwardVector(direction) -- doesn't work?
+	StartAnimation(doll, {duration=24 * 0.03, activity=ACT_DOTA_RATTLETRAP_HOOKSHOT_START, rate=1})
 	StartSoundEvent(keys.laser_sound, doll)
 
 	local particle = ParticleManager:CreateParticle(keys.laser_particle, PATTACH_ABSORIGIN_FOLLOW, doll)
-	ParticleManager:SetParticleControlEnt( particle, 0, doll, PATTACH_POINT_FOLLOW, "attach_hitloc", doll:GetAbsOrigin(), true )
+	ParticleManager:SetParticleControlEnt( particle, 0, doll, PATTACH_POINT, "attach_hitloc", doll:GetAbsOrigin(), true )
 
 	local particleRange = range + radius
-	local endcapPos = doll:GetAbsOrigin() + doll:GetForwardVector() * range
+	local endcapPos = doll:GetAbsOrigin() + direction * range
 	ParticleManager:SetParticleControl( particle, 1, endcapPos )
 
 	Timers:CreateTimer(0.03, function()
 		ParticleManager:DestroyParticle(particle, false)
 	end)
+end
+
+function updateAbilityEnabled(keys)
+	if keys.caster.dolls then
+		local dolls_active = false
+		for k,doll in pairs(keys.caster.dolls) do
+			dolls_active = true
+		end
+
+		for k,doll in pairs(keys.caster.goliath_dolls) do
+			dolls_active = true
+		end
+
+		if dolls_active then
+			keys.ability:SetActivated(true)
+		else
+			keys.ability:SetActivated(false)
+		end
+	else
+		keys.ability:SetActivated(false)
+	end
 end

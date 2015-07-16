@@ -203,7 +203,7 @@
 		"Ability1"				"little_legion"
 		"Ability2"				"reflex_empty1"
 		"Ability3"				"dolls_war"
-		"Ability4"				"reflex_empty3"
+		"Ability4"				"goliath_doll"
 		"Ability5"				""
 		"Ability6"				""
 		"Ability7"				"attribute_bonus"

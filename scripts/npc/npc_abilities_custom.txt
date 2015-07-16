@@ -2490,6 +2490,7 @@
 		"precache"
 		{
 			"soundfile"					"soundevents/game_sounds_heroes/game_sounds_shredder.vsndevts"
+			"soundfile"					"soundevents/game_sounds_heroes/game_sounds_rattletrap.vsndevts"
 			"particle"					"particles/units/heroes/hero_shredder/shredder_whirling_death.vpcf"
 			"particle"					"particles/shanghai_doll_laser.vpcf"
 		}
@@ -2559,6 +2560,11 @@
 				"var_type"				"FIELD_INTEGER"
 				"laser_damage"			"115 160 205 250"
 			}
+			"09"
+			{
+				"var_type"				"FIELD_FLOAT"
+				"update_interval"		"0.1"
+			}
 		}
 
 		"OnSpellStart"
@@ -2571,13 +2577,40 @@
 				"spin_particle"		"particles/units/heroes/hero_shredder/shredder_whirling_death.vpcf"
 				"spin_sound"		"Hero_Shredder.WhirlingDeath.Damage"
 				"laser_particle"	"particles/shanghai_doll_laser.vpcf"
-				"laser_sound"		"Hero_Shredder.WhirlingDeath.Damage"
+				"laser_sound"		"Hero_Rattletrap.Power_Cogs_Impact"
 				"thinker_modifier"	"modifier_dolls_war_dummy"
+				"goliath_doll_buff"	"modifier_goliath_doll_dolls_war_buff"
 			}
 		}
 
 		"Modifiers"
 		{
+			"modifier_dolls_war"
+			{
+				"IsHidden"		"1"
+				"Passive"		"1"
+	    		"IsPurgable"	"0"
+
+	    		"ThinkInterval"	"%update_interval"
+				"OnIntervalThink"
+				{
+					"RunScript"
+					{
+						"ScriptFile"		"heroes/hero_alice/dolls_war.lua"
+						"Function"			"updateAbilityEnabled"
+					}
+				}
+
+				"OnUpgrade"
+				{
+					"RunScript"
+					{
+						"ScriptFile"		"heroes/hero_alice/dolls_war.lua"
+						"Function"			"updateAbilityEnabled"
+					}
+				}
+			}
+
 			"modifier_dolls_war_slow"
 			{
 				"IsHidden"		"0"
@@ -2614,6 +2647,259 @@
 			}
 		}
 	}
+
+	"goliath_doll"
+	{
+		// General
+		//-------------------------------------------------------------------------------------------------------------
+		"BaseClass"						"ability_datadriven"
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_POINT_TARGET"
+		"FightRecapLevel"				"2"
+		"AbilityTextureName"			"elder_titan_ancestral_spirit"
+		"MaxLevel" 						"3"
+		"RequiredLevel"					"6"
+		"LevelsBetweenUpgrades"			"5"
+
+		// Precache
+		//-------------------------------------------------------------------------------------------------------------
+		"precache"
+		{
+			"particle"					"particles/units/heroes/hero_ogre_magi/ogre_magi_bloodlust_buff.vpcf"
+		}
+
+		// Casting
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityCastPoint"				"0.3"
+		"AbilityCastRange"				"500"
+		
+		// Time		
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityCooldown"				"130"
+
+		// Cost
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityManaCost"				"200 320 440"
+
+		// Special
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilitySpecial"
+		{
+			"01"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"dolls_war_buff_duration" "4"
+			}
+			"02"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"dolls_war_attackspeed"	"50 60 70"
+			}
+			"03"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"dolls_war_movespeed"	"15 20 25"
+			}
+			"04"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"duration"				"60 70 80"
+			}
+		}
+
+		"OnSpellStart"
+		{
+			"RunScript"
+	        {
+	        	"ScriptFile"	"heroes/hero_alice/goliath_doll.lua"
+	        	"Function"		"spawnDoll"
+	        	"Target"		"POINT"
+	        	"cleave_ability" "goliath_doll_cleave"
+	        	"bash_ability"	"goliath_doll_bash"
+	        	"modifier"		"modifier_goliath_doll"
+	        }
+		}
+
+		"Modifiers"
+		{
+			"modifier_goliath_doll_dolls_war_buff"
+			{
+				"IsHidden"		"0"
+
+				"Duration"		"%dolls_war_buff_duration"
+				"Properties"
+				{
+					"MODIFIER_PROPERTY_ATTACKSPEED_BONUS_CONSTANT" "%dolls_war_attackspeed"
+					"MODIFIER_PROPERTY_MOVESPEED_BONUS_PERCENTAGE" "%dolls_war_movespeed"
+				}
+
+				"EffectName"	"particles/units/heroes/hero_ogre_magi/ogre_magi_bloodlust_buff.vpcf"
+			}
+
+			"modifier_goliath_doll"
+			{
+				"IsHidden"				"1"
+				"IsPurgable"			"0"
+
+				"OnDestroy"
+				{
+					"RunScript"
+					{
+						"ScriptFile"	"heroes/hero_alice/goliath_doll.lua"
+						"Function"		"killDoll"
+					}
+				}
+			}
+		}
+	}
+	
+	"goliath_doll_cleave"
+	{
+		// General
+		//-------------------------------------------------------------------------------------------------------------
+		"BaseClass"						"ability_datadriven"
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_PASSIVE"
+		"SpellImmunityType"				"SPELL_IMMUNITY_ENEMIES_YES"
+		"AbilityTextureName"			"ursa_earthshock"
+
+		// Precache
+		//-------------------------------------------------------------------------------------------------------------
+		"precache"
+		{
+			"particle"			"particles/units/heroes/hero_sven/sven_spell_great_cleave.vpcf"
+		}
+				
+		// Special
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilitySpecial"
+		{
+			"01"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"cleave_radius"			"400.0"
+			}
+			
+			"02"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"cleave_damage"			"40 40 40 40"
+			}
+		}
+
+		"Modifiers"
+		{
+			"modifier_great_cleave_datadriven"
+			{
+				"Passive"	"1"
+				"IsHidden"	"1"
+
+				"OnAttackLanded"
+				{
+					"CleaveAttack"
+					{
+						"CleavePercent"		"%cleave_damage"
+						"CleaveRadius"		"%cleave_radius"
+						"CleaveEffect"		"particles/units/heroes/hero_sven/sven_spell_great_cleave.vpcf"
+					}
+				}
+			}
+		}
+	}
+
+	"goliath_doll_bash"
+	{
+		// General
+		//-------------------------------------------------------------------------------------------------------------
+		"BaseClass"						"ability_datadriven"
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_PASSIVE"
+		"AbilityTextureName"			"legion_commander_moment_of_courage"
+		"AbilityUnitDamageType"			"DAMAGE_TYPE_PHYSICAL"
+		"MaxLevel" 						"3"
+
+		// Precache
+		//-------------------------------------------------------------------------------------------------------------
+		"precache"
+		{
+			"particle"					"particles/generic_gameplay/generic_bashed.vpcf"
+			"soundfile"					"soundevents/game_sounds_heroes/game_sounds_slardar.vsndevts"
+		}
+
+		// Special
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilitySpecial"
+		{
+			"01"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"bash_chance"			"50"
+			}
+			"02"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"bash_duration"			"1"
+			}
+			"03"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"bash_damage"			"45 60 75"
+			}
+		}
+
+		"Modifiers"
+		{
+			"modifier_goliath_doll"
+			{
+				"Passive"	"1"
+				"IsHidden"	"1"
+
+				"OnAttackLanded"
+				{
+					"Random"
+					{
+						"Chance"	"%bash_chance"
+
+						"OnSuccess"
+						{
+							"Damage"
+							{
+								"Target"		"TARGET"
+								"Type"			"DAMAGE_TYPE_PHYSICAL"
+								"Damage"		"%bash_damage"
+							}
+
+							"ApplyModifier"
+							{
+								"ModifierName"	"modifier_goliath_doll_bashed"
+								"Target" 		"TARGET"
+								"Duration"		"%bash_duration"
+							}
+						}
+					}
+				}
+			}
+
+			"modifier_goliath_doll_bashed"
+			{
+				"IsHidden" "0"
+
+				"STATES"
+				{
+					"MODIFIER_STATE_STUNNED"	"MODIFIER_STATE_VALUE_ENABLED"
+				}
+
+				"EffectName"	"particles/generic_gameplay/generic_bashed.vpcf"
+				"EffectAttachType"	"follow_overhead"
+
+				"OnCreated"
+				{
+					"FireSound"
+					{
+						"EffectName"	"Hero_Slardar.Bash"
+						"Target" 		"TARGET"
+					}
+				}
+			}
+		}
+	}
 	  
 	//-------------------
 	// Dummy stuff
@@ -2621,7 +2907,8 @@
   
 	"reflex_dummy_unit"
 	{
-		"AbilityBehavior" 		"DOTA_ABILITY_BEHAVIOR_PASSIVE"
+		"AbilityBehavior" 				"DOTA_ABILITY_BEHAVIOR_PASSIVE"
+		"SpellImmunityType"				"SPELL_IMMUNITY_ENEMIES_YES"
 		"BaseClass" 					"ability_datadriven"
 		"AbilityTextureName"            "rubick_empty1"
 		"MaxLevel"                      "1"
