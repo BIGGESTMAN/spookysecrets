@@ -691,6 +691,7 @@
 		"BaseClass"						"ability_datadriven"
 		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_PASSIVE"
 		"SpellImmunityType"				"SPELL_IMMUNITY_ENEMIES_YES"
+		"AbilityTextureName"			"disruptor_thunder_strike"
 
 		"precache"
 		{
@@ -703,24 +704,24 @@
 		//"slow_duration" "1.0"
 		//"silence_duration" "0.5"
 
-		//"AbilitySpecial"
-		//{	
-		//	"01"
-		//	{
-		//		"var_type"				"FIELD_INTEGER"
-		//		"slow_percent"			"-20 -20 -20 -20"
-		//	}
-		//	"02"
-		//	{
-		//		"var_type"				"FIELD_FLOAT"
-		//		"slow_duration"			"1.0 1.0 1.0 1.0"
-		//	}
-		//	"03"
-		//	{
-		//		"var_type"				"FIELD_FLOAT"
-		//		"silence_duration"		"0.5"
-		//	}
-		//}
+		"AbilitySpecial"
+		{	
+			"01"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"slow_percent"			"-20 -20 -20 -20"
+			}
+			"02"
+			{
+				"var_type"				"FIELD_FLOAT"
+				"slow_duration"			"1.0 1.0 1.0 1.0"
+			}
+			"03"
+			{
+				"var_type"				"FIELD_FLOAT"
+				"silence_duration"		"0.5"
+			}
+		}
 
 		"OnProjectileHitUnit"
 		{
@@ -785,7 +786,7 @@
 
 			"modifier_yin_yang_orbs_silence"
 			{
-				"Duration"		"%silence_duration"
+				"Duration"		"0.5"
 				"IsHidden"		"0"
 				"IsDebuff"		"1"
 				"IsPurgable"	"1"

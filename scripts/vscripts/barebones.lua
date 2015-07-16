@@ -273,7 +273,7 @@ function GameMode:OnHeroInGame(hero)
 	hero:AddItem(CreateItem("item_ultimate_scepter", hero, hero))
 	hero:AddItem(CreateItem("item_silver_edge", hero, hero))
 
-	local maxAbilityLevels = false
+	local maxAbilityLevels = true
 	if maxAbilityLevels then
 		for i=0,15 do
 		    local ability = hero:GetAbilityByIndex(i)
