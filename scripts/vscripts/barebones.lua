@@ -25,7 +25,7 @@ CUSTOM_BUYBACK_COST_ENABLED = true      -- Should we use a custom buyback cost s
 CUSTOM_BUYBACK_COOLDOWN_ENABLED = true  -- Should we use a custom buyback time?
 BUYBACK_ENABLED = false                 -- Should we allow people to buyback when they die?
 
-DISABLE_FOG_OF_WAR_ENTIRELY = true      -- Should we disable fog of war entirely for both teams?
+DISABLE_FOG_OF_WAR_ENTIRELY = false      -- Should we disable fog of war entirely for both teams?
 USE_STANDARD_HERO_GOLD_BOUNTY = true    -- Should we give gold for hero kills the same as in Dota, or allow those values to be changed?
 
 USE_CUSTOM_TOP_BAR_VALUES = true        -- Should we do customized top bar values or use the default kill count per team?
@@ -42,6 +42,8 @@ KILLS_TO_END_GAME_FOR_TEAM = 50         -- How many kills for a team should sign
 USE_CUSTOM_HERO_LEVELS = true           -- Should we allow heroes to have custom levels?
 MAX_LEVEL = 25                          -- What level should we let heroes get to?
 USE_CUSTOM_XP_VALUES = true             -- Should we use custom XP values to level up heroes, or the default Dota numbers?
+
+MAX_ABILITY_LEVELS = false
 
 -- Fill this table up with the required XP per level if you want to change it
 XP_PER_LEVEL_TABLE = {}
@@ -272,9 +274,9 @@ function GameMode:OnHeroInGame(hero)
 	hero:AddItem(CreateItem("item_force_staff", hero, hero))
 	hero:AddItem(CreateItem("item_ultimate_scepter", hero, hero))
 	hero:AddItem(CreateItem("item_silver_edge", hero, hero))
+	hero:AddItem(CreateItem("item_gem", hero, hero))
 
-	local maxAbilityLevels = true
-	if maxAbilityLevels then
+	if MAX_ABILITY_LEVELS then
 		for i=0,15 do
 		    local ability = hero:GetAbilityByIndex(i)
 		    if ability then 

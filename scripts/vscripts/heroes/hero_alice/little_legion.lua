@@ -64,7 +64,7 @@ end
 
 function killDoll(keys)
 	local doll = keys.target
-	doll.target:RemoveModifierByName(keys.shanghai_buff)
+	if not doll.target:IsNull() then doll.target:RemoveModifierByName(keys.shanghai_buff) end
 	doll:ForceKill(true)
 	keys.caster.dolls[doll] = nil
 	local dolls_war = keys.caster:FindAbilityByName(keys.dolls_war)
@@ -96,7 +96,7 @@ function deathCheck(keys)
 	if doll_type == "shanghai_doll" then
 		doll:MoveToNPC(target)
 	end
-	if (not target:IsAlive()) or (target:IsInvisible() and not doll:CanEntityBeSeenByMyTeam(target)) or 
+	if (target:IsNull() or not target:IsAlive()) or (target:IsInvisible() and not doll:CanEntityBeSeenByMyTeam(target)) or 
 		(doll_type == "hoarai_doll" and target:GetTeamNumber() == doll:GetTeamNumber()) or
 		(doll_type == "shanghai_doll" and target:GetTeamNumber() ~= doll:GetTeamNumber()) then
 		doll:RemoveModifierByName(keys.modifier)
