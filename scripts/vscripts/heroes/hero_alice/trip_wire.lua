@@ -20,12 +20,7 @@ function createWire(keys)
 		local main_ability_name	= ability:GetAbilityName()
 		local sub_ability_name	= keys.attach_ability_name
 		caster:SwapAbilities(main_ability_name, sub_ability_name, false, true)
-
-		Timers:CreateTimer(ability:GetLevelSpecialValueFor("attach_window", ability_level), function()
-			if caster:FindAbilityByName(main_ability_name):IsHidden() then
-				caster:SwapAbilities(main_ability_name, sub_ability_name, true, false)
-			end
-		end)
+		ability:ApplyDataDrivenModifier(caster, caster, keys.attach_window_modifier, {})
 
 		ability:ApplyDataDrivenModifier(caster, caster, keys.caster_modifier, {})
 	else
@@ -42,7 +37,7 @@ function updateWire(keys)
 		local target1 = wire[1]
 		local target2 = wire[2]
 		local range = (target2:GetAbsOrigin() - target1:GetAbsOrigin()):Length2D()
-		if range <= ability:GetLevelSpecialValueFor("max_length", ability_level) then
+		if range <= ability:GetLevelSpecialValueFor("max_length", ability_level)  and target1:IsAlive() and target2:IsAlive() then
 			local lightningBolt = ParticleManager:CreateParticle("particles/econ/events/ti5/dagon_ti5.vpcf", PATTACH_WORLDORIGIN, target1)
 			ParticleManager:SetParticleControl(lightningBolt,0,Vector(target1:GetAbsOrigin().x,target1:GetAbsOrigin().y,target1:GetAbsOrigin().z + target1:GetBoundingMaxs().z ))	
 			ParticleManager:SetParticleControl(lightningBolt,1,Vector(target2:GetAbsOrigin().x,target2:GetAbsOrigin().y,target2:GetAbsOrigin().z + target2:GetBoundingMaxs().z ))
@@ -57,12 +52,16 @@ function updateWire(keys)
 				wire_triggered = false -- Make sure attaching to an enemy doesn't instantly break wire
 				for k,unit in pairs(hit_units) do
 					if unit ~= target1 and unit ~= target2 then
-						ApplyDamage({victim = unit, attacker = caster, damage = ability:GetLevelSpecialValueFor("damage", ability_level), damage_type = DAMAGE_TYPE_MAGICAL})
-						ability:ApplyDataDrivenModifier(caster, unit, keys.root_modifier, {})
 						wire_triggered = true
 					end
 				end
-				if wire_triggered then destroyWire(wire, caster) end
+				if wire_triggered then
+					for k,unit in pairs(hit_units) do
+						ApplyDamage({victim = unit, attacker = caster, damage = ability:GetLevelSpecialValueFor("damage", ability_level), damage_type = DAMAGE_TYPE_MAGICAL})
+						ability:ApplyDataDrivenModifier(caster, unit, keys.root_modifier, {})
+					end
+					destroyWire(wire, caster)
+				end
 			end
 		else
 			destroyWire(wire, caster)
@@ -83,6 +82,13 @@ end
 
 function destroyWire(wire, caster)
 	caster.wires[wire] = nil
+	if caster:FindAbilityByName("trip_wire"):IsHidden() and wire == caster.last_wire then
+		caster:SwapAbilities("trip_wire", "trip_wire_attach", true, false)
+	end
+end
+
+function removeAttachAbility(keys)
+	local caster = keys.caster
 	if caster:FindAbilityByName("trip_wire"):IsHidden() then
 		caster:SwapAbilities("trip_wire", "trip_wire_attach", true, false)
 	end

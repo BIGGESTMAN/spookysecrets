@@ -76,6 +76,7 @@
 				"Function"					"createWire"
 				"attach_ability_name"		"trip_wire_attach"
 				"caster_modifier"			"modifier_trip_wire_caster"
+				"attach_window_modifier"	"modifier_trip_wire_attach_window"
 			}
 		}
 
@@ -103,18 +104,35 @@
 
 			"modifier_trip_wire_root"
 			{
-				"IsDebuff"	"1"
-				"IsHidden"	"0"
+				"IsDebuff"					"1"
+				"IsHidden"					"0"
 
-				"Duration"	"%root_duration"
+				"Duration"					"%root_duration"
 
 				"STATES"
 				{
 					"MODIFIER_STATE_ROOTED"		"MODIFIER_STATE_VALUE_ENABLED"
 				}
 
-				"EffectName"		"particles/units/heroes/hero_oracle/oracle_fortune_purge.vpcf"
-				"EffectAttachType"	"follow_origin"
+				"EffectName"				"particles/units/heroes/hero_oracle/oracle_fortune_purge.vpcf"
+				"EffectAttachType"			"follow_origin"
+			}
+
+			"modifier_trip_wire_attach_window"
+			{
+				"IsHidden"					"1"
+				"IsPurgable"				"0"
+
+				"Duration"					"%attach_window"
+
+				"OnDestroy"
+				{
+					"RunScript"
+					{
+						"ScriptFile"		"heroes/hero_alice/trip_wire.lua"
+						"Function"			"removeAttachAbility"
+					}
+				}
 			}
 
 			"modifier_dummy"
