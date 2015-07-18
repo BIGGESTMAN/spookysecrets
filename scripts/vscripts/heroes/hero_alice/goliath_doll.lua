@@ -1,7 +1,7 @@
 function spawnDoll(keys)
 	local caster = keys.caster
 	local ability = keys.ability
-	local ability_level = ability:GetLevel()
+	local ability_level = ability:GetLevel() - 1
 
 	local doll = CreateUnitByName("goliath_doll", keys.target_points[1], true, caster, caster, caster:GetTeamNumber())
 	if not caster.goliath_dolls then caster.goliath_dolls = {} end

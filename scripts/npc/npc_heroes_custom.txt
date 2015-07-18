@@ -207,7 +207,7 @@
 		"Ability5"				""
 		"Ability6"				""
 		"Ability7"				"attribute_bonus"
-		"Ability8"				""
+		"Ability8"				"trip_wire_attach"
 		"Ability9"				""
 		"Ability10"				""
 		"Ability11"				""

@@ -61,6 +61,11 @@
 				"var_type"				"FIELD_FLOAT"
 				"update_interval"		"0.1"
 			}
+			"08"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"attach_window"			"3"
+			}
 		}
 
 		"OnSpellStart"
@@ -75,6 +80,7 @@
 			{
 				"ScriptFile"	"heroes/hero_alice/trip_wire.lua"
 				"Function"		"createWire"
+				"attach_ability_name"	"trip_wire_attach"
 			}
 		}
 

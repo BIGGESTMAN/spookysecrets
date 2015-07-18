@@ -4,7 +4,7 @@ LinkLuaModifier("modifier_fantasy_nature", LUA_MODIFIER_MOTION_NONE )
 function fantasy_nature:OnSpellStart()
 	local caster = self:GetCaster()
 	local ability = self
-	local ability_level = self:GetLevel()
+	local ability_level = self:GetLevel() - 1
 
 	EmitSoundOn("Hero_Omniknight.GuardianAngel.Cast", caster)
 

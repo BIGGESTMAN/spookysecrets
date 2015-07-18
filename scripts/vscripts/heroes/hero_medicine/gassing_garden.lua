@@ -1,7 +1,7 @@
 function gassingGardenHit(keys)
 	local caster = keys.caster
 	local ability = keys.ability
-	local ability_level = ability:GetLevel()
+	local ability_level = ability:GetLevel() - 1
 	local target = keys.target
 
 	local target_speed = target:GetMoveSpeedModifier(target:GetBaseMoveSpeed())

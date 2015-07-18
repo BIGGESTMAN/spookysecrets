@@ -4,7 +4,7 @@ require "libraries/util"
 function dollsWarActivation(keys)
 	local caster = keys.caster
 	local ability = keys.ability
-	local ability_level = ability:GetLevel()
+	local ability_level = ability:GetLevel() - 1
 
 	if caster.dolls then
 		for doll,v in pairs(caster.dolls) do
@@ -27,7 +27,7 @@ end
 function spin(keys, doll)
 	local caster = keys.caster
 	local ability = keys.ability
-	local ability_level = ability:GetLevel()
+	local ability_level = ability:GetLevel() - 1
 
 	local team = doll:GetTeamNumber()
 	local point = doll:GetAbsOrigin()
@@ -54,7 +54,7 @@ end
 function fireLaser(keys, doll)
 	local caster = keys.caster
 	local ability = keys.ability
-	local ability_level = ability:GetLevel()
+	local ability_level = ability:GetLevel() - 1
 	local thinker_modifier = keys.thinker_modifier
 	local range = ability:GetLevelSpecialValueFor("laser_range", ability_level)
 	local radius = ability:GetLevelSpecialValueFor("laser_radius", ability_level)

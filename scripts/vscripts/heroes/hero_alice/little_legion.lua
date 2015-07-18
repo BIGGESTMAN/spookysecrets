@@ -1,7 +1,7 @@
 function spawnDoll(keys)
 	local movement_interval = 0.03
 	local ability = keys.ability
-	local ability_level = ability:GetLevel()
+	local ability_level = ability:GetLevel() - 1
 	local target = keys.target
 	local caster = keys.caster
 

@@ -117,7 +117,7 @@ end
 function spellCast( event )
 	local caster = event.caster
 	local ability = event.ability
-	local ability_level = ability:GetLevel()
+	local ability_level = ability:GetLevel() - 1
 
 	local team = caster:GetTeamNumber()
 	local iTeam = DOTA_UNIT_TARGET_TEAM_ENEMY
@@ -135,7 +135,7 @@ end
 function fireLaser(event, orb)
 	local caster = event.caster
 	local ability = event.ability
-	local ability_level = ability:GetLevel()
+	local ability_level = ability:GetLevel() - 1
 	local search_radius = ability:GetLevelSpecialValueFor("search_radius", ability_level)
 
 	local team = caster:GetTeamNumber()
@@ -156,7 +156,7 @@ function fireLaserAt(event, orb, target)
 	local caster = event.caster
 	local orb_location = orb:GetAbsOrigin()
 	local ability = event.ability
-	local ability_level = ability:GetLevel()
+	local ability_level = ability:GetLevel() - 1
 	local range = ability:GetLevelSpecialValueFor("search_radius", ability_level)
 	local radius = ability:GetLevelSpecialValueFor("laser_radius", ability_level)
 	local thinkerRadius = radius * 1.5
