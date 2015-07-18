@@ -1,0 +1,138 @@
+	"trip_wire"
+	{
+		// General
+		//-------------------------------------------------------------------------------------------------------------
+		"BaseClass"						"ability_datadriven"
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_UNIT_TARGET"
+		"AbilityTextureName"			"windrunner_shackleshot"
+		"AbilityUnitDamageType"			"DAMAGE_TYPE_MAGICAL"
+		"AbilityUnitTargetTeam"			"DOTA_UNIT_TARGET_TEAM_BOTH"
+		"AbilityUnitTargetType"			"DOTA_UNIT_TARGET_HERO | DOTA_UNIT_TARGET_BASIC | DOTA_UNIT_TARGET_MECHANICAL | DOTA_UNIT_TARGET_BUILDING | DOTA_UNIT_TARGET_TREE"
+
+		"AbilityCastPoint"				"0.5"
+		"AbilityCastRange"				"550"
+		"AbilityCooldown"				"20 17 14 11"
+		"AbilityManaCost"				"115"
+
+		// Precache
+		//-------------------------------------------------------------------------------------------------------------
+		"precache"
+		{
+			"particle"					"particles/econ/events/ti5/dagon_ti5.vpcf"
+			"particle"					"particles/units/heroes/hero_oracle/oracle_fortune_purge.vpcf"
+		}
+
+		// Special
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilitySpecial"
+		{
+			"01"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"damage"				"100 160 220 280"
+			}
+			"02"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"duration"				"5"
+			}
+			"03"
+			{
+				"var_type"				"FIELD_FLOAT"
+				"root_duration"			"1.5 1.8 2.1 2.4"
+			}
+			"04"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"max_dolls"				"3 4 5 6"
+			}
+			"05"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"max_length"			"1000"
+			}
+			"06"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"radius"				"100"
+			}
+			"07"
+			{
+				"var_type"				"FIELD_FLOAT"
+				"update_interval"		"0.1"
+			}
+		}
+
+		"OnSpellStart"
+		{
+			"ApplyModifier"
+			{
+				"Target"					"CASTER"
+				"ModifierName"				"modifier_trip_wire_caster"	
+			}
+
+			"RunScript"
+			{
+				"ScriptFile"	"heroes/hero_alice/trip_wire.lua"
+				"Function"		"createWire"
+			}
+		}
+
+		"Modifiers"
+		{
+			"modifier_trip_wire_caster"
+			{
+				"Duration"					"%duration"
+
+				"ThinkInterval"				"%update_interval"
+				"OnIntervalThink"
+				{
+					"RunScript"
+					{
+						"ScriptFile"		"heroes/hero_alice/trip_wire.lua"
+						"Function"			"updateWire"
+						"thinker_modifier"	"modifier_dummy"
+						"root_modifier"		"modifier_trip_wire_root"
+					}
+				}
+			}
+
+			"modifier_trip_wire_root"
+			{
+				"IsDebuff"	"1"
+				"IsHidden"	"0"
+
+				"Duration"	"%root_duration"
+
+				"STATES"
+				{
+					"MODIFIER_STATE_ROOTED"		"MODIFIER_STATE_VALUE_ENABLED"
+				}
+
+				"EffectName"		"particles/units/heroes/hero_oracle/oracle_fortune_purge.vpcf"
+				"EffectAttachType"	"follow_origin"
+			}
+
+			"modifier_dummy"
+			{
+				"OnCreated"
+				{
+					"ApplyModifier"
+					{
+						"Target"		"TARGET"
+						"ModifierName"	"modifier_phased"
+					}
+				}
+				
+				"States"
+				{
+					"MODIFIER_STATE_PROVIDES_VISION"		"MODIFIER_STATE_VALUE_ENABLED"
+					"MODIFIER_STATE_INVULNERABLE"			"MODIFIER_STATE_VALUE_ENABLED"
+					"MODIFIER_STATE_NO_HEALTH_BAR"			"MODIFIER_STATE_VALUE_ENABLED"
+					"MODIFIER_STATE_NO_UNIT_COLLISION"		"MODIFIER_STATE_VALUE_ENABLED"
+					"MODIFIER_STATE_NOT_ON_MINIMAP"			"MODIFIER_STATE_VALUE_ENABLED"
+					"MODIFIER_STATE_UNSELECTABLE"			"MODIFIER_STATE_VALUE_ENABLED"
+				}
+			}
+		}
+	}

@@ -6,15 +6,17 @@ function dollsWarActivation(keys)
 	local ability = keys.ability
 	local ability_level = ability:GetLevel()
 
-	for doll,v in pairs(caster.dolls) do
-		local doll_type = doll:GetUnitName()
-		if doll_type == "shanghai_doll" then
-			fireLaser(keys, doll)
-		else
-			spin(keys, doll)
+	if caster.dolls then
+		for doll,v in pairs(caster.dolls) do
+			local doll_type = doll:GetUnitName()
+			if doll_type == "shanghai_doll" then
+				fireLaser(keys, doll)
+			else
+				spin(keys, doll)
+			end
 		end
 	end
-
+	
 	if caster.goliath_dolls then
 		for goliath_doll,v in pairs(caster.goliath_dolls) do
 			caster:FindAbilityByName("goliath_doll"):ApplyDataDrivenModifier(caster, goliath_doll, keys.goliath_doll_buff, {})
@@ -82,21 +84,21 @@ function fireLaser(keys, doll)
 end
 
 function updateAbilityEnabled(keys)
+	local dolls_active = false
+
 	if keys.caster.dolls then
-		local dolls_active = false
 		for k,doll in pairs(keys.caster.dolls) do
 			dolls_active = true
 		end
-
+	end
+	if keys.caster.goliath_dolls then
 		for k,doll in pairs(keys.caster.goliath_dolls) do
 			dolls_active = true
 		end
+	end
 
-		if dolls_active then
-			keys.ability:SetActivated(true)
-		else
-			keys.ability:SetActivated(false)
-		end
+	if dolls_active then
+		keys.ability:SetActivated(true)
 	else
 		keys.ability:SetActivated(false)
 	end
