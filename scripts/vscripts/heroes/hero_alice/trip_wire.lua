@@ -6,24 +6,32 @@ function createWire(keys)
 	local ability = keys.ability
 	local ability_level = ability:GetLevel() - 1
 
-	local wire = {keys.caster, keys.target}
-	if not caster.wires then caster.wires = {} end
-	caster.wires[wire] = true
+	if caster ~= target then
+		local wire = {keys.caster, keys.target}
+		if not caster.wires then caster.wires = {} end
+		caster.wires[wire] = true
 
-	Timers:CreateTimer(ability:GetLevelSpecialValueFor("duration", ability_level), function()
-		if caster.wires[wire] then caster.wires[wire] = nil end
-	end)
+		Timers:CreateTimer(ability:GetLevelSpecialValueFor("duration", ability_level), function()
+			if caster.wires[wire] then destroyWire(wire, caster) end
+		end)
 
-	caster.last_wire = wire
-	local main_ability_name	= ability:GetAbilityName()
-	local sub_ability_name	= keys.attach_ability_name
-	caster:SwapAbilities(main_ability_name, sub_ability_name, false, true)
-
-	Timers:CreateTimer(ability:GetLevelSpecialValueFor("attach_window", ability_level), function()
+		caster.last_wire = wire
+		-- Enable attaching-secondary-target ability
 		local main_ability_name	= ability:GetAbilityName()
 		local sub_ability_name	= keys.attach_ability_name
-		caster:SwapAbilities(main_ability_name, sub_ability_name, true, false)
-	end)
+		caster:SwapAbilities(main_ability_name, sub_ability_name, false, true)
+
+		Timers:CreateTimer(ability:GetLevelSpecialValueFor("attach_window", ability_level), function()
+			if caster:FindAbilityByName(main_ability_name):IsHidden() then
+				caster:SwapAbilities(main_ability_name, sub_ability_name, true, false)
+			end
+		end)
+
+		ability:ApplyDataDrivenModifier(caster, caster, keys.caster_modifier, {})
+	else
+		caster:SetMana(caster:GetMana() + ability:GetManaCost(ability_level))
+		ability:EndCooldown()
+	end
 end
 
 function updateWire(keys)
@@ -50,24 +58,32 @@ function updateWire(keys)
 				for k,unit in pairs(hit_units) do
 					if unit ~= target1 and unit ~= target2 then
 						ApplyDamage({victim = unit, attacker = caster, damage = ability:GetLevelSpecialValueFor("damage", ability_level), damage_type = DAMAGE_TYPE_MAGICAL})
-						print(unit:GetModifierCount(), root_modifier)
 						ability:ApplyDataDrivenModifier(caster, unit, keys.root_modifier, {})
-						print(unit:GetModifierCount())
 						wire_triggered = true
 					end
 				end
-				if wire_triggered then caster.wires[wire] = nil end
+				if wire_triggered then destroyWire(wire, caster) end
 			end
 		else
-			caster.wires[wire] = nil
+			destroyWire(wire, caster)
 		end
 	end
 end
 
 function attach(keys)
 	local caster = keys.caster
-	caster.last_wire[1] = keys.target
-	local main_ability_name	= keys.main_ability_name
-	local sub_ability_name	= keys.ability:GetAbilityName()
-	caster:SwapAbilities(main_ability_name, sub_ability_name, true, false)
+	local target = keys.target
+	if caster.last_wire[2] ~= target and caster ~= target then
+		caster.last_wire[1] = target
+		local main_ability_name	= keys.main_ability_name
+		local sub_ability_name	= keys.ability:GetAbilityName()
+		caster:SwapAbilities(main_ability_name, sub_ability_name, true, false)
+	end
+end
+
+function destroyWire(wire, caster)
+	caster.wires[wire] = nil
+	if caster:FindAbilityByName("trip_wire"):IsHidden() then
+		caster:SwapAbilities("trip_wire", "trip_wire_attach", true, false)
+	end
 end

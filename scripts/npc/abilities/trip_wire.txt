@@ -70,17 +70,12 @@
 
 		"OnSpellStart"
 		{
-			"ApplyModifier"
-			{
-				"Target"					"CASTER"
-				"ModifierName"				"modifier_trip_wire_caster"	
-			}
-
 			"RunScript"
 			{
-				"ScriptFile"	"heroes/hero_alice/trip_wire.lua"
-				"Function"		"createWire"
-				"attach_ability_name"	"trip_wire_attach"
+				"ScriptFile"				"heroes/hero_alice/trip_wire.lua"
+				"Function"					"createWire"
+				"attach_ability_name"		"trip_wire_attach"
+				"caster_modifier"			"modifier_trip_wire_caster"
 			}
 		}
 
@@ -88,6 +83,9 @@
 		{
 			"modifier_trip_wire_caster"
 			{
+				"IsHidden"					"1"
+				"IsPurgable"				"0"
+
 				"Duration"					"%duration"
 
 				"ThinkInterval"				"%update_interval"
