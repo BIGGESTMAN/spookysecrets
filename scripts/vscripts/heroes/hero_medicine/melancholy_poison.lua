@@ -6,7 +6,15 @@ function melancholyPoisonTick(keys)
 
 	-- Increment venom count
 	if not caster.venom then caster.venom = 0 end
-	caster.venom = caster.venom + ability:GetLevelSpecialValueFor("venom_gained_per_second", ability_level) * update_interval
+
+	local venom_gain_factor = 1
+	if caster:HasModifier("modifier_poison_breath_hit") or caster:HasModifier("modifier_gassing_garden_hit") then
+		venom_gain_factor = 2
+	end
+	caster.venom = caster.venom + ability:GetLevelSpecialValueFor("venom_gained_per_second", ability_level) * update_interval * venom_gain_factor
+
+	local max_venom = ability:GetLevelSpecialValueFor("max_venom", ability_level)
+	if caster.venom > max_venom then caster.venom = max_venom end
 
 	-- If magic damage taken recently, release venom
 	if caster.venom_triggered then
@@ -35,11 +43,22 @@ function melancholyPoisonTick(keys)
 			caster.venom_triggered = false
 		end
 	end
+
+	ability:ApplyDataDrivenModifier(caster, caster, keys.display_modifier, {})
+	caster:FindModifierByName(keys.display_modifier):SetStackCount(caster.venom)
 end
 
 function checkVenomRelease(keys)
 	local caster = keys.caster
 	local ability = keys.ability
 	local ability_level = ability:GetLevel() - 1
-	local damage_taken = keys.damage_taken
+
+	if ability:IsCooldownReady() and caster.venom > 0 then
+		ability:ApplyDataDrivenModifier(caster, caster, keys.release_charging_modifier, {})
+		ability:StartCooldown(ability:GetCooldown(ability_level))
+	end
+end
+
+function venomRelease(keys)
+	keys.caster.venom_triggered = true
 end

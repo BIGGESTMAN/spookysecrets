@@ -81,7 +81,7 @@
 			{
 				"Aura" 			"modifier_poison_breath_hit"
 				"Aura_Radius" 	"%radius"
-				"Aura_Teams" 	"DOTA_UNIT_TARGET_TEAM_ENEMY"
+				"Aura_Teams" 	"DOTA_UNIT_TARGET_TEAM_BOTH"
 				"Aura_Types" 	"DOTA_UNIT_TARGET_HERO | DOTA_UNIT_TARGET_BASIC"
 
 				"Duration"		"%gas_duration"
@@ -131,11 +131,10 @@
 				"ThinkInterval"		"%update_interval"
 				"OnIntervalThink"
 				{
-					"Damage"
+					"RunScript"
 					{
-						"Target"		"TARGET"
-						"Type"			"DAMAGE_TYPE_MAGICAL"
-						"Damage"		"%damage_per_second * %update_interval"
+						"ScriptFile"	"heroes/hero_medicine/poison_breath.lua"
+						"Function"		"dealDamage"
 					}
 				}
 			}

@@ -17,6 +17,7 @@
 		{
 			"soundfile"					"soundevents/game_sounds_heroes/game_sounds_slardar.vsndevts"
 			"particle"					"particles/units/heroes/hero_pugna/pugna_netherblast.vpcf"
+			"particle"					"particles/generic_gameplay/generic_stunned.vpcf"
 		}
 
 		// Special
@@ -80,7 +81,7 @@
 			"modifier_venom"
 			{
 				"Passive"		"1"
-				"IsHidden"		"0"
+				"IsHidden"		"1"
 				"IsPurgable"	"0"
 
 				"ThinkInterval"	"%update_interval"
@@ -92,6 +93,7 @@
 						"Function"		"melancholyPoisonTick"
 						"stun_modifier"	"modifier_stun"
 						"particle"		"particles/units/heroes/hero_pugna/pugna_netherblast.vpcf"
+						"display_modifier"	"modifier_venom_display"
 					}
 				}
 
@@ -102,6 +104,23 @@
 						"ScriptFile"	"heroes/hero_medicine/melancholy_poison.lua"
 						"Function"		"checkVenomRelease"
 						"damage_taken"	"%attack_damage"
+						"release_charging_modifier"	"modifier_release_charging"
+					}
+				}
+			}
+
+			"modifier_release_charging"
+			{
+				"IsHidden"		"0"
+				"IsPurgable"	"0"
+				"Duration"		"%release_delay"
+
+				"OnDestroy"
+				{
+					"RunScript"
+					{
+						"ScriptFile"	"heroes/hero_medicine/melancholy_poison.lua"
+						"Function"		"venomRelease"
 					}
 				}
 			}
@@ -127,6 +146,18 @@
 						"EffectName"	"Hero_Slarder.Bash"
 						"Target" 		"TARGET"
 					}
+				}
+			}
+
+			"modifier_venom_display"
+			{
+				"IsHidden"		"0"
+				"IsPurgable"	"0"
+
+				"Properties"
+				{
+					"MODIFIER_PROPERTY_MAGICAL_RESISTANCE_BONUS" "%magic_resist"
+				    "MODIFIER_PROPERTY_HEALTH_REGEN_CONSTANT" "%health_regen" 
 				}
 			}
 		}

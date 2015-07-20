@@ -267,7 +267,7 @@
 		"SoundSet"				"0"	
 		"Ability1"				"poison_breath"
 		"Ability2"				"gassing_garden"
-		"Ability3"				"reflex_empty2"
+		"Ability3"				"melancholy_poison"
 		"Ability4"				"reflex_empty3"
 		"Ability5"				""
 		"Ability6"				""

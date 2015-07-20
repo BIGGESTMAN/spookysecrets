@@ -58,9 +58,8 @@
 			{
 				"Aura" 			"modifier_gassing_garden_hit"
 				"Aura_Radius" 	"%radius"
-				"Aura_Teams" 	"DOTA_UNIT_TARGET_TEAM_ENEMY"
+				"Aura_Teams" 	"DOTA_UNIT_TARGET_TEAM_BOTH"
 				"Aura_Types" 	"DOTA_UNIT_TARGET_HERO | DOTA_UNIT_TARGET_BASIC"
-
 				"Duration"		"%duration"
 
 				"OnCreated"
