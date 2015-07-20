@@ -265,7 +265,7 @@
 		"AbilityLayout" 		"4"
 		"override_hero"			"npc_dota_hero_undying"
 		"SoundSet"				"0"	
-		"Ability1"				"reflex_empty1"
+		"Ability1"				"poison_breath"
 		"Ability2"				"gassing_garden"
 		"Ability3"				"reflex_empty2"
 		"Ability4"				"reflex_empty3"
