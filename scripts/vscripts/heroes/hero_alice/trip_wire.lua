@@ -117,7 +117,7 @@ function removeAttachAbility(keys)
 end
 
 function upgradeAttachAbility(keys)
-	local main_ability = keys.caster:FindAbilityByName(ability:GetAbilityName())
+	local main_ability = keys.caster:FindAbilityByName(keys.ability:GetAbilityName())
 	local sub_ability = keys.caster:FindAbilityByName(keys.attach_ability)
 	sub_ability:SetLevel(main_ability:GetLevel())
 end

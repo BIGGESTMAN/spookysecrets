@@ -45,13 +45,12 @@ function modifier_fantasy_nature:IsBuff()
 	return true
 end
 
-function modifier_fantasy_nature:DeclareFunctions()
-	return { MODIFIER_PROPERTY_ABSOLUTE_NO_DAMAGE_PHYSICAL,
-			MODIFIER_PROPERTY_TRANSLATE_ACTIVITY_MODIFIERS }
-end
+function modifier_fantasy_nature:CheckState()
+	local state = {
+	[MODIFIER_PROPERTY_ABSOLUTE_NO_DAMAGE_PHYSICAL] = true,
+	}
 
-function modifier_fantasy_nature:GetAbsoluteNoDamagePhysical( params )
-	return "1"
+	return state
 end
 
 function modifier_fantasy_nature:OnIntervalThink()
@@ -89,10 +88,15 @@ function modifier_fantasy_nature:OnIntervalThink()
 	end
 end
 
+function modifier_fantasy_nature:DeclareFunctions()
+	return { MODIFIER_EVENT_ON_ATTACKED,
+			MODIFIER_PROPERTY_ABSOLUTE_NO_DAMAGE_PHYSICAL }
+end
+
 function modifier_fantasy_nature:OnAttacked()
 	local particle = ParticleManager:CreateParticle("particles/units/heroes/hero_phoenix/phoenix_supernova_hit.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
-	ParticleManager:SetParticleControl(particle, 0, getCaster())
-	ParticleManager:SetParticleControl(particle, 1, getCaster())
+	ParticleManager:SetParticleControl(particle, 0, self:GetParent():GetAbsOrigin())
+	ParticleManager:SetParticleControl(particle, 1, self:GetParent():GetAbsOrigin())
 	self:AddParticle(particle, false, false, -1, false, false)
 end
 
@@ -125,12 +129,4 @@ function modifier_fantasy_nature:OnDestroy()
 
 		EmitSoundOn("Hero_Phoenix.SuperNova.Explode", caster)
 	end
-end
-
-function modifier_fantasy_nature:GetActivityTranslationModifiers( params )
-	if self:GetParent() == self:GetCaster() then
-		return "fantasy_nature"
-	end
-
-	return 0
 end

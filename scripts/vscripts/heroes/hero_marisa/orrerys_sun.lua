@@ -208,7 +208,6 @@ function fireLaserAt(event, orb, target)
 	end
 
 	-- Particle
-	local origin = orb:GetAbsOrigin()
 	local particle = ParticleManager:CreateParticle(event.particleName, PATTACH_POINT_FOLLOW, orb)
 	ParticleManager:SetParticleControl(particle,9,orb_location)	
 	ParticleManager:SetParticleControl(particle,1,target:GetAbsOrigin())
