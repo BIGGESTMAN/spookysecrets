@@ -132,13 +132,13 @@ function GetEnemiesInCone( unit, start_radius, end_radius, end_distance)
 	end
 
 	for k,v in pairs(start_units) do
-		if not tableContains(cone_units, k) then
+		if not tableContains(cone_units, v) then
 			table.insert(cone_units, v)
 		end
 	end	
 
 	for k,v in pairs(mid_units) do
-		if not tableContains(cone_units, k) then
+		if not tableContains(cone_units, v) then
 			table.insert(cone_units, v)
 		end
 	end
