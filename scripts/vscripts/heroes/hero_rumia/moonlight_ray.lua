@@ -2,7 +2,6 @@ require "libraries/util"
 
 function moonlightRay(keys)
 	local caster = keys.caster
-
 	local target = keys.target
 	local ability = keys.ability
 	local ability_level = ability:GetLevel() - 1
@@ -46,7 +45,7 @@ function moonlightRay(keys)
 end
 
 function GetEnemiesInCone(unit, start_radius, end_radius, end_distance, caster_forward)
-	local DEBUG = true
+	local DEBUG = false
 	
 	-- Positions
 	local fv = caster_forward

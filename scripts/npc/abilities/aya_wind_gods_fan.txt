@@ -32,19 +32,19 @@
 			"02"
 			{
 				"var_type"				"FIELD_INTEGER"
-				"maximum_damage"		"120 180 240 300"
+				"maximum_damage"		"60 130 200 270"
 				"_value"				"DOTA_Tooltip_Ability_wind_gods_fan_Maximum_Damage"
 			}
 			"03"
 			{
 				"var_type"				"FIELD_INTEGER"
-				"max_damage_distance"	"900"
+				"max_damage_distance"	"1500"
 				"_value"				"DOTA_Tooltip_Ability_wind_gods_fan_Max_Damage_Distance"
 			}
 			"04"
 			{
 				"var_type"				"FIELD_INTEGER"
-				"movespeed"				"12 16 20 24"
+				"movespeed"				"8 12 16 20"
 				"_value"				"DOTA_Tooltip_Ability_wind_gods_fan_Movespeed"
 			}
 			"05"

@@ -331,7 +331,7 @@
 		"override_hero"			"npc_dota_hero_enigma"
 		"SoundSet"				"0"	
 		"Ability1"				"moonlight_ray"
-		"Ability2"				""
+		"Ability2"				"dark_side_of_the_moon"
 		"Ability3"				""
 		"Ability4"				""
 		"Ability5"				""
