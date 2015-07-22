@@ -50,7 +50,7 @@
 
 		"StatusHealth"				"150"									// Base health.
 		"StatusHealthRegen"			"0"										// Health regeneration rate.
-		"StatusMana"				"10000"										// Base mana.
+		"StatusMana"				"0"										// Base mana.
 		"StatusManaRegen"			"0"										// Mana regeneration rate.
 
 		"VisionNighttimeRange"		"800"									// Range of vision at night time.
@@ -70,7 +70,7 @@
 		"AbilityLayout" 		"6"
 		"override_hero"			"npc_dota_hero_skywrath_mage"
 		"SoundSet"				"0"	
-		"Ability1"				"reflex_empty1" 
+		"Ability1"				"candid_shot" 
 		"Ability2"				"macroburst" 
 		"Ability3"				"wind_gods_fan" 
 		"Ability4"				"opening_wind"
@@ -180,7 +180,7 @@
 
 		"StatusHealth"				"150"									// Base health.
 		"StatusHealthRegen"			"0"										// Health regeneration rate.
-		"StatusMana"				"10000"										// Base mana.
+		"StatusMana"				"0"										// Base mana.
 		"StatusManaRegen"			"0"										// Mana regeneration rate.
 
 		"VisionNighttimeRange"		"800"									// Range of vision at night time.
@@ -245,7 +245,7 @@
 
 		"StatusHealth"				"150"									// Base health.
 		"StatusHealthRegen"			"0"										// Health regeneration rate.
-		"StatusMana"				"10000"										// Base mana.
+		"StatusMana"				"0"										// Base mana.
 		"StatusManaRegen"			"0"										// Mana regeneration rate.
 
 		"VisionNighttimeRange"		"800"									// Range of vision at night time.
@@ -310,7 +310,7 @@
 
 		"StatusHealth"				"150"									// Base health.
 		"StatusHealthRegen"			"0"										// Health regeneration rate.
-		"StatusMana"				"10000"										// Base mana.
+		"StatusMana"				"0"										// Base mana.
 		"StatusManaRegen"			"0"										// Mana regeneration rate.
 
 		"VisionNighttimeRange"		"800"									// Range of vision at night time.
@@ -372,7 +372,7 @@
 
 		"StatusHealth"				"150"									// Base health.
 		"StatusHealthRegen"			"0"										// Health regeneration rate.
-		"StatusMana"				"10000"										// Base mana.
+		"StatusMana"				"0"										// Base mana.
 		"StatusManaRegen"			"0"										// Mana regeneration rate.
 
 		"VisionDaytimeRange"		"1200"									// Range of vision during day light.
