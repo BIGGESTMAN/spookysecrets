@@ -6,6 +6,7 @@
 		"AbilityUnitTargetType"			"DOTA_UNIT_TARGET_HERO | DOTA_UNIT_TARGET_BASIC"
 		"SpellImmunityType"				"SPELL_IMMUNITY_ENEMIES_NO"
 		"AbilityTextureName"			"warlock_shadow_word"
+		"AbilityUnitDamageType"			"DAMAGE_TYPE_MAGICAL"
 
 		"AbilityCastAnimation"			"ACT_DOTA_DIE"
 
@@ -146,6 +147,7 @@
 			{
 				"IsHidden"				"0"
 				"IsPurgable"			"0"
+				"IsDebuff"				"1"
 
 				"Duration"				"%root_duration"
 
@@ -157,10 +159,10 @@
 
 			"modifier_demarcation_cooldown"
 			{
-				"IsHidden"				"0"
+				"IsHidden"				"1"
 				"IsPurgable"			"0"
 
-				"Duration"				"%internal_cooldowna"
+				"Duration"				"%internal_cooldown"
 			}
 		}
 	}
