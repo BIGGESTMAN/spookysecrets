@@ -49,9 +49,7 @@ function macroburstUpdateCooldown( keys )
 	distance_traveled = (previous_location_table[caster] - currentLocation):Length2D()
 	previous_location_table[caster] = currentLocation
 
-	caster:RemoveModifierByName(keys.remaining_distance_modifier)
-
-	if caster:HasModifier(keys.toggled_modifier) and caster:IsAlive() then
+	if caster:IsAlive() then
 		if distance_remaining_table[caster] == nil then
 			distance_remaining_table[caster] = ability:GetLevelSpecialValueFor("distance_to_ready", (ability:GetLevel() - 1))
 		end
@@ -59,32 +57,21 @@ function macroburstUpdateCooldown( keys )
 
 		if distance_remaining_table[caster] <= 0 then
 			ability:ApplyDataDrivenModifier(caster, caster, keys.ready_modifier, {})
-			fireGust(keys)
+			-- fireGust(keys)
+			ability:EndCooldown()
 		else
-			ability:ApplyDataDrivenModifier(caster, caster, keys.remaining_distance_modifier, {})
-			local modifier = caster:FindModifierByName(keys.remaining_distance_modifier)
-			while modifier:GetStackCount() < distance_remaining_table[caster] do
-				modifier:IncrementStackCount()
-			end
-			--caster:FindModifierByName(keys.remaining_distance_modifier).SetStackCount(distance_remaining_table[caster])
+			ability:EndCooldown()
+			ability:StartCooldown(distance_remaining_table[caster])
 		end
 	else
 		distance_remaining_table[caster] = nil
 		previous_location_table[caster] = nil
-		caster:RemoveModifierByName(keys.ready_modifier)
 	end
 end
 
-function macroburstResetModifier( keys )
+function onUpgrade(keys)
 	local caster = keys.caster
 	local ability = keys.ability
-	local toggled_modifier = keys.toggled_modifier
-	local untoggled_modifier = keys.untoggled_modifier
-
-	if (not caster:HasModifier(toggled_modifier)) and (not caster:HasModifier(untoggled_modifier)) then
-		ability:ApplyDataDrivenModifier(caster, caster, untoggled_modifier, {})
-	end
-
 	if distance_remaining_table[caster] and distance_remaining_table[caster] > ability:GetLevelSpecialValueFor("distance_to_ready", (ability:GetLevel() - 1)) then
 		distance_remaining_table[caster] = ability:GetLevelSpecialValueFor("distance_to_ready", (ability:GetLevel() - 1))
 	end

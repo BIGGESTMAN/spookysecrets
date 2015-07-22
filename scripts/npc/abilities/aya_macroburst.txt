@@ -3,7 +3,7 @@
 		// General
 		//-------------------------------------------------------------------------------------------------------------
 		"BaseClass"						"ability_datadriven"
-		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_TOGGLE"
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_IMMEDIATE" 
 		"AbilityUnitTargetTeam"			"DOTA_UNIT_TARGET_TEAM_ENEMY"
 		"AbilityUnitTargetType"			"DOTA_UNIT_TARGET_HERO | DOTA_UNIT_TARGET_BASIC"
 		"AbilityUnitDamageType"			"DAMAGE_TYPE_MAGICAL"
@@ -16,9 +16,8 @@
 		//-------------------------------------------------------------------------------------------------------------
 		"precache"
 		{
-			"soundfile"					"sounds/weapons/hero/windrunner/windrunner_powershot.vsnd"
+			"soundfile"					"soundevents/game_sounds_heroes/game_sounds_windrunner.vsndevts"
 			"particle"					"particles/units/heroes/hero_skywrath_mage/skywrath_mage_arcane_bolt.vpcf"
-			"particle"					"particles/units/heroes/hero_windrunner/windrunner_windrun.vpcf"
 			"particle"					"particles/units/heroes/hero_wisp/wisp_overcharge.vpcf"
 		}
 
@@ -34,7 +33,7 @@
 		//-------------------------------------------------------------------------------------------------------------
 		"AbilityManaCost"				"0"
 
-		"AbilityDamage"					"90 135 180 225"
+		"AbilityDamage"					"110 170 230 290"
 
 		// Special
 		//-------------------------------------------------------------------------------------------------------------
@@ -60,12 +59,12 @@
 			"04"
 			{
 				"var_type"				"FIELD_FLOAT"
-				"cooldown_check_interval" "0.1"
+				"cooldown_check_interval" "0.03"
 			}
 			"05"
 			{
 				"var_type"				"FIELD_INTEGER"
-				"distance_to_ready"		"650 550 450 350"
+				"distance_to_ready"		"1050 950 850 750"
 				"_value"				"DOTA_Tooltip_Ability_macroburst_Distance_To_Ready"
 			}
 			"06"
@@ -75,75 +74,34 @@
 			}
 		}
 
+		"OnSpellStart"
+		{
+			"RunScript"
+			{
+				"ScriptFile"					"heroes/hero_aya/macroburst.lua"
+				"Function"						"fireGust"
+				"particle"						"particles/units/heroes/hero_skywrath_mage/skywrath_mage_arcane_bolt.vpcf"
+				"ready_modifier"				"modifier_macroburst_ready"
+			}
+		}
+
 		"OnUpgrade"
 		{
 			"RunScript"
 			{
 				"ScriptFile"					"heroes/hero_aya/macroburst.lua"
-				"Function"						"macroburstResetModifier"
-				"toggled_modifier"				"modifier_macroburst_toggle"
-				"untoggled_modifier"			"modifier_macroburst_untoggled"
-			}
-		}
-
-		"OnToggleOn"
-		{
-			"ApplyModifier"
-			{
-				"ModifierName"	"modifier_macroburst_toggle"
-				"Target"		"CASTER"
-			}
-
-			"RemoveModifier"
-			{
-				"ModifierName"	"modifier_macroburst_untoggled"
-				"Target"		"CASTER"
-			}
-		}
-
-		"OnToggleOff"
-		{
-			"ApplyModifier"
-			{
-				"ModifierName"	"modifier_macroburst_untoggled"
-				"Target"		"CASTER"
-			}
-
-			"RemoveModifier"
-			{
-				"ModifierName"	"modifier_macroburst_toggle"
-				"Target"		"CASTER"
-			}
-
-			"RunScript"
-			{
-				"ScriptFile"					"heroes/hero_aya/macroburst.lua"
-				"Function"						"macroburstUpdateCooldown"
-				"remaining_distance_modifier"	"modifier_macroburst_remaining_distance"
-				"ready_modifier"				"modifier_macroburst_ready"
-				"toggled_modifier"				"modifier_macroburst_toggle"
-				"particle"						"particles/units/heroes/hero_skywrath_mage/skywrath_mage_arcane_bolt.vpcf"
+				"Function"						"onUpgrade"
 			}
 		}
 
 		"Modifiers"
 		{
-			"modifier_macroburst_untoggled"
+			"modifier_macroburst"
 			{
-				"IsHidden"			"0"
-
-				"EffectName"		"particles/units/heroes/hero_windrunner/windrunner_windrun.vpcf"
-			    "EffectAttachType"	"follow_origin"
-
-				"Properties"
-				{
-					"MODIFIER_PROPERTY_MOVESPEED_BONUS_PERCENTAGE"		"%movespeed"
-				}
-			}
-
-			"modifier_macroburst_toggle"
-			{
+				"Passive"			"1"
 				"IsHidden"			"1"
+				"IsPurgable"		"0"
+				"Permanent"			"1"
 
 				"ThinkInterval"		"%cooldown_check_interval"
 
@@ -153,21 +111,14 @@
 					{
 						"ScriptFile"					"heroes/hero_aya/macroburst.lua"
 						"Function"						"macroburstUpdateCooldown"
-						"remaining_distance_modifier"	"modifier_macroburst_remaining_distance"
 						"ready_modifier"				"modifier_macroburst_ready"
-						"toggled_modifier"				"modifier_macroburst_toggle"
-						"particle"						"particles/units/heroes/hero_skywrath_mage/skywrath_mage_arcane_bolt.vpcf"
 					}
 				}
 			}
 
-			"modifier_macroburst_remaining_distance"
-			{
-				"IsHidden"			"0"
-			}
-
 			"modifier_macroburst_ready"
 			{
+				"IsPurgable"		"0"
 				"IsHidden"			"1"
 
 				"OnCreated"
@@ -175,17 +126,15 @@
 					"AttachEffect"
 					{
 						"EffectName"		"particles/units/heroes/hero_wisp/wisp_overcharge.vpcf"
-						"EffectAttachType"	"follow_origin"
-						"Target"			"CASTER"
+						"EffectAttachType"	"attach_hitloc"
+						"Target"			"TARGET"
 
-						"ControlPoints"
+						"ControlPointEntities"
 						{
-							"00"			"0 0 200"
+							"TARGET"		"attach_hitloc"
 						}
 					}
 				}
-				"EffectName"		"particles/units/heroes/hero_wisp/wisp_overcharge.vpcf"
-				"EffectAttachType"	"follow_overhead"
 			}
 		}
 
@@ -195,7 +144,7 @@
 
 			"FireSound"
 			{
-				"EffectName"	"sounds/weapons/hero/windrunner/windrunner_powershot.vsnd"
+				"EffectName"	"Hero_Windrunner.PowershotDamage"
 				"Target"		"TARGET"
 			}
 
@@ -219,17 +168,6 @@
 				}
 				"Type"			"DAMAGE_TYPE_MAGICAL"
 				"Damage"		"%AbilityDamage * %damage_to_creeps / 100"
-			}
-		}
-
-		"OnRespawn"
-		{
-			"RunScript"
-			{
-				"ScriptFile"					"heroes/hero_aya/macroburst.lua"
-				"Function"						"macroburstResetModifier"
-				"toggled_modifier"				"modifier_macroburst_toggle"
-				"untoggled_modifier"			"modifier_macroburst_untoggled"
 			}
 		}
 	}

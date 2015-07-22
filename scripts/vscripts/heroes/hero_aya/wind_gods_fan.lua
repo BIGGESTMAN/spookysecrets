@@ -13,8 +13,6 @@ function windGodsFanUpdateDamage( keys )
 	distance_traveled = (previous_location_table[caster] - currentLocation):Length2D()
 	previous_location_table[caster] = currentLocation
 
-	caster:FindModifierByName(keys.damage_modifier):SetStackCount(0)
-
 	local minimum_damage = ability:GetLevelSpecialValueFor("minimum_damage", ability_level)
 	local maximum_damage = ability:GetLevelSpecialValueFor("maximum_damage", ability_level)
 	local max_damage_distance = ability:GetLevelSpecialValueFor("max_damage_distance", ability_level)
@@ -31,16 +29,11 @@ function windGodsFanUpdateDamage( keys )
 				ability:ApplyDataDrivenModifier(caster, caster, keys.full_modifier, {})
 			end
 		end
-		--ability:ApplyDataDrivenModifier(caster, caster, keys.damage_modifier, {})
-		local modifier = caster:FindModifierByName(keys.damage_modifier)
-		while modifier:GetStackCount() < bonus_damage_table[caster] do
-			modifier:IncrementStackCount()
-		end
-		--caster:FindModifierByName(keys.remaining_distance_modifier).SetStackCount(distance_remaining_table[caster])
+
+		caster:FindModifierByName(keys.damage_modifier):SetStackCount(bonus_damage_table[caster])
 	else
 		previous_location_table[caster] = nil
 		bonus_damage_table[caster] = nil
-		--caster:RemoveModifierByName(keys.damage_modifier)
 	end
 end
 
