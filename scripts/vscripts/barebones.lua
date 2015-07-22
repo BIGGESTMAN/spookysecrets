@@ -275,6 +275,7 @@ function GameMode:OnHeroInGame(hero)
 	hero:AddItem(CreateItem("item_ultimate_scepter", hero, hero))
 	hero:AddItem(CreateItem("item_silver_edge", hero, hero))
 	hero:AddItem(CreateItem("item_gem", hero, hero))
+	hero:AddItem(CreateItem("item_dagon", hero, hero))
 
 	if MAX_ABILITY_LEVELS then
 		for i=0,15 do
@@ -448,8 +449,8 @@ end
 
 -- A player leveled up
 function GameMode:OnPlayerLevelUp(keys)
-	print ('[BAREBONES] OnPlayerLevelUp')
-	DeepPrintTable(keys)
+	-- print ('[BAREBONES] OnPlayerLevelUp')
+	-- DeepPrintTable(keys)
 
 	local player = EntIndexToHScript(keys.player)
 	local level = keys.level

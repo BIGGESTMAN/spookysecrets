@@ -49,10 +49,6 @@ function melancholyPoisonTick(keys)
 end
 
 function checkVenomRelease(keys)
-	-- print("--------------------")
-	-- for k,v in pairs(keys) do
-	-- 	print(k, ": ", v)
-	-- end
 	local caster = keys.caster
 	local ability = keys.ability
 	local ability_level = ability:GetLevel() - 1

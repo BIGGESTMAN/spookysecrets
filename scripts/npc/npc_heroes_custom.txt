@@ -332,7 +332,7 @@
 		"SoundSet"				"0"	
 		"Ability1"				"moonlight_ray"
 		"Ability2"				"dark_side_of_the_moon"
-		"Ability3"				""
+		"Ability3"				"demarcation"
 		"Ability4"				""
 		"Ability5"				""
 		"Ability6"				""
