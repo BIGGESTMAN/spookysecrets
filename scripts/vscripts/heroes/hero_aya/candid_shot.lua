@@ -5,6 +5,7 @@ function candidShot(keys)
 	local ability = keys.ability
 	local ability_level = ability:GetLevel() - 1
 
+	local particle_duration = 0.5
 	local width = ability:GetLevelSpecialValueFor("width", ability_level)
 	local height = ability:GetLevelSpecialValueFor("height", ability_level)
 	local aoe_loss_from_range = ability:GetLevelSpecialValueFor("aoe_loss_from_range", ability_level)
@@ -55,12 +56,12 @@ function candidShot(keys)
 		local wall_particle = ParticleManager:CreateParticle(wall_particle, PATTACH_POINT_FOLLOW, dummy)
 		ParticleManager:SetParticleControl(wall_particle, 1, connecting_point)
 
-		Timers:CreateTimer(duration,function()
+		Timers:CreateTimer(particle_duration,function()
 			dummy:RemoveSelf()
 		end)
 	end
 
-	-- End of delay, deal damage & stuff and delete particles
+	-- End of delay, deal damage & stuff
 	Timers:CreateTimer(duration,function()
 		local team = caster:GetTeamNumber()
 		local iTeam = DOTA_UNIT_TARGET_TEAM_BOTH

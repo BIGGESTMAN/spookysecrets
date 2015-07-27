@@ -21,6 +21,7 @@
 		"precache"
 		{
 			"particle"  "particles/econ/items/windrunner/windrunner_weapon_rainmaker/windrunner_spell_powershot_rainmaker.vpcf"
+			"particle"	"particles/units/heroes/hero_invoker/invoker_tornado.vpcf"
 		}
 
 		// Casting
@@ -73,7 +74,7 @@
 	        "LinearProjectile"
 	        {
 	            "Target" "POINT"
-	            "EffectName" "particles/econ/items/windrunner/windrunner_weapon_rainmaker/windrunner_spell_powershot_rainmaker.vpcf"
+	            "EffectName" "particles/units/heroes/hero_invoker/invoker_tornado.vpcf"
 	            "MoveSpeed" "%speed"
 	            "StartPosition" "attach_attack1"
 	            "StartRadius" "%radius"

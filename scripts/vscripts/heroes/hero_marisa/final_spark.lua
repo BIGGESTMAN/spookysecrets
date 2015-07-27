@@ -15,7 +15,7 @@ function finalSparkStart(event)
 
 	ability.sound_dummy = CreateUnitByName( "npc_dota_invisible_vision_source", endcapPos, false, caster, caster, caster:GetTeam() )
 	ability:ApplyDataDrivenModifier(caster, ability.sound_dummy, event.sound_dummy_modifier, {})
-	StartSoundEvent("Hero_Phoenix.SunRay.Beam", ability.sound_dummy )
+	StartSoundEvent("Touhou.Spark", ability.sound_dummy )
 
 	local rotationPoint = caster:GetAbsOrigin() + caster:GetForwardVector() * ability:GetLevelSpecialValueFor("range", ability_level)
 	for i=1,3 do
@@ -34,7 +34,7 @@ function finalSparkEnd(event)
 	for k,particle in pairs(event.ability.particles) do
 		ParticleManager:DestroyParticle(particle, false)
 	end
-	StopSoundEvent("Hero_Phoenix.SunRay.Beam", event.ability.sound_dummy)
+	StopSoundEvent("Touhou.Spark", event.ability.sound_dummy)
 end
 
 function finalSparkCancelled(event)

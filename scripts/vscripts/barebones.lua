@@ -530,5 +530,9 @@ function GameMode:OnEntityKilled( keys )
 		killerEntity = EntIndexToHScript( keys.entindex_attacker )
 	end
 
+	if killedUnit:IsHero() then
+		killedUnit:EmitSound("Touhou.Player_Death")
+	end
+
 	-- Put code here to handle when an entity gets killed
 end

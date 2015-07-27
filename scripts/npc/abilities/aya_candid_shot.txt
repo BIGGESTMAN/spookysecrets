@@ -55,7 +55,7 @@
 			"05"
 			{
 				"var_type"				"FIELD_INTEGER"
-				"delay"					"1"
+				"delay"					"0"
 			}
 			"06"
 			{
