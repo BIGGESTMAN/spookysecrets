@@ -20,7 +20,6 @@
 		//-------------------------------------------------------------------------------------------------------------
 		"precache"
 		{
-			"particle"  "particles/econ/items/windrunner/windrunner_weapon_rainmaker/windrunner_spell_powershot_rainmaker.vpcf"
 			"particle"	"particles/units/heroes/hero_invoker/invoker_tornado.vpcf"
 		}
 
