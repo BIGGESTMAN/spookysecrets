@@ -318,10 +318,10 @@ end
 
 function removeDebuffs( keys )
 	for k,unit in pairs(targets_hit_table[keys.ability.caster]) do
-		if unit:HasModifier(keys.outer_barrier_modifier) then
+		if unit and unit:HasModifier(keys.outer_barrier_modifier) then
 			unit:RemoveModifierByName(keys.outer_barrier_modifier)
 		end
-		if unit:HasModifier(keys.inner_barrier_modifier) then
+		if unit and unit:HasModifier(keys.inner_barrier_modifier) then
 			unit:RemoveModifierByName(keys.inner_barrier_modifier)
 		end
 	end

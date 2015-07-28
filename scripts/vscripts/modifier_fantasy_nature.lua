@@ -1,11 +1,5 @@
 modifier_fantasy_nature = class({})
 
--- damage_interval = nil
--- radius = nil
--- damage = nil
--- explosion_radius = nil
--- explosion_damage = nil
-
 function modifier_fantasy_nature:OnCreated( kv )
 	if IsServer() then
 		local caster = self:GetCaster()
@@ -35,14 +29,6 @@ end
 
 function modifier_fantasy_nature:IsHidden()
 	return false
-end
-
-function modifier_fantasy_nature:IsDebuff()
-	return false
-end
-
-function modifier_fantasy_nature:IsBuff()
-	return true
 end
 
 function modifier_fantasy_nature:CheckState()

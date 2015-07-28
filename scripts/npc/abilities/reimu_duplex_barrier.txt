@@ -133,7 +133,7 @@
 
 			"DelayedAction"
 			{
-				"Delay"     "%barrier_duration + 0.01"
+				"Delay"     "%barrier_duration + 0.03"
 				"Action"    
 				{
 					"RunScript"

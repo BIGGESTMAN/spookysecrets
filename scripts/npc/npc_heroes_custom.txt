@@ -393,7 +393,7 @@
 		"SoundSet"				"0"
 		"Ability1"				"sea_split"
 		"Ability2"				""
-		"Ability3"				""
+		"Ability3"				"gray_thaumaturgy"
 		"Ability4"				""
 		"Ability5"				""
 		"Ability6"				""
