@@ -22,6 +22,7 @@
 		"precache"
 		{
 			"particle"					"particles/econ/items/crystal_maiden/crystal_maiden_cowl_of_ice/maiden_crystal_nova_cowlofice.vpcf"
+			"particle"					"particles/yasakas_divine_wind.vpcf"
 		}
 
 		// Casting
@@ -91,15 +92,22 @@
 	    		"modifier"			"modifier_knocked_back"
 	    		"particle"			"particles/econ/items/crystal_maiden/crystal_maiden_cowl_of_ice/maiden_crystal_nova_cowlofice.vpcf"
 	    	}
+
+	    	"ApplyModifier"
+	    	{
+	    		"ModifierName"	"modifier_yasakas_divine_wind"
+	    		"Target" 		"CASTER"
+	    		"Duration"		"%duration"
+	    	}
 	    }
 
 		"Modifiers"
 		{
 	    	"modifier_knocked_back"
 	    	{
-	    		"IsHidden"			"0"
-	    		"IsPurgable"		"0"
-	    		"IsDebuff"			"1"
+	    		"IsHidden"				"0"
+	    		"IsPurgable"			"0"
+	    		"IsDebuff"				"1"
 
 	    		"STATES"
 				{
@@ -108,7 +116,7 @@
 
 				"OverrideAnimation"     "ACT_DOTA_FLAIL"
 
-				"ThinkInterval"  "%update_interval"
+				"ThinkInterval"			"%update_interval"
 				"OnIntervalThink"
 				{
 					"RunScript"
@@ -116,6 +124,41 @@
 						"ScriptFile"	"heroes/hero_sanae/yasakas_divine_wind.lua"
 						"Function"		"knockback"
 					}
+				}
+	    	}
+
+	    	"modifier_yasakas_divine_wind"
+	    	{
+	    		"IsHidden"				"0"
+	    		"IsPurgable"			"0"
+
+				"Properties"
+				{
+				    "MODIFIER_PROPERTY_MOVESPEED_BONUS_PERCENTAGE" "%movespeed_bonus"
+				}
+
+				"ThinkInterval"			"%update_interval"
+				"OnIntervalThink"
+				{
+					"RunScript"
+					{
+						"ScriptFile"	"heroes/hero_sanae/yasakas_divine_wind.lua"
+						"Function"		"slowAura"
+						"slow_modifier"	"modifier_slow"
+					}
+				}
+	    	}
+
+	    	"modifier_slow"
+	    	{
+	    		"IsHidden"				"0"
+	    		"IsPurgable"			"0"
+	    		"IsDebuff"				"1"
+	    		"Duration"				"%update_interval"
+
+	    		"Properties"
+				{
+				    "MODIFIER_PROPERTY_MOVESPEED_BONUS_PERCENTAGE" "%slow"
 				}
 	    	}
 		}

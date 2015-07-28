@@ -23,6 +23,16 @@ function yasakasDivineWindCast(keys)
 
 	local particle = ParticleManager:CreateParticle(keys.particle, PATTACH_ABSORIGIN_FOLLOW, caster)
 	ParticleManager:SetParticleControl(particle, 0, caster:GetAbsOrigin())
+
+	local particle_interval = 1
+	local particles_fired = 0
+	Timers:CreateTimer(0, function()
+		if particles_fired < ability:GetLevelSpecialValueFor("duration", ability_level) then
+			ParticleManager:CreateParticle("particles/yasakas_divine_wind.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
+			particles_fired = particles_fired + 1
+			return particle_interval
+		end
+	end)
 end
 
 function knockback(keys)
@@ -43,5 +53,30 @@ function knockback(keys)
 	else
 		target:RemoveModifierByName("modifier_knocked_back")
 		FindClearSpaceForUnit(target, target:GetAbsOrigin(), false)
+	end
+end
+
+function slowAura(keys)
+	local caster = keys.caster
+	local target = keys.target
+	local ability = keys.ability
+	local ability_level = ability:GetLevel() - 1
+
+	local team = caster:GetTeamNumber()
+	local origin = caster:GetAbsOrigin()
+	local iTeam = DOTA_UNIT_TARGET_TEAM_ENEMY
+	local iType = DOTA_UNIT_TARGET_BASIC + DOTA_UNIT_TARGET_HERO
+	local iFlag = DOTA_UNIT_TARGET_FLAG_MAGIC_IMMUNE_ENEMIES
+	local iOrder = FIND_ANY_ORDER
+	local radius = ability:GetLevelSpecialValueFor("slow_radius", ability_level)
+	local targets = FindUnitsInRadius(team, origin, nil, radius, iTeam, iType, iFlag, iOrder, false)
+
+	for k,unit in pairs(targets) do
+		local unit_facing = unit:GetForwardVector()
+		local direction_towards_caster = (unit:GetAbsOrigin() - origin):Normalized()
+		local angle = unit_facing:Dot(direction_towards_caster)
+		if angle < 0 then
+			ability:ApplyDataDrivenModifier(caster, unit, keys.slow_modifier, {})
+		end
 	end
 end

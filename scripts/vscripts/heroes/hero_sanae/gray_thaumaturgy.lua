@@ -22,7 +22,7 @@ function agilityDecay(keys)
 	local ability_level = ability:GetLevel() - 1
 
 	if caster.gray_thaumaturgy_agility ~= nil then
-		caster.gray_thaumaturgy_agility = caster.gray_thaumaturgy_agility - ability:GetLevelSpecialValueFor("agility_loss", ability_level)
+		caster.gray_thaumaturgy_agility = caster.gray_thaumaturgy_agility - (ability:GetLevelSpecialValueFor("agility_loss", ability_level) + caster.gray_thaumaturgy_agility / 10)
 		if caster.gray_thaumaturgy_agility <= 0 then
 			caster.gray_thaumaturgy_agility = 0
 			caster:RemoveModifierByName(keys.modifier)
