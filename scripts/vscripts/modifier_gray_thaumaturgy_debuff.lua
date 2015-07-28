@@ -14,7 +14,10 @@ end
 
 function modifier_gray_thaumaturgy_debuff:GetModifierBonusStats_Agility( params )
 	if IsServer() then
-		print( self:GetCaster():FindModifierByName("modifier_gray_thaumaturgy_stacks"):GetStackCount())
-		return self:GetCaster():FindModifierByName("modifier_gray_thaumaturgy_stacks"):GetStackCount() * -1
+		if self:GetCaster():HasModifier("modifier_gray_thaumaturgy_stacks") then
+			return self:GetCaster():FindModifierByName("modifier_gray_thaumaturgy_stacks"):GetStackCount() * -1
+		else
+			return 0
+		end
 	end
 end

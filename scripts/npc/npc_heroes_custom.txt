@@ -394,7 +394,7 @@
 		"Ability1"				"sea_split"
 		"Ability2"				""
 		"Ability3"				"gray_thaumaturgy"
-		"Ability4"				""
+		"Ability4"				"yasakas_divine_wind"
 		"Ability5"				""
 		"Ability6"				""
 		"Ability7"				"attribute_bonus"

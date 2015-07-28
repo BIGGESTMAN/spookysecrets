@@ -64,7 +64,7 @@ function updateDebuff(keys)
 	local origin = caster:GetAbsOrigin()
 	local iTeam = DOTA_UNIT_TARGET_TEAM_ENEMY
 	local iType = DOTA_UNIT_TARGET_BASIC + DOTA_UNIT_TARGET_HERO
-	local iFlag = DOTA_UNIT_TARGET_FLAG_NONE
+	local iFlag = DOTA_UNIT_TARGET_FLAG_MAGIC_IMMUNE_ENEMIES
 	local iOrder = FIND_ANY_ORDER
 	local radius = ability:GetLevelSpecialValueFor("radius", ability_level)
 	local targets = FindUnitsInRadius(team, origin, nil, radius, iTeam, iType, iFlag, iOrder, false)
