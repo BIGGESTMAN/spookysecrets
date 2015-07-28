@@ -33,13 +33,14 @@ function seaSplitStart(keys)
 
 			-- Check for units hit
 			local team = caster:GetTeamNumber()
+			local origin = dummy_location
 			local iTeam = DOTA_UNIT_TARGET_TEAM_ENEMY
 			local iType = DOTA_UNIT_TARGET_BASIC + DOTA_UNIT_TARGET_HERO
 			local iFlag = DOTA_UNIT_TARGET_FLAG_NONE
 			local iOrder = FIND_ANY_ORDER
 			local radius = ability:GetLevelSpecialValueFor("radius", ability_level)
 
-			local targets = FindUnitsInRadius(team, target_point, nil, radius, iTeam, iType, iFlag, iOrder, false)
+			local targets = FindUnitsInRadius(team, origin, nil, radius, iTeam, iType, iFlag, iOrder, false)
 			local damage = ability:GetLevelSpecialValueFor("damage", ability_level)
 			local damage_type = ability:GetAbilityDamageType()
 

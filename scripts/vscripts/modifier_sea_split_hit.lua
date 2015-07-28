@@ -34,6 +34,7 @@ function modifier_sea_split_hit:OnIntervalThink()
 			return 0.03
 		else
 			target:RemoveModifierByName("modifier_sea_split_hit")
+			FindClearSpaceForUnit(target, target:GetAbsOrigin(), false)
 		end
 	end
 end
